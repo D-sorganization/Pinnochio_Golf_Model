@@ -1,0 +1,68 @@
+repos:
+# Python formatters
+- repo: https://github.com/psf/black
+  rev: 24.4.2
+  hooks:
+    - id: black
+      language_version: python3.13
+
+- repo: https://github.com/PyCQA/isort
+  rev: 5.13.2
+  hooks:
+    - id: isort
+      args: ["--profile", "black"]
+
+# Python linter
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.5.0
+  hooks:
+    - id: ruff
+      args: ["--fix", "--select", "ALL", "--ignore", "D,ANN101,ANN102"]
+
+# Type checker
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.10.0
+  hooks:
+    - id: mypy
+      additional_dependencies: ["types-requests", "types-PyYAML"]
+      args: [--config-file=mypy.ini]
+      types: [python]  # Only Python files - MyPy won't check JavaScript/TypeScript
+      files: ^python/.*  # All files under python/ and subdirectories
+      exclude: |
+        (?x)^(
+          python/matlab/|
+          python/javascript/|  # Future-proof: exclude JS/TS directories
+          python/archive/|
+          python/legacy/|
+          python/experimental/|
+          python/\.git/|
+          python/__pycache__/|
+          python/\.pytest_cache/|
+          python/\.venv/|
+          python/venv/
+        )
+
+# Jupyter notebook cleaner
+- repo: https://github.com/kynan/nbstripout
+  rev: 0.7.1
+  hooks:
+    - id: nbstripout
+
+# Local quality checks
+- repo: local
+  hooks:
+    # Main quality gate
+    - id: quality-check
+      name: Quality check (no placeholders/magic numbers)
+      entry: python scripts/quality_check.py
+      language: python
+      pass_filenames: false
+      always_run: true
+      additional_dependencies: []
+
+# Global settings
+default_language_version:
+  python: python3.13
+
+# Files to always exclude
+exclude: '^(archive/|legacy/|experimental/|\.git/)'
