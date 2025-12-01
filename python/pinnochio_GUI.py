@@ -118,10 +118,12 @@ class PinocchioGUI(QtWidgets.QWidget):
         try:
             self.model = pin.buildModelFromUrdf(fname)
             if self.model is None:
-                raise RuntimeError("Failed to build model from URDF")
+                msg = "Failed to build model from URDF"
+                raise RuntimeError(msg)
             self.data = self.model.createData()
             if self.data is None:
-                raise RuntimeError("Failed to create model data")
+                msg = "Failed to create model data"
+                raise RuntimeError(msg)
             self.frame_box.clear()
 
             # Setup frames for Jacobian query

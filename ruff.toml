@@ -54,6 +54,9 @@ exclude = [
 "python/pinnochio_GUI.py" = [
     "PLR0915", # Too many statements (GUI initialization is complex)
     "N999",    # Invalid module name (legacy naming)
+    "TRY301",  # Abstract raise to inner function (not needed for simple error handling)
+    "TRY003",  # Long exception messages (acceptable in error handling)
+    "EM101",   # Exception string literals (acceptable for simple error messages)
 ]
 # Quality check script - executable script
 "scripts/quality_check.py" = [
