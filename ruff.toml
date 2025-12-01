@@ -40,6 +40,9 @@ exclude = [
     "ANN001",  # Missing type annotations (external library types)
     "T201",    # Print statements (example script)
     "EXE001",  # Shebang present but file not executable (git tracks executable bit)
+    "ICN003",  # typing imports needed for external library types
+    "TID253",  # numpy.typing needed for type annotations
+    "ANN401",  # Any types needed for external library objects (CoppeliaSim, Pinocchio)
 ]
 "python/pinnochio_polynomial_torque_fitter.py" = [
     "ANN201",  # Missing return type annotations (example script)
