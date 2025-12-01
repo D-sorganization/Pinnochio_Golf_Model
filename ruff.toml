@@ -39,6 +39,7 @@ exclude = [
 "python/coppelia_pinnochio_meshcat_bridge.py" = [
     "ANN001",  # Missing type annotations (external library types)
     "T201",    # Print statements (example script)
+    "EXE001",  # Shebang present but file not executable (git tracks executable bit)
 ]
 "python/pinnochio_polynomial_torque_fitter.py" = [
     "ANN201",  # Missing return type annotations (example script)
@@ -48,10 +49,15 @@ exclude = [
     "EM101",   # Exception string literals (simple example)
     "RET504",  # Unnecessary assignments (readability)
     "FBT003",  # Boolean positional (matplotlib API)
+    "EXE001",  # Shebang present but file not executable (git tracks executable bit)
 ]
 "python/pinnochio_GUI.py" = [
     "PLR0915", # Too many statements (GUI initialization is complex)
     "N999",    # Invalid module name (legacy naming)
+]
+# Quality check script - executable script
+"scripts/quality_check.py" = [
+    "EXE001",  # Shebang present but file not executable (git tracks executable bit)
 ]
 
 [lint.mccabe]
