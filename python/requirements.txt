@@ -21,3 +21,21 @@ pathlib2==2.3.7
 
 # Type stubs for better type checking
 types-PyYAML==6.0.12.12
+
+# ============================================================================
+# Modeling Stack (Pinocchio, Pink, Drake, QP solvers)
+# ============================================================================
+# Pinocchio - Analytical dynamics library
+pin>=2.6.0
+
+# Pink (pin-pink) - Stacked on top of Pinocchio for advanced kinematics
+pin-pink
+
+# Drake - Robot manipulation and control
+drake
+
+# QP Solvers - Quadratic programming solvers
+qpsolvers
+osqp
+scs
+quadprog

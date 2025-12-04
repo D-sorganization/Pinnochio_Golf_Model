@@ -23,10 +23,13 @@ echo ">>> Installing system dependencies..."
 sudo apt install -y         build-essential         cmake         pkg-config         git         python3-dev         python3-pip         python3-venv         libeigen3-dev         libboost-all-dev         liburdfdom-dev         liboctomap-dev         libassimp-dev         libspdlog-dev         libfmt-dev         libccd-dev         libfcl-dev
 
 # ------------------------------------------------------------------------------
-# 3. Create (or reuse) the 'modeling' venv
+# 3. Create (or reuse) project-specific venv
 # ------------------------------------------------------------------------------
 
-VENV_DIR="${HOME}/modeling"
+# Get the project root directory (parent of scripts/)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+VENV_DIR="${PROJECT_ROOT}/.venv"
 
 if [ ! -d "${VENV_DIR}" ]; then
   echo ">>> Creating virtual environment at ${VENV_DIR} ..."
@@ -46,10 +49,17 @@ source "${VENV_DIR}/bin/activate"
 echo ">>> Upgrading pip..."
 pip install --upgrade pip
 
-echo ">>> Installing Pinocchio..."
+echo ">>> Installing core dependencies from requirements.txt..."
+if [ -f "${PROJECT_ROOT}/python/requirements.txt" ]; then
+  pip install -r "${PROJECT_ROOT}/python/requirements.txt"
+else
+  echo "WARNING: requirements.txt not found, installing core packages..."
+fi
+
+echo ">>> Installing Pinocchio (pin)..."
 pip install pin
 
-echo ">>> Installing Pink (pin-pink)..."
+echo ">>> Installing Pink (pin-pink) - stacked on top of Pinocchio..."
 pip install pin-pink
 
 echo ">>> Installing QP solvers (qpsolvers, osqp, scs, quadprog)..."
@@ -84,6 +94,9 @@ print("Sanity check passed.")
 EOF
 
 echo "=== Setup complete. To use this environment later, run: ==="
-echo "    source ~/modeling/bin/activate"
-echo "  or add this to your ~/.bashrc:"
-echo "    alias modeling=\"source ~/modeling/bin/activate\""
+echo "    source ${VENV_DIR}/bin/activate"
+echo ""
+echo "Or from the project root:"
+echo "    source .venv/bin/activate"
+echo ""
+echo "Pink is installed and ready to use with Pinocchio!"
