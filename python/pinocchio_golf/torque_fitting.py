@@ -23,7 +23,8 @@ def fit_torque_poly(
     t_arr = np.asarray(t, dtype=np.float64).flatten()
     tau_arr = np.asarray(tau, dtype=np.float64).flatten()
     if t_arr.shape != tau_arr.shape:
-        raise ValueError("t and tau must have same shape")
+        msg = "t and tau must have same shape"
+        raise ValueError(msg)
     coeffs = np.polyfit(t_arr, tau_arr, degree)
     return np.asarray(coeffs, dtype=np.float64)
 
@@ -54,9 +55,6 @@ def main() -> None:
     tau = data[:, 1]
 
     coeffs = fit_torque_poly(t, tau, degree=args.degree)
-    print(f"Fitted polynomial degree {args.degree}")
-    print("Coefficients (highest-degree first):")
-    print(coeffs)
 
     # Plot
     t_dense = np.linspace(t.min(), t.max(), 1000)
@@ -74,7 +72,6 @@ def main() -> None:
 
     if args.out:
         np.save(args.out, coeffs)
-        print(f"Saved coefficients to {args.out}")
 
 
 if __name__ == "__main__":

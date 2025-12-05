@@ -1,6 +1,5 @@
 """Sphinx configuration for DTACK API documentation."""
 
-import os
 import sys
 from pathlib import Path
 

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import numpy as np
-import pytest
 from pathlib import Path
 
 
@@ -21,7 +19,7 @@ class TestModelValidation:
 
         yaml_path = Path("models/spec/golfer_canonical.yaml")
         if yaml_path.exists():
-            with open(yaml_path) as f:
+            with yaml_path.open() as f:
                 spec = yaml.safe_load(f)
             assert "root" in spec, "Missing root segment"
             assert "segments" in spec, "Missing segments"

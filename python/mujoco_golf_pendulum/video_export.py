@@ -10,7 +10,7 @@ This module provides professional video export capabilities:
 from collections.abc import Callable
 from enum import Enum
 from pathlib import Path
-from typing import Any  # noqa: ICN003
+from typing import Any
 
 import mujoco as mj
 import numpy as np
@@ -57,7 +57,7 @@ class VideoExporter:
         width: int = 1920,
         height: int = 1080,
         fps: int = 60,
-        format: VideoFormat = VideoFormat.MP4,
+        video_format: VideoFormat = VideoFormat.MP4,
     ) -> None:
         """Initialize video exporter.
 
@@ -67,14 +67,14 @@ class VideoExporter:
             width: Video width in pixels
             height: Video height in pixels
             fps: Frames per second
-            format: Output video format
+            video_format: Output video format
         """
         self.model = model
         self.data = data
         self.width = width
         self.height = height
         self.fps = fps
-        self.format = format
+        self.format = video_format
 
         # Create rendering context
         self.renderer = mj.Renderer(model, width=width, height=height)
@@ -361,17 +361,17 @@ def export_simulation_video(
     # Determine format from extension
     ext = Path(output_path).suffix.lower()
     if ext == ".mp4":
-        format = VideoFormat.MP4
+        video_format = VideoFormat.MP4
     elif ext == ".avi":
-        format = VideoFormat.AVI
+        video_format = VideoFormat.AVI
     elif ext == ".gif":
-        format = VideoFormat.GIF
+        video_format = VideoFormat.GIF
     else:
         msg = f"Unsupported format: {ext}"
         raise ValueError(msg)
 
     # Create exporter
-    exporter = VideoExporter(model, data, width, height, fps, format)
+    exporter = VideoExporter(model, data, width, height, fps, video_format)
 
     # Start recording
     if not exporter.start_recording(output_path):
@@ -397,7 +397,7 @@ def export_simulation_video(
 
                 # Define metrics to display
                 metrics = {
-                    "Frame": lambda d: i,
+                    "Frame": lambda d, i=i: i,
                 }
 
                 # Add club head speed if available
@@ -409,8 +409,8 @@ def export_simulation_video(
                         mj.mj_jacBody(model, data, jacp, jacr, club_id)
                         vel = jacp @ data.qvel
                         speed = np.linalg.norm(vel) * 2.237  # m/s to mph
-                        metrics["Club Speed"] = lambda d: int(speed)  # type: ignore[assignment]
-                except:
+                        metrics["Club Speed"] = lambda d, s=speed: int(s)  # type: ignore[assignment]
+                except Exception:
                     pass
 
                 def overlay_fn(frame: np.ndarray) -> np.ndarray:

@@ -20,7 +20,7 @@ class URDFExporter:
             yaml_path: Path to canonical YAML specification
         """
         self.yaml_path = Path(yaml_path)
-        with open(self.yaml_path) as f:
+        with self.yaml_path.open() as f:
             self.spec = yaml.safe_load(f)
 
     def export(self, output_path: Path | str) -> None:
@@ -120,7 +120,7 @@ class URDFExporter:
         lines.append(f'  <joint name="{joint_name}" type="revolute">')
         lines.append(f'    <parent link="{parent_name}"/>')
         lines.append(f'    <child link="{seg_name}"/>')
-        lines.append(f'    <origin xyz="0 0 0" rpy="0 0 0"/>')
+        lines.append('    <origin xyz="0 0 0" rpy="0 0 0"/>')
 
         if "axis" in joint:
             axis = joint["axis"]
@@ -183,7 +183,7 @@ class URDFExporter:
         )
         lines.append(f'    <parent link="{parent_name}"/>')
         lines.append(f'    <child link="{intermediate_link}"/>')
-        lines.append(f'    <origin xyz="0 0 0" rpy="0 0 0"/>')
+        lines.append('    <origin xyz="0 0 0" rpy="0 0 0"/>')
         lines.append(f'    <axis xyz="{axis1[0]} {axis1[1]} {axis1[2]}"/>')
         lines.append(
             f'    <limit lower="{limits1[0]}" upper="{limits1[1]}" effort="1000" velocity="10"/>'
@@ -210,7 +210,7 @@ class URDFExporter:
         )
         lines.append(f'    <parent link="{intermediate_link}"/>')
         lines.append(f'    <child link="{seg_name}"/>')
-        lines.append(f'    <origin xyz="0 0 0" rpy="0 0 0"/>')
+        lines.append('    <origin xyz="0 0 0" rpy="0 0 0"/>')
         lines.append(f'    <axis xyz="{axis2[0]} {axis2[1]} {axis2[2]}"/>')
         lines.append(
             f'    <limit lower="{limits2[0]}" upper="{limits2[1]}" effort="1000" velocity="10"/>'
@@ -264,7 +264,7 @@ class URDFExporter:
         )
         lines.append(f'    <parent link="{parent_name}"/>')
         lines.append(f'    <child link="{intermediate1}"/>')
-        lines.append(f'    <origin xyz="0 0 0" rpy="0 0 0"/>')
+        lines.append('    <origin xyz="0 0 0" rpy="0 0 0"/>')
         lines.append(f'    <axis xyz="{axis1[0]} {axis1[1]} {axis1[2]}"/>')
         lines.append(
             f'    <limit lower="{limits1[0]}" upper="{limits1[1]}" effort="1000" velocity="10"/>'
@@ -291,7 +291,7 @@ class URDFExporter:
         )
         lines.append(f'    <parent link="{intermediate1}"/>')
         lines.append(f'    <child link="{intermediate2}"/>')
-        lines.append(f'    <origin xyz="0 0 0" rpy="0 0 0"/>')
+        lines.append('    <origin xyz="0 0 0" rpy="0 0 0"/>')
         lines.append(f'    <axis xyz="{axis2[0]} {axis2[1]} {axis2[2]}"/>')
         lines.append(
             f'    <limit lower="{limits2[0]}" upper="{limits2[1]}" effort="1000" velocity="10"/>'
@@ -318,7 +318,7 @@ class URDFExporter:
         )
         lines.append(f'    <parent link="{intermediate2}"/>')
         lines.append(f'    <child link="{seg_name}"/>')
-        lines.append(f'    <origin xyz="0 0 0" rpy="0 0 0"/>')
+        lines.append('    <origin xyz="0 0 0" rpy="0 0 0"/>')
         lines.append(f'    <axis xyz="{axis3[0]} {axis3[1]} {axis3[2]}"/>')
         lines.append(
             f'    <limit lower="{limits3[0]}" upper="{limits3[1]}" effort="1000" velocity="10"/>'
@@ -371,28 +371,23 @@ class URDFExporter:
 
         if geom_type == "box":
             size = geom.get("size", [0.1, 0.1, 0.1])
-            lines.append(f'      <geometry>')
+            lines.append("      <geometry>")
             lines.append(f'        <box size="{size[0]} {size[1]} {size[2]}"/>')
-            lines.append(f'      </geometry>')
+            lines.append("      </geometry>")
         elif geom_type == "sphere":
             size = geom.get("size", 0.1)
-            lines.append(f'      <geometry>')
+            lines.append("      <geometry>")
             lines.append(f'        <sphere radius="{size}"/>')
-            lines.append(f'      </geometry>')
-        elif geom_type == "cylinder":
+            lines.append("      </geometry>")
+        elif geom_type in ("cylinder", "capsule"):
             size = geom.get("size", [0.1, 0.1])
-            lines.append(f'      <geometry>')
+            lines.append("      <geometry>")
             lines.append(f'        <cylinder radius="{size[0]}" length="{size[1]*2}"/>')
-            lines.append(f'      </geometry>')
-        elif geom_type == "capsule":
-            size = geom.get("size", [0.1, 0.1])
-            lines.append(f'      <geometry>')
-            lines.append(f'        <cylinder radius="{size[0]}" length="{size[1]*2}"/>')
-            lines.append(f'      </geometry>')
+            lines.append("      </geometry>")
 
         rgba = geom.get("visual_rgba", [0.5, 0.5, 0.5, 1.0])
         lines.append(f'      <material name="mat_{body["name"]}">')
         lines.append(f'        <color rgba="{rgba[0]} {rgba[1]} {rgba[2]} {rgba[3]}"/>')
-        lines.append(f'      </material>')
+        lines.append("      </material>")
         lines.append("    </visual>")
         return lines

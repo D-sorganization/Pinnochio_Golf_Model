@@ -5,8 +5,6 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-import numpy as np
-import numpy.typing as npt
 
 try:
     import meshcat.geometry as g
@@ -17,6 +15,8 @@ except ImportError:
     MESHCAT_AVAILABLE = False
 
 if TYPE_CHECKING:
+    import numpy as np
+    import numpy.typing as npt
     import pinocchio as pin
 
 logger = logging.getLogger(__name__)

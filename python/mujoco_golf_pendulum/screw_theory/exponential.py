@@ -80,7 +80,7 @@ def exponential_map(S: np.ndarray, theta: float) -> np.ndarray:
     return np.block([[r_rot, p.reshape(3, 1)], [np.zeros((1, 3)), np.array([[1]])]])
 
 
-def logarithmic_map(T: np.ndarray) -> tuple[np.ndarray, float]:  # noqa: PLR0911
+def logarithmic_map(T: np.ndarray) -> tuple[np.ndarray, float]:
     """
     Extract screw axis and displacement from transformation.
 

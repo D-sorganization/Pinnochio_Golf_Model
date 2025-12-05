@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING  # noqa: ICN003
+from typing import TYPE_CHECKING
 
 import mujoco
 

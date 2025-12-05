@@ -5,8 +5,11 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-import numpy as np
-import numpy.typing as npt
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
+    import numpy as np
 
 try:
     import scipy.io

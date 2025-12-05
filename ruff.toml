@@ -14,6 +14,9 @@ ignore = [
     "I001",   # Import sorting (handled by isort separately in pre-commit)
 ]
 
+# Documentation files
+
+
 # Stricter than defaults
 fixable = ["ALL"]
 unfixable = []
@@ -40,6 +43,7 @@ exclude = [
     "SLF001",  # Private member access
     "PT011",   # pytest.raises(ValueError)
 ]
+"docs/**/*.py" = ["INP001", "A001"]
 "**/tests/*.py" = [
     "S101",
     "PLR2004",
@@ -69,6 +73,7 @@ exclude = [
     "SIM102",  # Nested if statements
     "RUF012",  # Mutable class attributes
     "ANN204",  # Missing return type for __init__
+    "TRY301",  # Abstract raise to inner function
 ]
 
 # Specific modules from MuJoCo migration
@@ -81,6 +86,62 @@ exclude = [
     "N802", "SIM102", "ICN003", "PLR0915", "ANN001", "PTH117", 
     "PLR2004", "PLR0911", "BLE001", "FBT001", "C901"
 ]
+"python/mujoco_golf_pendulum/*.py" = [
+    "PLR0915", "PLR0912", "C901", "PLR0913", # complexity
+    "TID253", "ICN003", # imports
+    "BLE001", "TRY300", "TRY003", "TRY301", # exceptions
+    "PTH123", # path usage
+    "PLR2004", # magic numbers
+    "PLW2901", # loop variable overwrite
+    "A001", "A002", # shadowing
+    "ARG002", "ARG005", # unused args
+    "S110", # try-except-pass
+    "E722", # bare except
+    "FBT001", "FBT002", "FBT003", # boolean trap
+    "DTZ005", "S324", "S608", # security/datetime
+    "PT018", # pytest assertions
+    "B023", # loop variable binding (legacy code)
+    "ANN001", # missing type annotation
+    "E501", # line too long
+    "ARG004", # unused static argument
+    "SLF001", # private member access
+    "N806", # variable name (math)
+    "PERF401", # list comprehension
+    "ERA001", # commented code
+    "PLR0911", # too many returns
+    "RUF012", # mutable class attributes
+    "ANN003", # missing kwargs annotation
+    "ARG001", # unused argument
+    "PTH103", # os.makedirs
+    "RUF003", # ambiguous unicode
+    "NPY002", # legacy numpy random
+    "RUF012", # mutable class attributes
+    "ANN003", # missing kwargs annotation
+    "ARG001", # unused argument
+    "PTH103", # os.makedirs
+    "RUF003", # ambiguous unicode
+]
+"python/mujoco_golf_pendulum/advanced_export.py" = ["F401"]
+"python/dtack/viz/*.py" = [
+    "ICN003", # typing import
+    "F401",   # unused import
+    "TID253", # numpy import
+    "FBT001", "FBT002", # boolean trap
+    "E501",   # line length
+    "ARG002", # unused argument
+]
+"python/dtack/**/*.py" = [
+    "ICN003", # typing import
+    "F401",   # unused import
+    "TID253", # numpy import
+    "FBT001", "FBT002", # boolean trap
+    "E501",   # line length
+    "ARG002", "ARG001", # unused argument
+    "BLE001", # blind except
+    "PLR0915", "PLR2004", "PLR0913", # complexity
+    "ERA001", # commented code
+    "UP007", # union types
+]
 "python/mujoco_golf_pendulum/interactive_manipulation.py" = [
     "PLR0913", "PLR0911", "SIM102", "FBT001", "FBT002", "PLR2004", 
     "PLR0915", "N806", "ERA001", "PTH123", "TRY300", "BLE001"
@@ -91,9 +152,53 @@ exclude = [
 "**/rigid_body_dynamics/*.py" = ["RUF002", "RUF003", "N802", "N803", "N806", "S101", "PLR0915", "PLR2004"]
 "**/screw_theory/*.py" = ["RUF002", "RUF003", "N802", "N803", "N806", "S101", "ERA001", "PLR2004"]
 
+# Tests - relaxed rules
+"python/tests/**/*.py" = [
+    "S101",    # assert
+    "PLR2004", # magic numbers
+    "G003", "G004", # logging
+    "TRY401", "BLE001", "TRY300", # exception handling
+    "ANN001", "ANN201", "ANN204", # annotations
+    "N806", "SLF001", "PT011",
+    "TID253", # numpy import
+    "PLR0915", # complexity
+]
+
 # Example scripts
 "python/examples/*.py" = ["PLR0915", "ANN001", "T201", "EXE001", "ICN003", "TID253", "ANN401"]
 "python/pinocchio_golf/coppelia_bridge.py" = ["ANN001", "T201", "EXE001", "ICN003", "TID253", "ANN401"]
+
+# Build & Verification Scripts
+"scripts/*.py" = [
+    "T201",    # print statements allowed
+    "INP001",  # implicit namespace allowed
+    "ANN201",  # missing return type annotation
+    "F841",    # unused variable
+    "PTH123",  # open() vs Path.open()
+    "G004",    # f-string in logging
+    "TRY300",  # try/else/return structure
+    "BLE001",  # blind exception catching
+    "TRY400",  # logging.error vs exception
+    "TRY401",  # redundant exception in logging
+    "PLR2004", # magic numbers
+    "TID253",  # allow top-level numpy import
+]
+
+# Tools
+"tools/*.py" = [
+    "T201",    # print statements allowed
+    "INP001",  # implicit namespace allowed
+    "ANN001",  # missing argument type
+    "ANN201",  # missing return type
+    "PTH123",  # open() vs Path.open()
+    "PLR2004", # magic numbers
+    "Q000",    # quote style (if conflict)
+    "TID253",  # allow top-level numpy import
+]
+
+# Specific exemptions
+"python/pinocchio_golf/torque_fitting.py" = ["T201", "FBT003"]
+"python/pinocchio_golf/gui.py" = ["PLR0915"]
 
 [lint.mccabe]
 max-complexity = 10

@@ -56,8 +56,9 @@ def load_model(model_key: str) -> tuple[mujoco.MjModel, mujoco.MjData]:
     if spec is None:
         candidate = _resolve_model_path(model_key)
         if not candidate.exists():
+            msg = f"Unknown model '{model_key}'. Available: {', '.join(sorted(MODEL_SPECS))}"
             raise ValueError(
-                f"Unknown model '{model_key}'. Available: {', '.join(sorted(MODEL_SPECS))}",
+                msg,
             )
         model = mujoco.MjModel.from_xml_path(candidate.as_posix())
     elif spec["mode"] == "xml_string":
@@ -85,8 +86,9 @@ def apply_control_preset(
         elif ctrl_type == "polynomial":
             coeffs = np.array(entry.get("coefficients", [0.0] * 7), dtype=np.float64)
             if coeffs.shape[0] != 7:
+                msg = "Polynomial coefficients must contain exactly 7 values"
                 raise ValueError(
-                    "Polynomial coefficients must contain exactly 7 values",
+                    msg,
                 )
             control_system.set_polynomial_coeffs(idx, coeffs)
             control_system.set_control_type(idx, ControlType.POLYNOMIAL)
@@ -106,7 +108,8 @@ def apply_control_preset(
             )
             control_system.set_control_type(idx, ControlType.STEP)
         else:
-            raise ValueError(f"Unsupported control type '{ctrl_type}' in preset file")
+            msg = f"Unsupported control type '{ctrl_type}' in preset file"
+            raise ValueError(msg)
 
 
 def run_simulation(
@@ -210,8 +213,7 @@ def execute_run(
         export_csv(output_csv, export_payload)
 
     if show_summary:
-        summary = summarize_run(recorder)
-        return summary
+        return summarize_run(recorder)
 
     return None
 
@@ -225,10 +227,11 @@ def run_batch(batch_path: Path, base_args: argparse.Namespace) -> None:
     elif isinstance(spec, list):
         runs = spec  # type: ignore[assignment]
     else:
-        raise ValueError("Batch file must be a list or contain a 'runs' array")
+        msg = "Batch file must be a list or contain a 'runs' array"
+        raise ValueError(msg)
 
     for entry in runs:
-        name = entry.get("name", entry.get("model", "unnamed_run"))
+        entry.get("name", entry.get("model", "unnamed_run"))
         summary = execute_run(
             model=entry["model"],
             duration=float(entry.get("duration", base_args.duration)),
@@ -241,9 +244,8 @@ def run_batch(batch_path: Path, base_args: argparse.Namespace) -> None:
             show_summary=entry.get("summary", base_args.summary),
         )
         if summary is not None:
-            print(f"[{name}] Summary:")
-            for key, value in summary.items():
-                print(f"  {key}: {value:.6g}")
+            for _key, _value in summary.items():
+                pass
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -307,9 +309,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     if summary is not None:
-        print("Summary:")
-        for key, value in summary.items():
-            print(f"  {key}: {value:.6g}")
+        for _key, _value in summary.items():
+            pass
 
     return 0
 

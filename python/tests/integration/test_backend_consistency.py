@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import numpy as np
-import pytest
 
 from dtack.backends.backend_factory import BackendFactory, BackendType
 

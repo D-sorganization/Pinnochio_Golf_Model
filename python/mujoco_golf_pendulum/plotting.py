@@ -10,7 +10,7 @@ This module provides comprehensive plotting capabilities including:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING  # noqa: ICN003
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import mujoco
@@ -49,7 +49,7 @@ except ImportError:
         to ensure compatibility when Qt is unavailable (e.g., in headless CI environments).
         """
 
-        def __init__(self, width=8, height=6, dpi=100) -> None:  # noqa: ARG002
+        def __init__(self, width=8, height=6, dpi=100) -> None:
             """Initialize canvas with figure (placeholder for headless environments).
 
             Args:

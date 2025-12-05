@@ -18,6 +18,7 @@ import numpy as np
 from .inverse_dynamics import (
     InverseDynamicsAnalyzer,
     InverseDynamicsSolver,
+    InverseDynamicsResult,
     export_inverse_dynamics_to_csv,
 )
 from .kinematic_forces import KinematicForceAnalyzer, export_kinematic_forces_to_csv

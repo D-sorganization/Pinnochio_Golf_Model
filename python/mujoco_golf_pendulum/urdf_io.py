@@ -335,7 +335,7 @@ class URDFExporter:
 
         return collision
 
-    def _create_geometry_element(  # noqa: PLR0911
+    def _create_geometry_element(
         self,
         geom_id: int,
         parent: ET.Element,
@@ -392,7 +392,7 @@ class URDFExporter:
 
         return material
 
-    def _create_joint(  # noqa: PLR0915
+    def _create_joint(
         self, parent_body_id: int, child_body_id: int
     ) -> ET.Element | None:
         """Create URDF joint element between two bodies."""
@@ -510,7 +510,7 @@ class URDFImporter:
     def __init__(self) -> None:
         """Initialize URDF importer."""
 
-    def import_from_urdf(  # noqa: PLR0915
+    def import_from_urdf(
         self,
         urdf_path: str | Path,
         model_name: str | None = None,
@@ -608,7 +608,7 @@ class URDFImporter:
 
         return mujoco_xml
 
-    def _build_mujoco_body(  # noqa: C901,PLR0913,PLR0912,PLR0915
+    def _build_mujoco_body(
         self,
         parent: ET.Element,
         link: ET.Element,
