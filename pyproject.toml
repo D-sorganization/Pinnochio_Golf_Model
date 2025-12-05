@@ -41,3 +41,8 @@ python_functions = "test_*"
 [tool.isort]
 profile = "black"
 line_length = 100
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["python*"]
+namespaces = false
