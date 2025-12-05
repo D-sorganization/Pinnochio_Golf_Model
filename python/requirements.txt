@@ -26,16 +26,9 @@ types-PyYAML==6.0.12.12
 # Modeling Stack (Pinocchio, Pink, Drake, QP solvers)
 # ============================================================================
 # Pinocchio - Analytical dynamics library
-# Constrained to avoid dependency resolution depth issues
-# Pin to specific version to reduce dependency resolution complexity
-pin>=2.6.17,<3.0.0
-
-# Explicit constraints for pin transitive dependencies to help pip resolve
-# These are dependencies of pin but specifying them helps pip resolve faster
-hpp-fcl>=2.3.2,<3.0.0
-cmeel-urdfdom>=3.1.0.3,<4.0.0
-cmeel-tinyxml>=2.6.2.2,<3.0.0
-cmeel-console-bridge>=1.0.2.2,<2.0.0
+# Use specific version to avoid dependency resolution depth issues
+# Version 2.6.17 is the latest stable 2.6.x release
+pin==2.6.17
 
 # Pink (pin-pink) - Stacked on top of Pinocchio for advanced kinematics
 # Requires pin, so install after pin
