@@ -61,6 +61,8 @@ class URDFExporter:
     def _generate_segment_urdf(self, segment: dict, parent_name: str) -> list[str]:
         """Generate URDF for a segment.
 
+        Handles revolute, universal (2 revolute), and gimbal (3 revolute) joints.
+
         Args:
             segment: Segment specification
             parent_name: Parent link name
@@ -70,21 +72,263 @@ class URDFExporter:
         """
         lines = []
         seg_name = segment["name"]
+        joint = segment.get("joint", {})
+        joint_type = joint.get("type", "revolute")
+
+        # Handle joint types that require multiple URDF joints
+        if joint_type == "gimbal":
+            # Gimbal joint: 3 revolute joints (Z, Y, X axes)
+            lines.extend(
+                self._generate_gimbal_joint(
+                    parent_name, seg_name, joint, segment
+                )
+            )
+        elif joint_type == "universal":
+            # Universal joint: 2 revolute joints (perpendicular axes)
+            lines.extend(
+                self._generate_universal_joint(
+                    parent_name, seg_name, joint, segment
+                )
+            )
+        else:
+            # Single revolute joint
+            lines.extend(
+                self._generate_single_joint(
+                    parent_name, seg_name, joint, segment
+                )
+            )
+
+        return lines
+
+    def _generate_single_joint(
+        self, parent_name: str, seg_name: str, joint: dict, segment: dict
+    ) -> list[str]:
+        """Generate URDF for a single revolute joint.
+
+        Args:
+            parent_name: Parent link name
+            seg_name: Segment link name
+            joint: Joint specification
+            segment: Segment specification
+
+        Returns:
+            List of URDF lines
+        """
+        lines = []
+        joint_name = f"{parent_name}_to_{seg_name}"
 
         # Joint
-        lines.append(f'  <joint name="{parent_name}_to_{seg_name}" type="{segment["joint"]["type"]}">')
+        lines.append(f'  <joint name="{joint_name}" type="revolute">')
         lines.append(f'    <parent link="{parent_name}"/>')
         lines.append(f'    <child link="{seg_name}"/>')
-        if "axis" in segment["joint"]:
-            axis = segment["joint"]["axis"]
+        lines.append(f'    <origin xyz="0 0 0" rpy="0 0 0"/>')
+
+        if "axis" in joint:
+            axis = joint["axis"]
             lines.append(f'    <axis xyz="{axis[0]} {axis[1]} {axis[2]}"/>')
-        if "limits" in segment["joint"]:
-            limits = segment["joint"]["limits"]
+
+        if "limits" in joint:
+            limits = joint["limits"]
             if isinstance(limits, list) and len(limits) == 2:
-                lines.append(f'    <limit lower="{limits[0]}" upper="{limits[1]}"/>')
+                lines.append(
+                    f'    <limit lower="{limits[0]}" upper="{limits[1]}" effort="1000" velocity="10"/>'
+                )
+
+        if "damping" in joint:
+            damping = joint["damping"]
+            lines.append(f'    <dynamics damping="{damping}"/>')
+
         lines.append("  </joint>")
 
         # Link
+        lines.append(f'  <link name="{seg_name}">')
+        lines.extend(self._generate_inertial(segment))
+        lines.extend(self._generate_visual(segment))
+        lines.append("  </link>")
+
+        return lines
+
+    def _generate_universal_joint(
+        self, parent_name: str, seg_name: str, joint: dict, segment: dict
+    ) -> list[str]:
+        """Generate URDF for a universal joint (2 revolute joints).
+
+        Args:
+            parent_name: Parent link name
+            seg_name: Segment link name
+            joint: Joint specification with 'dofs' list
+            segment: Segment specification
+
+        Returns:
+            List of URDF lines
+        """
+        lines = []
+        intermediate_link = f"{seg_name}_intermediate"
+
+        # Get DOF specifications
+        dofs = joint.get("dofs", [])
+        if len(dofs) < 2:
+            # Default: X and Y axes
+            dofs = [
+                {"axis": [1, 0, 0], "limits": [-1.57, 1.57]},
+                {"axis": [0, 1, 0], "limits": [-1.57, 1.57]},
+            ]
+
+        # First DOF (X-axis typically)
+        dof1 = dofs[0]
+        axis1 = dof1.get("axis", [1, 0, 0])
+        limits1 = dof1.get("limits", [-1.57, 1.57])
+
+        lines.append(
+            f'  <joint name="{parent_name}_to_{intermediate_link}" type="revolute">'
+        )
+        lines.append(f'    <parent link="{parent_name}"/>')
+        lines.append(f'    <child link="{intermediate_link}"/>')
+        lines.append(f'    <origin xyz="0 0 0" rpy="0 0 0"/>')
+        lines.append(f'    <axis xyz="{axis1[0]} {axis1[1]} {axis1[2]}"/>')
+        lines.append(
+            f'    <limit lower="{limits1[0]}" upper="{limits1[1]}" effort="1000" velocity="10"/>'
+        )
+        if "damping" in joint:
+            lines.append(f'    <dynamics damping="{joint["damping"]}"/>')
+        lines.append("  </joint>")
+
+        # Intermediate link (massless)
+        lines.append(f'  <link name="{intermediate_link}">')
+        lines.append("    <inertial>")
+        lines.append('      <mass value="0.001"/>')
+        lines.append('      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>')
+        lines.append("    </inertial>")
+        lines.append("  </link>")
+
+        # Second DOF (Y-axis typically)
+        dof2 = dofs[1]
+        axis2 = dof2.get("axis", [0, 1, 0])
+        limits2 = dof2.get("limits", [-1.57, 1.57])
+
+        lines.append(
+            f'  <joint name="{intermediate_link}_to_{seg_name}" type="revolute">'
+        )
+        lines.append(f'    <parent link="{intermediate_link}"/>')
+        lines.append(f'    <child link="{seg_name}"/>')
+        lines.append(f'    <origin xyz="0 0 0" rpy="0 0 0"/>')
+        lines.append(f'    <axis xyz="{axis2[0]} {axis2[1]} {axis2[2]}"/>')
+        lines.append(
+            f'    <limit lower="{limits2[0]}" upper="{limits2[1]}" effort="1000" velocity="10"/>'
+        )
+        if "damping" in joint:
+            lines.append(f'    <dynamics damping="{joint["damping"]}"/>')
+        lines.append("  </joint>")
+
+        # Final link
+        lines.append(f'  <link name="{seg_name}">')
+        lines.extend(self._generate_inertial(segment))
+        lines.extend(self._generate_visual(segment))
+        lines.append("  </link>")
+
+        return lines
+
+    def _generate_gimbal_joint(
+        self, parent_name: str, seg_name: str, joint: dict, segment: dict
+    ) -> list[str]:
+        """Generate URDF for a gimbal joint (3 revolute joints: Z, Y, X).
+
+        Args:
+            parent_name: Parent link name
+            seg_name: Segment link name
+            joint: Joint specification with 'dofs' list
+            segment: Segment specification
+
+        Returns:
+            List of URDF lines
+        """
+        lines = []
+        intermediate1 = f"{seg_name}_gimbal_z"
+        intermediate2 = f"{seg_name}_gimbal_y"
+
+        # Get DOF specifications (default: Z, Y, X)
+        dofs = joint.get("dofs", [])
+        if len(dofs) < 3:
+            dofs = [
+                {"axis": [0, 0, 1], "limits": [-3.14, 3.14]},  # Z
+                {"axis": [0, 1, 0], "limits": [-1.57, 1.57]},  # Y
+                {"axis": [1, 0, 0], "limits": [-1.57, 1.57]},  # X
+            ]
+
+        # First DOF (Z-axis)
+        dof1 = dofs[0]
+        axis1 = dof1.get("axis", [0, 0, 1])
+        limits1 = dof1.get("limits", [-3.14, 3.14])
+
+        lines.append(
+            f'  <joint name="{parent_name}_to_{intermediate1}" type="revolute">'
+        )
+        lines.append(f'    <parent link="{parent_name}"/>')
+        lines.append(f'    <child link="{intermediate1}"/>')
+        lines.append(f'    <origin xyz="0 0 0" rpy="0 0 0"/>')
+        lines.append(f'    <axis xyz="{axis1[0]} {axis1[1]} {axis1[2]}"/>')
+        lines.append(
+            f'    <limit lower="{limits1[0]}" upper="{limits1[1]}" effort="1000" velocity="10"/>'
+        )
+        if "damping" in joint:
+            lines.append(f'    <dynamics damping="{joint["damping"]}"/>')
+        lines.append("  </joint>")
+
+        # First intermediate link (massless)
+        lines.append(f'  <link name="{intermediate1}">')
+        lines.append("    <inertial>")
+        lines.append('      <mass value="0.001"/>')
+        lines.append('      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>')
+        lines.append("    </inertial>")
+        lines.append("  </link>")
+
+        # Second DOF (Y-axis)
+        dof2 = dofs[1]
+        axis2 = dof2.get("axis", [0, 1, 0])
+        limits2 = dof2.get("limits", [-1.57, 1.57])
+
+        lines.append(
+            f'  <joint name="{intermediate1}_to_{intermediate2}" type="revolute">'
+        )
+        lines.append(f'    <parent link="{intermediate1}"/>')
+        lines.append(f'    <child link="{intermediate2}"/>')
+        lines.append(f'    <origin xyz="0 0 0" rpy="0 0 0"/>')
+        lines.append(f'    <axis xyz="{axis2[0]} {axis2[1]} {axis2[2]}"/>')
+        lines.append(
+            f'    <limit lower="{limits2[0]}" upper="{limits2[1]}" effort="1000" velocity="10"/>'
+        )
+        if "damping" in joint:
+            lines.append(f'    <dynamics damping="{joint["damping"]}"/>')
+        lines.append("  </joint>")
+
+        # Second intermediate link (massless)
+        lines.append(f'  <link name="{intermediate2}">')
+        lines.append("    <inertial>")
+        lines.append('      <mass value="0.001"/>')
+        lines.append('      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>')
+        lines.append("    </inertial>")
+        lines.append("  </link>")
+
+        # Third DOF (X-axis)
+        dof3 = dofs[2]
+        axis3 = dof3.get("axis", [1, 0, 0])
+        limits3 = dof3.get("limits", [-1.57, 1.57])
+
+        lines.append(
+            f'  <joint name="{intermediate2}_to_{seg_name}" type="revolute">'
+        )
+        lines.append(f'    <parent link="{intermediate2}"/>')
+        lines.append(f'    <child link="{seg_name}"/>')
+        lines.append(f'    <origin xyz="0 0 0" rpy="0 0 0"/>')
+        lines.append(f'    <axis xyz="{axis3[0]} {axis3[1]} {axis3[2]}"/>')
+        lines.append(
+            f'    <limit lower="{limits3[0]}" upper="{limits3[1]}" effort="1000" velocity="10"/>'
+        )
+        if "damping" in joint:
+            lines.append(f'    <dynamics damping="{joint["damping"]}"/>')
+        lines.append("  </joint>")
+
+        # Final link
         lines.append(f'  <link name="{seg_name}">')
         lines.extend(self._generate_inertial(segment))
         lines.extend(self._generate_visual(segment))
