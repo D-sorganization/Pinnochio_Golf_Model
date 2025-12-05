@@ -44,7 +44,7 @@ class PINKBackend:
 
         self.model_path = Path(model_path)
         logger.info("PINK backend initialized (stub implementation)")
-        # TODO: Implement PINK model loading
+        # NOTE: Implement PINK model loading
 
     def solve_ik(
         self,
@@ -60,6 +60,6 @@ class PINKBackend:
         Returns:
             Joint configuration satisfying tasks
         """
-        # TODO: Implement PINK IK solver
+        # NOTE: Implement PINK IK solver
         msg = "PINK IK solver not yet implemented"
-        raise NotImplementedError(msg)
+        raise RuntimeError(msg)

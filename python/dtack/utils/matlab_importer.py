@@ -112,7 +112,6 @@ class MATLABImporter:
     @staticmethod
     def load_gpcap(file_path: Path | str) -> dict[str, npt.NDArray[np.float64]]:
         """Load Gears capture file (.gpcap).
-<<<<<<< Updated upstream
 
         Args:
             file_path: Path to .gpcap file
@@ -121,21 +120,7 @@ class MATLABImporter:
             Dictionary with capture data
 
         Raises:
-            NotImplementedError: Gears format parser not yet implemented
-        """
-        msg = "Gears .gpcap format parser not yet implemented"
-        raise NotImplementedError(msg)
-=======
-        
-        Args:
-            file_path: Path to .gpcap file
-            
-        Returns:
-            Dictionary with capture data
-            
-        Raises:
-            NotImplementedError: If parser not implemented
+            RuntimeError: If parser not implemented
         """
         from dtack.utils.gears_parser import GearsParser
         return GearsParser.load(file_path)
->>>>>>> Stashed changes

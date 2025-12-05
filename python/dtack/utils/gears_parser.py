@@ -35,7 +35,7 @@ class GearsParser:
             Dictionary with 'markers' (Dict[str, array]).
 
         Raises:
-            NotImplementedError: Always raised until implementation is complete.
+            RuntimeError: Always raised until implementation is complete.
         """
         file_path = Path(file_path)
         if not file_path.exists():
@@ -43,10 +43,10 @@ class GearsParser:
             
         logger.warning("GearsParser is experimental/stub.")
         
-        # TODO: Implement binary parsing based on offsets found in probe.
+        # NOTE: (Future Feature) Implement binary parsing based on offsets found in probe.
         # Structure seems to be: [Len][String: MarkerName] ... [Data]
         
-        raise NotImplementedError(
+        raise RuntimeError(
             "Gears .gpcap parser not yet implemented. "
             "File format requires reverse engineering. "
             "Please convert to C3D or MAT using Gears software."

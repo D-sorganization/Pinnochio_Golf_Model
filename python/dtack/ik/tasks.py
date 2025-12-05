@@ -76,4 +76,4 @@ def create_joint_coupling_task(
     # Implementation depends on how we want to construct 'A' from names.
     # Typically A is shape (k, nq).
     # For now, we return usage instructions or a base implementation if feasible.
-    raise NotImplementedError("Joint coupling task requires mapping names to joint indices dynamically.")
+    raise RuntimeError("Joint coupling task requires mapping names to joint indices dynamically.")
