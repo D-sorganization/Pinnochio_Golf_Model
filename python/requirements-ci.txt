@@ -1,6 +1,14 @@
 # CI Requirements - Core dependencies only (excludes heavy modeling packages)
 # This file is used in CI/CD to avoid long installation times
 # For local development, use requirements.txt which includes all dependencies
+#
+# Note: We explicitly list dependencies here rather than using -r requirements.txt
+# because pip doesn't support excluding specific packages from inherited requirements.
+# This ensures CI only installs lightweight dependencies, excluding heavy modeling
+# packages (pin, pin-pink, drake, qpsolvers) that would slow down CI builds.
+#
+# To maintain consistency: When updating versions in requirements.txt, also update
+# them here. Both files use the same version pinning strategy for reproducibility.
 
 # Core scientific computing libraries
 numpy==2.1.0
