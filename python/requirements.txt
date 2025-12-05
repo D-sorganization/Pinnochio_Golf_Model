@@ -21,3 +21,27 @@ pathlib2==2.3.7
 
 # Type stubs for better type checking
 types-PyYAML==6.0.12.12
+
+# ============================================================================
+# Modeling Stack (Pinocchio, Pink, Drake, QP solvers)
+# ============================================================================
+# Pinocchio - Analytical dynamics library
+# Use specific version to avoid dependency resolution depth issues
+# Version 2.6.17 is the latest stable 2.6.x release
+pin==2.6.17
+
+# Pink (pin-pink) - Stacked on top of Pinocchio for advanced kinematics
+# Requires pin, so install after pin
+pin-pink>=0.1.0,<1.0.0
+
+# Drake - Robot manipulation and control
+# Large dependency tree - constrain to stable version
+drake>=1.0.0,<2.0.0
+
+# QP Solvers - Quadratic programming solvers
+# Add version constraints to help pip resolve dependencies
+# Note: qpsolvers 1.x maxes out at 1.10.0 (no 1.12.0 exists)
+qpsolvers>=1.10.0,<2.0.0
+osqp>=0.6.0,<1.0.0
+scs>=3.2.0,<4.0.0
+quadprog>=0.1.0,<1.0.0

@@ -39,11 +39,21 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # Install from python/ subdirectory (numpy 2.1.0 requires Python >=3.10)
-          if [ -f python/requirements.txt ]; then pip install -r python/requirements.txt; fi
+          # Install CI requirements (excludes heavy modeling packages like drake/pinocchio)
+          # Use requirements-ci.txt for faster CI builds, requirements.txt for local dev
+          if [ -f python/requirements-ci.txt ]; then
+            pip install -r python/requirements-ci.txt
+          elif [ -f python/requirements.txt ]; then
+            # Fallback: install core dependencies only, skip heavy modeling packages
+            pip install -r python/requirements.txt --no-deps || true
+            pip install numpy==2.1.0 pandas==2.2.3 matplotlib==3.9.1 scipy==1.14.0
+            pip install pytest==8.2.1 pytest-cov==5.0.0 pytest-mock==3.14.0
+            pip install ruff==0.5.0 black==24.4.2 mypy==1.10.0 pre-commit==4.0.0
+            pip install pyyaml==6.0.1 pathlib2==2.3.7 types-PyYAML==6.0.12.12
+          fi
           if [ -f pyproject.toml ]; then pip install -e .; fi
-          # ✅ Pin tool versions
-          pip install ruff==0.5.0 mypy==1.10.0 black==24.4.2 pytest==8.3.3 pytest-cov==6.0.0 pre-commit
+          # ✅ Pin tool versions (ensure they match requirements)
+          pip install ruff==0.5.0 mypy==1.10.0 black==24.4.2 pytest==8.2.1 pytest-cov==5.0.0 pre-commit==4.0.0
           
       - name: Run MATLAB Quality Check (Static Analysis)
         id: matlab-quality
