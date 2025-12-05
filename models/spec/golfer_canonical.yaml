@@ -1,0 +1,142 @@
+metadata:
+  name: Full-Body Golf Swing Model
+  version: 0.1.0
+  description: Complete biomechanical model for golf swing analysis
+  units:
+    length: meters
+    mass: kilograms
+    time: seconds
+    angle: radians
+  coordinate_system:
+    x: forward (target direction)
+    y: left
+    z: up
+root:
+  name: pelvis
+  frame: pelvis_frame
+  position:
+  - 0.0
+  - 0.0
+  - 0.9
+  orientation:
+  - 0.0
+  - 0.0
+  - 0.0
+  mass: 11.7
+  inertia:
+    ixx: 0.1337
+    iyy: 0.1337
+    izz: 0.1337
+    ixy: 0.0
+    ixz: 0.0
+    iyz: 0.0
+  geometry:
+    type: capsule
+    size:
+    - 0.15
+    - 0.2
+    visual_rgba:
+    - 0.8
+    - 0.6
+    - 0.4
+    - 1.0
+segments:
+- name: lumbar
+  parent: pelvis
+  joint:
+    type: revolute
+    axis:
+    - 0
+    - 1
+    - 0
+    limits:
+    - -0.52
+    - 0.52
+    damping: 5.0
+  mass: 12.0
+  inertia:
+    ixx: 0.15
+    iyy: 0.15
+    izz: 0.15
+    ixy: 0.0
+    ixz: 0.0
+    iyz: 0.0
+  geometry:
+    type: capsule
+    size:
+    - 0.12
+    - 0.15
+    visual_rgba:
+    - 0.7
+    - 0.5
+    - 0.3
+    - 1.0
+  frame_offset:
+  - 0.0
+  - 0.0
+  - 0.15
+constraints:
+- name: right_hand_to_club
+  type: rigid
+  frameA: right_hand/grip_frame
+  frameB: club_shaft/grip_frame
+  compliance: 0.0
+- name: left_hand_to_club
+  type: rigid
+  frameA: left_hand/grip_frame
+  frameB: club_shaft/grip_frame
+  compliance: 0.0
+contacts:
+- name: right_foot_ground
+  body: right_foot
+  frame: right_foot/foot_center
+  geometry:
+    type: plane
+    size:
+    - 0.12
+    - 0.25
+  friction:
+    sliding: 1.0
+    torsional: 0.1
+    rolling: 0.01
+- name: left_foot_ground
+  body: left_foot
+  frame: left_foot/foot_center
+  geometry:
+    type: plane
+    size:
+    - 0.12
+    - 0.25
+  friction:
+    sliding: 1.0
+    torsional: 0.1
+    rolling: 0.01
+named_frames:
+- name: midhands
+  type: midpoint
+  frameA: right_hand/grip_frame
+  frameB: left_hand/grip_frame
+- name: wrist_center_right
+  body: right_hand
+  position:
+  - 0.0
+  - 0.0
+  - 0.0
+  orientation:
+  - 0.0
+  - 0.0
+  - 0.0
+- name: wrist_center_left
+  body: left_hand
+  position:
+  - 0.0
+  - 0.0
+  - 0.0
+  orientation:
+  - 0.0
+  - 0.0
+  - 0.0
+scaling:
+  height: 1.75
+  mass_total: 75.0
+  scaling_method: geometric
