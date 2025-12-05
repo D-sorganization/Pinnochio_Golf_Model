@@ -76,7 +76,7 @@ jobs:
 
     - name: Upload MATLAB Quality Report
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: matlab-quality-report-py${{ matrix.python-version }}
         path: matlab_quality_results.json
@@ -220,7 +220,7 @@ jobs:
         fi
 
     - name: Upload Bandit results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: bandit-report
         path: bandit-report.json
