@@ -21,19 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-<<<<<<< HEAD
-          fetch-depth: 0 # Full history for better diffs
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-=======
           fetch-depth: 0  # Full history for better diffs
           
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
->>>>>>> origin/main
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -388,7 +380,7 @@ jobs:
       uses: actions/setup-python@v6
       with:
         python-version: '3.11'
->>>>>>> origin/main
+
 
       - name: Run Bandit security check
         # ✅ Use continue-on-error instead of || true
@@ -405,18 +397,6 @@ jobs:
           else
             bandit -r . -x tests -f json -o bandit-report.json
           fi
-<<<<<<< HEAD
-
-      - name: Upload Bandit results
-        uses: actions/upload-artifact@v4
-        with:
-          name: bandit-report
-          path: bandit-report.json
-          # ✅ Handle missing files gracefully
-          if-no-files-found: ignore
-=======
-
-
     - name: Upload Bandit results
       uses: actions/upload-artifact@v5
       with:
@@ -424,21 +404,11 @@ jobs:
         path: bandit-report.json
         # ✅ Handle missing files gracefully
         if-no-files-found: ignore
->>>>>>> origin/main
 
   documentation-check:
     name: Documentation Check
     runs-on: ubuntu-latest
     steps:
-<<<<<<< HEAD
-      - uses: actions/checkout@v4
-
-      # ✅ Always set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-=======
     - uses: actions/checkout@v6
 
     # ✅ Always set up Python
@@ -446,7 +416,6 @@ jobs:
       uses: actions/setup-python@v6
       with:
         python-version: '3.11'
->>>>>>> origin/main
 
       - name: Check documentation links
         run: |
