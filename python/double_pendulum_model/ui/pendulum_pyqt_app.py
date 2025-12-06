@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import logging
 import math
 from dataclasses import dataclass
+import typing
 
-import numpy as np
+if typing.TYPE_CHECKING:
+    import numpy as np
+
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from PyQt6 import QtCore, QtWidgets
@@ -68,7 +72,9 @@ class PendulumController(QtWidgets.QWidget):
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self._on_step)
 
-        self.state_double = DoublePendulumState(theta1=-0.5, theta2=-1.2, omega1=0.0, omega2=0.0)
+        self.state_double = DoublePendulumState(
+            theta1=-0.5, theta2=-1.2, omega1=0.0, omega2=0.0
+        )
         self.state_triple = TriplePendulumState(
             theta1=-0.5, theta2=-0.8, theta3=-0.6, omega1=0.0, omega2=0.0, omega3=0.0
         )
@@ -89,7 +95,14 @@ class PendulumController(QtWidgets.QWidget):
         control_panel = QtWidgets.QScrollArea()
         control_panel.setWidgetResizable(True)
         control_contents = QtWidgets.QWidget()
-        form_layout = QtWidgets.QFormLayout(control_contents)
+
+        self._build_form(control_contents)
+
+        control_panel.setWidget(control_contents)
+        layout.addWidget(control_panel, stretch=1)
+
+    def _build_form(self, parent: QtWidgets.QWidget) -> None:
+        form_layout = QtWidgets.QFormLayout(parent)
 
         self.model_selector = QtWidgets.QComboBox()
         self.model_selector.addItems(["Double", "Triple"])
@@ -146,9 +159,6 @@ class PendulumController(QtWidgets.QWidget):
         button_row.addWidget(self.reset_button)
         form_layout.addRow(button_row)
 
-        control_panel.setWidget(control_contents)
-        layout.addWidget(control_panel, stretch=1)
-
     def _current_config(self) -> SimulationConfig:
         return SimulationConfig(
             model=self.model_selector.currentText(),
@@ -177,7 +187,9 @@ class PendulumController(QtWidgets.QWidget):
     def _reset(self) -> None:
         self.timer.stop()
         self.time = 0.0
-        self.state_double = DoublePendulumState(theta1=-0.5, theta2=-1.2, omega1=0.0, omega2=0.0)
+        self.state_double = DoublePendulumState(
+            theta1=-0.5, theta2=-1.2, omega1=0.0, omega2=0.0
+        )
         self.state_triple = TriplePendulumState(
             theta1=-0.5, theta2=-0.8, theta3=-0.6, omega1=0.0, omega2=0.0, omega3=0.0
         )
@@ -200,25 +212,31 @@ class PendulumController(QtWidgets.QWidget):
                 )
             else:
                 profiles = self._polynomial_profiles(config.velocity_polynomials[:2])
-                self.state_double = self._apply_inverse_profile_double(self.state_double, profiles)
+                self.state_double = self._apply_inverse_profile_double(
+                    self.state_double, profiles
+                )
             self.time += TIME_STEP
             self._update_plot()
         else:
             if config.forward_mode:
-                torques = tuple(self._safe_eval(expr) for expr in config.torque_expressions)
+                torques = tuple(
+                    self._safe_eval(expr) for expr in config.torque_expressions
+                )
                 self.state_triple = self.triple_dynamics.step(
                     self.time, self.state_triple, TIME_STEP, torques
                 )
             else:
                 profiles = self._polynomial_profiles(config.velocity_polynomials)
-                self.state_triple = self._apply_inverse_profile_triple(self.state_triple, profiles)
+                self.state_triple = self._apply_inverse_profile_triple(
+                    self.state_triple, profiles
+                )
             self.time += TIME_STEP
             self._update_plot()
 
     def _safe_eval(self, expression: str) -> float:
         try:
             return float(
-                eval(
+                eval(  # noqa: S307
                     expression,
                     {
                         "__builtins__": {},
@@ -228,10 +246,13 @@ class PendulumController(QtWidgets.QWidget):
                     },
                 )
             )
-        except Exception:
+        except (ValueError, TypeError, SyntaxError, NameError):
+            logging.exception("Error evaluating expression: %s", expression)
             return 0.0
 
-    def _polynomial_profiles(self, expressions: tuple[str, ...]) -> tuple[PolynomialProfile, ...]:
+    def _polynomial_profiles(
+        self, expressions: tuple[str, ...]
+    ) -> tuple[PolynomialProfile, ...]:
         profiles = []
         for expr in expressions:
             cleaned = expr.replace(" ", "")
@@ -263,7 +284,9 @@ class PendulumController(QtWidgets.QWidget):
         )
 
         accelerations = (alpha1, alpha2)
-        torques = self.double_dynamics.inverse_dynamics(state_with_profile, accelerations)
+        torques = self.double_dynamics.inverse_dynamics(
+            state_with_profile, accelerations
+        )
         self.double_dynamics.forcing_functions = (
             lambda _t, _s: torques[0],
             lambda _t, _s: torques[1],
@@ -286,8 +309,12 @@ class PendulumController(QtWidgets.QWidget):
             omega2=omega[1],
             omega3=omega[2],
         )
-        torques = self.triple_dynamics.inverse_dynamics(state_with_profile, accelerations)
-        return self.triple_dynamics.step(self.time, state_with_profile, TIME_STEP, torques)
+        torques = self.triple_dynamics.inverse_dynamics(
+            state_with_profile, accelerations
+        )
+        return self.triple_dynamics.step(
+            self.time, state_with_profile, TIME_STEP, torques
+        )
 
     def _update_plot(self) -> None:
         config = self._current_config()
@@ -298,6 +325,8 @@ class PendulumController(QtWidgets.QWidget):
         self.canvas.draw_chain(points)
 
     def _points_double(self, state: DoublePendulumState) -> np.ndarray:
+        import numpy as np
+
         plane_rotation = self._plane_rotation(self.double_params.plane_inclination_deg)
         shoulder = np.array([0.0, 0.0, 0.0])
         upper = self._point_from_angles(
@@ -311,6 +340,8 @@ class PendulumController(QtWidgets.QWidget):
         return np.vstack([shoulder, upper, lower])
 
     def _points_triple(self, state: TriplePendulumState) -> np.ndarray:
+        import numpy as np
+
         shoulder = np.array([0.0, 0.0, 0.0])
         params = self.triple_params.segments
         plane_rotation = self._plane_rotation(35.0)
@@ -325,7 +356,11 @@ class PendulumController(QtWidgets.QWidget):
         )
         return np.vstack([shoulder, p1, p2, p3])
 
-    def _point_from_angles(self, angle: float, rotation: np.ndarray, length: float) -> np.ndarray:
+    def _point_from_angles(
+        self, angle: float, rotation: np.ndarray, length: float
+    ) -> np.ndarray:
+        import numpy as np
+
         local = np.array(
             [
                 length * math.sin(angle),
@@ -336,6 +371,8 @@ class PendulumController(QtWidgets.QWidget):
         return rotation @ local
 
     def _plane_rotation(self, inclination_deg: float) -> np.ndarray:
+        import numpy as np
+
         inclination_rad = math.radians(inclination_deg)
         cos_inc = math.cos(inclination_rad)
         sin_inc = math.sin(inclination_rad)

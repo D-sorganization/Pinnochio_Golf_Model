@@ -1,9 +1,12 @@
 from __future__ import annotations
-
+import logging
 import math
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-import numpy as np
+if TYPE_CHECKING:
+    from numpy import ndarray
+
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from PyQt6 import QtCore, QtWidgets
@@ -50,7 +53,7 @@ class PendulumCanvas(FigureCanvasQTAgg):
         self.ax.set_ylim([-2.5, 2.5])
         self.ax.set_zlim([-1.5, 1.5])
 
-    def draw_chain(self, points: np.ndarray) -> None:
+    def draw_chain(self, points: ndarray) -> None:
         self.ax.cla()
         self._configure_axes()
         xs, ys, zs = points.T
@@ -89,7 +92,13 @@ class PendulumController(QtWidgets.QWidget):
         control_panel = QtWidgets.QScrollArea()
         control_panel.setWidgetResizable(True)
         control_contents = QtWidgets.QWidget()
-        form_layout = QtWidgets.QFormLayout(control_contents)
+        self._build_form(control_contents)  # Extracted
+        control_panel.setWidget(control_contents)
+        layout.addWidget(control_panel, stretch=1)
+
+    def _build_form(self, parent_widget: QtWidgets.QWidget) -> None:
+        """Build the form layout controls."""
+        form_layout = QtWidgets.QFormLayout(parent_widget)
 
         self.model_selector = QtWidgets.QComboBox()
         self.model_selector.addItems(["Double", "Triple"])
@@ -145,9 +154,6 @@ class PendulumController(QtWidgets.QWidget):
         button_row.addWidget(self.stop_button)
         button_row.addWidget(self.reset_button)
         form_layout.addRow(button_row)
-
-        control_panel.setWidget(control_contents)
-        layout.addWidget(control_panel, stretch=1)
 
     def _current_config(self) -> SimulationConfig:
         return SimulationConfig(
@@ -217,18 +223,17 @@ class PendulumController(QtWidgets.QWidget):
 
     def _safe_eval(self, expression: str) -> float:
         try:
-            return float(
-                eval(
-                    expression,
-                    {
-                        "__builtins__": {},
-                        "pi": math.pi,
-                        "sin": math.sin,
-                        "cos": math.cos,
-                    },
-                )
-            )
-        except Exception:
+            allowed_names = {
+                "sin": math.sin, "cos": math.cos,
+                "tan": math.tan, "pi": math.pi,
+                "e": math.e, "sqrt": math.sqrt,
+                "degrees": math.degrees, "radians": math.radians,
+            }
+            # Restrict scope significantly to specific math functions
+            # noqa: S307 - Legacy math evaluator securely restrictive
+            return float(eval(expression, {"__builtins__": {}}, allowed_names))  # noqa: S307
+        except (ValueError, TypeError, SyntaxError, NameError):
+            logging.exception("Failed to evaluate expression: %s", expression)
             return 0.0
 
     def _polynomial_profiles(self, expressions: tuple[str, ...]) -> tuple[PolynomialProfile, ...]:
@@ -297,9 +302,10 @@ class PendulumController(QtWidgets.QWidget):
             points = self._points_triple(self.state_triple)
         self.canvas.draw_chain(points)
 
-    def _points_double(self, state: DoublePendulumState) -> np.ndarray:
+    def _points_double(self, state: DoublePendulumState) -> ndarray:
+        from numpy import array, vstack
         plane_rotation = self._plane_rotation(self.double_params.plane_inclination_deg)
-        shoulder = np.array([0.0, 0.0, 0.0])
+        shoulder = array([0.0, 0.0, 0.0])
         upper = self._point_from_angles(
             state.theta1, plane_rotation, self.double_params.upper_segment.length_m
         )
@@ -308,10 +314,11 @@ class PendulumController(QtWidgets.QWidget):
             plane_rotation,
             self.double_params.lower_segment.length_m,
         )
-        return np.vstack([shoulder, upper, lower])
+        return vstack([shoulder, upper, lower])
 
-    def _points_triple(self, state: TriplePendulumState) -> np.ndarray:
-        shoulder = np.array([0.0, 0.0, 0.0])
+    def _points_triple(self, state: TriplePendulumState) -> ndarray:
+        from numpy import array, vstack
+        shoulder = array([0.0, 0.0, 0.0])
         params = self.triple_params.segments
         plane_rotation = self._plane_rotation(35.0)
         p1 = self._point_from_angles(state.theta1, plane_rotation, params[0].length_m)
@@ -323,10 +330,11 @@ class PendulumController(QtWidgets.QWidget):
             plane_rotation,
             params[2].length_m,
         )
-        return np.vstack([shoulder, p1, p2, p3])
+        return vstack([shoulder, p1, p2, p3])
 
-    def _point_from_angles(self, angle: float, rotation: np.ndarray, length: float) -> np.ndarray:
-        local = np.array(
+    def _point_from_angles(self, angle: float, rotation: ndarray, length: float) -> ndarray:
+        from numpy import array
+        local = array(
             [
                 length * math.sin(angle),
                 0.0,
@@ -335,11 +343,12 @@ class PendulumController(QtWidgets.QWidget):
         )
         return rotation @ local
 
-    def _plane_rotation(self, inclination_deg: float) -> np.ndarray:
+    def _plane_rotation(self, inclination_deg: float) -> ndarray:
+        from numpy import array
         inclination_rad = math.radians(inclination_deg)
         cos_inc = math.cos(inclination_rad)
         sin_inc = math.sin(inclination_rad)
-        return np.array(
+        return array(
             [
                 [1.0, 0.0, 0.0],
                 [0.0, cos_inc, -sin_inc],

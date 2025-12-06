@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import functools
-from collections.abc import Callable
+import typing
 from dataclasses import dataclass
 
-import numpy as np
+if typing.TYPE_CHECKING:
+    import collections.abc
+    import numpy as np
+
 import sympy as sp
 
 GRAVITATIONAL_ACCELERATION = 9.80665
@@ -29,7 +32,9 @@ class TripleSegmentProperties:
 
 @dataclass
 class TriplePendulumParameters:
-    segments: tuple[TripleSegmentProperties, TripleSegmentProperties, TripleSegmentProperties]
+    segments: tuple[
+        TripleSegmentProperties, TripleSegmentProperties, TripleSegmentProperties
+    ]
     damping: tuple[float, float, float] = DAMPING_DEFAULT
     gravity_enabled: bool = True
     gravity_m_s2: float = GRAVITATIONAL_ACCELERATION
@@ -84,18 +89,24 @@ class PolynomialProfile:
     coefficients: tuple[float, ...]
 
     def omega(self, t: float) -> float:
+        import numpy as np
+
         poly = np.poly1d(self.coefficients)
         return float(poly(t))
 
     def alpha(self, t: float) -> float:
+        import numpy as np
+
         derivative = np.polyder(self.coefficients)
         return float(np.poly1d(derivative)(t))
 
 
 @functools.lru_cache(maxsize=1)
-def _symbolic_triple_functions() -> (
-    tuple[Callable[..., np.ndarray], Callable[..., np.ndarray], Callable[..., np.ndarray]]
-):
+def _symbolic_triple_functions() -> tuple[  # noqa: PLR0915
+    collections.abc.Callable[..., np.ndarray],
+    collections.abc.Callable[..., np.ndarray],
+    collections.abc.Callable[..., np.ndarray],
+]:
     theta1, theta2, theta3 = sp.symbols("theta1 theta2 theta3")
     omega1, omega2, omega3 = sp.symbols("omega1 omega2 omega3")
     alpha1, alpha2, alpha3 = sp.symbols("alpha1 alpha2 alpha3")
@@ -216,7 +227,9 @@ def _symbolic_triple_functions() -> (
 class TriplePendulumDynamics:
     def __init__(self, parameters: TriplePendulumParameters | None = None) -> None:
         self.parameters = parameters or TriplePendulumParameters.default()
-        self._mass_func, self._bias_func, self._gravity_func = _symbolic_triple_functions()
+        self._mass_func, self._bias_func, self._gravity_func = (
+            _symbolic_triple_functions()
+        )
 
     def _parameter_vector(self) -> tuple[float, ...]:
         segs = self.parameters.segments
@@ -237,6 +250,8 @@ class TriplePendulumDynamics:
         )
 
     def mass_matrix(self, state: TriplePendulumState) -> np.ndarray:
+        import numpy as np
+
         params = self._parameter_vector()
         theta = (state.theta1, state.theta2, state.theta3)
         omega = (state.omega1, state.omega2, state.omega3)
@@ -244,16 +259,22 @@ class TriplePendulumDynamics:
         return np.array(mass, dtype=float)
 
     def bias_vector(self, state: TriplePendulumState) -> np.ndarray:
+        import numpy as np
+
         params = self._parameter_vector()
         theta = (state.theta1, state.theta2, state.theta3)
         omega = (state.omega1, state.omega2, state.omega3)
         bias = self._bias_func(*theta, *omega, *params)
-        damping = np.array(self.parameters.damping, dtype=float) * np.array(omega, dtype=float)
+        damping = np.array(self.parameters.damping, dtype=float) * np.array(
+            omega, dtype=float
+        )
         return np.array(bias, dtype=float).flatten() + damping
 
     def forward_dynamics(
         self, state: TriplePendulumState, control: tuple[float, float, float]
     ) -> tuple[float, float, float]:
+        import numpy as np
+
         mass = self.mass_matrix(state)
         bias = self.bias_vector(state)
         accelerations = np.linalg.solve(mass, np.array(control, dtype=float) - bias)
@@ -262,6 +283,8 @@ class TriplePendulumDynamics:
     def inverse_dynamics(
         self, state: TriplePendulumState, accelerations: tuple[float, float, float]
     ) -> tuple[float, float, float]:
+        import numpy as np
+
         mass = self.mass_matrix(state)
         bias = self.bias_vector(state)
         torques = mass @ np.array(accelerations, dtype=float) + bias
@@ -270,15 +293,23 @@ class TriplePendulumDynamics:
     def joint_torque_breakdown(
         self, state: TriplePendulumState, control: tuple[float, float, float]
     ) -> TripleJointTorques:
+        import numpy as np
+
         theta = (state.theta1, state.theta2, state.theta3)
         params = self._parameter_vector()
-        gravity_components = np.array(self._gravity_func(*theta, *params), dtype=float).flatten()
+        gravity_components = np.array(
+            self._gravity_func(*theta, *params), dtype=float
+        ).flatten()
         damping_components = tuple(
             float(self.parameters.damping[i] * state_component)
-            for i, state_component in enumerate((state.omega1, state.omega2, state.omega3))
+            for i, state_component in enumerate(
+                (state.omega1, state.omega2, state.omega3)
+            )
         )
         coriolis_bias = (
-            self.bias_vector(state) - gravity_components - np.array(damping_components, dtype=float)
+            self.bias_vector(state)
+            - gravity_components
+            - np.array(damping_components, dtype=float)
         )
         return TripleJointTorques(
             applied=control,
@@ -289,7 +320,7 @@ class TriplePendulumDynamics:
 
     def step(
         self,
-        t: float,
+        _t: float,
         state: TriplePendulumState,
         dt: float,
         control: tuple[float, float, float],
