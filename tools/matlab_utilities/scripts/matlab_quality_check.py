@@ -18,7 +18,7 @@ import logging
 import re
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 
 # Constants
@@ -45,7 +45,7 @@ class MATLABQualityChecker:
         self.project_root = project_root
         self.matlab_dir = project_root / "matlab"
         self.results = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "total_files": 0,
             "issues": [],
             "passed": True,

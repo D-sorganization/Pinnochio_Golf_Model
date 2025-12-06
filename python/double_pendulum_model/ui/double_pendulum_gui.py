@@ -21,7 +21,7 @@ import tkinter as tk
 import logging
 from dataclasses import dataclass
 import typing
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 
 if typing.TYPE_CHECKING:
@@ -522,7 +522,7 @@ class DoublePendulumApp:
         if self.data_file_handle is not None:
             return
 
-        timestamp = datetime.now(timezone.utc).strftime(
+        timestamp = datetime.now(UTC).strftime(
             "%Y%m%d_%H%M%S"
         )
         filename = f"pendulum_data_{timestamp}.csv"
