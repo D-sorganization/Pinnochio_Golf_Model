@@ -23,12 +23,12 @@ jobs:
         python-version: ["3.10", "3.11"]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -76,7 +76,7 @@ jobs:
 
     - name: Upload MATLAB Quality Report
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: matlab-quality-report-py${{ matrix.python-version }}
         path: matlab_quality_results.json
@@ -182,7 +182,7 @@ jobs:
 
     - name: Upload coverage to Codecov
       if: steps.coverage-check.outputs.exists == 'true'
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
         # ✅ Wildcard pattern for flexibility
         files: '**/coverage.xml'
@@ -195,11 +195,11 @@ jobs:
   security-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     # ✅ Always set up Python
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
 
@@ -220,7 +220,7 @@ jobs:
         fi
 
     - name: Upload Bandit results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: bandit-report
         path: bandit-report.json
@@ -230,11 +230,11 @@ jobs:
   documentation-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     # ✅ Always set up Python
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
 

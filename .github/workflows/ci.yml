@@ -19,13 +19,13 @@ jobs:
       fail-fast: true # ✅ Always include
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
-          fetch-depth: 0 # Full history for better diffs
-
-      - uses: actions/setup-python@v5
+          fetch-depth: 0  # Full history for better diffs
+          
+      - uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -71,7 +71,7 @@ jobs:
 
       - name: Upload MATLAB Quality Report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: matlab-quality-report
           path: matlab_quality_results.json
@@ -248,7 +248,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: steps.coverage-check.outputs.exists == 'true'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           # ✅ Wildcard pattern for flexibility
           files: "**/coverage.xml"
@@ -364,13 +364,13 @@ jobs:
     name: Security Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
-      # ✅ Always set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+    # ✅ Always set up Python
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
 
       - name: Run Bandit security check
         # ✅ Use continue-on-error instead of || true
@@ -388,25 +388,26 @@ jobs:
             bandit -r . -x tests -f json -o bandit-report.json
           fi
 
-      - name: Upload Bandit results
-        uses: actions/upload-artifact@v4
-        with:
-          name: bandit-report
-          path: bandit-report.json
-          # ✅ Handle missing files gracefully
-          if-no-files-found: ignore
+
+    - name: Upload Bandit results
+      uses: actions/upload-artifact@v5
+      with:
+        name: bandit-report
+        path: bandit-report.json
+        # ✅ Handle missing files gracefully
+        if-no-files-found: ignore
 
   documentation-check:
     name: Documentation Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
-      # ✅ Always set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+    # ✅ Always set up Python
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
 
       - name: Check documentation links
         run: |
