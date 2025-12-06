@@ -28,14 +28,14 @@ except ImportError:
 
 # Check for C3D libraries (imported inside functions when needed)
 try:
-    import ezc3d
+    import ezc3d  # noqa: F401
 
     EZC3D_AVAILABLE = True
 except ImportError:
     EZC3D_AVAILABLE = False
     # Try alternate c3d library
     try:
-        import c3d
+        import c3d  # noqa: F401
 
         C3D_AVAILABLE = True
     except ImportError:

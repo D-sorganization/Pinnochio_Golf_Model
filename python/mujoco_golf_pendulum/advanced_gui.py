@@ -12,7 +12,7 @@ import csv
 import json
 import logging
 import typing
-from collections.abc import Callable
+from pathlib import Path
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
@@ -40,7 +40,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
 
     SIMPLIFIED_ACTUATOR_THRESHOLD: typing.Final[int] = 60
 
-    def __init__(self) -> None:
+    def __init__(self) -> None:  # noqa: PLR0915
         """Docstring for __init__."""
         super().__init__()
 
@@ -270,7 +270,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
         self.status_timer.timeout.connect(self._update_status_bar)
         self.status_timer.start(200)  # Update every 200ms
 
-    def _create_control_tab(self) -> None:
+    def _create_control_tab(self) -> None:  # noqa: PLR0915
         """Create the simulation controls tab."""
         control_widget = QtWidgets.QWidget()
         control_layout = QtWidgets.QVBoxLayout(control_widget)
@@ -598,7 +598,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
             count = len(self.actuator_sliders)
             self.actuator_summary_label.setText(f"{count} actuators")
 
-    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:  # noqa: N802, PLR0911
         """Handle keyboard shortcuts."""
         key = event.key()
 
@@ -697,7 +697,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
         self.status_recording_label.setStyleSheet("color: #e74c3c; padding: 0 10px;")
         status_bar.addPermanentWidget(self.status_recording_label)
 
-    def _update_status_bar(self) -> None:
+    def _update_status_bar(self) -> None:  # noqa: PLR0915
         """Update status bar with current simulation info."""
         if self.sim_widget.model is None:
             return
@@ -754,7 +754,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
             else:
                 self.status_recording_label.setText("")
 
-    def _create_visualization_tab(self) -> None:
+    def _create_visualization_tab(self) -> None:  # noqa: PLR0915
         """Create the visualization settings tab."""
         viz_widget = QtWidgets.QWidget()
         viz_layout = QtWidgets.QVBoxLayout(viz_widget)
@@ -1049,7 +1049,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
 
         self.tab_widget.addTab(plotting_widget, "Plotting")
 
-    def _create_manipulation_tab(self) -> None:
+    def _create_manipulation_tab(self) -> None:  # noqa: PLR0915
         """Create the interactive manipulation tab."""
 
         manip_widget = QtWidgets.QWidget()
@@ -1305,7 +1305,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
 
     # -------- Model management --------
 
-    def load_current_model(self) -> None:
+    def load_current_model(self) -> None:  # noqa: C901, PLR0912, PLR0915
         """Load selected model and recreate actuator controls."""
         index = self.model_combo.currentIndex()
         config = self.model_configs[index]
@@ -1408,7 +1408,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
         # Force layout update
         self.actuator_container.update()
 
-    def _create_actuator_controls(self, actuator_names: list[str]) -> None:
+    def _create_actuator_controls(self, actuator_names: list[str]) -> None:  # noqa: PLR0915
         """Create advanced controls for all actuators with logical grouping.
 
         This method creates control widgets for each actuator in the current model.
@@ -1529,17 +1529,15 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
         detail_btn = QtWidgets.QPushButton("Edit…")
         detail_btn.setToolTip("Open detailed control options for this actuator")
         detail_btn.clicked.connect(
-            lambda *, i=actuator_index, name=actuator_name, s=slider: self.open_actuator_detail_dialog(
-                i,
-                name,
-                slider=s,
+            lambda *, i=actuator_index, name=actuator_name, s=slider: (
+                self.open_actuator_detail_dialog(i, name, slider=s)
             ),
         )
         layout.addWidget(detail_btn)
 
         return container
 
-    def _create_advanced_actuator_control(
+    def _create_advanced_actuator_control(  # noqa: PLR0915
         self,
         actuator_index: int,
         actuator_name: str,
@@ -1905,7 +1903,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
 
     def _create_slider_control(
         self,
-        actuator_name: str,
+        actuator_name: str,  # noqa: ARG002
     ) -> tuple[QtWidgets.QSlider, QtWidgets.QLabel]:
         """Create a slider and label for a single actuator."""
         slider = QtWidgets.QSlider(QtCore.Qt.Orientation.Horizontal)
@@ -1941,12 +1939,12 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
             )
             group.setVisible(matches)
 
-    def on_model_changed(self, index: int) -> None:
+    def on_model_changed(self, index: int) -> None:  # noqa: ARG002
         """Handle model selection change."""
         self.load_current_model()
         self.sim_widget.reset_state()
 
-    def on_play_pause_toggled(self, checked: bool) -> None:
+    def on_play_pause_toggled(self, checked: bool) -> None:  # noqa: FBT001
         """Handle play/pause button toggle."""
         if checked:
             self.play_pause_btn.setText("Play")
@@ -1980,7 +1978,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
             if hasattr(control_type_combo, "step_widget"):
                 control_type_combo.step_widget.setVisible(False)
 
-    def on_record_toggled(self, checked: bool) -> None:
+    def on_record_toggled(self, checked: bool) -> None:  # noqa: FBT001
         """Handle recording toggle."""
         recorder = self.sim_widget.get_recorder()
         if checked:
@@ -2248,7 +2246,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
         # Show joint selector only for phase diagrams
         self.joint_select_widget.setVisible(plot_type == "Phase Diagram")
 
-    def on_generate_plot(self) -> None:
+    def on_generate_plot(self) -> None:  # noqa: C901, PLR0912, PLR0915
         """Generate the selected plot."""
         recorder = self.sim_widget.get_recorder()
 
@@ -2299,7 +2297,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
             self.current_plot_canvas = canvas
             self.plot_container_layout.addWidget(canvas)
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             QtWidgets.QMessageBox.critical(
                 self,
                 "Plot Error",
@@ -2372,7 +2370,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
                 data_dict = recorder.export_to_dict()
 
                 # Write to CSV
-                with open(filename, "w", newline="") as csvfile:
+                with Path(filename).open("w", newline="") as csvfile:
                     writer = csv.writer(csvfile)
 
                     # Write header
@@ -2393,7 +2391,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
                     f"Data exported to {filename}",
                 )
 
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 QtWidgets.QMessageBox.critical(
                     self,
                     "Export Error",
@@ -2423,7 +2421,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
             try:
                 data_dict = recorder.export_to_dict()
 
-                with open(filename, "w") as jsonfile:
+                with Path(filename).open("w") as jsonfile:
                     json.dump(data_dict, jsonfile, indent=2)
 
                 QtWidgets.QMessageBox.information(
@@ -2432,7 +2430,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
                     f"Data exported to {filename}",
                 )
 
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 QtWidgets.QMessageBox.critical(
                     self,
                     "Export Error",
@@ -2643,10 +2641,12 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
             | QtWidgets.QMessageBox.StandardButton.No,
         )
 
-        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
-            if manipulator.delete_pose(pose_name):
-                self.update_pose_list()
-                QtWidgets.QMessageBox.information(
+        if (
+            reply == QtWidgets.QMessageBox.StandardButton.Yes
+            and manipulator.delete_pose(pose_name)
+        ):
+            self.update_pose_list()
+            QtWidgets.QMessageBox.information(
                     self,
                     "Pose Deleted",
                     f"Pose '{pose_name}' deleted successfully.",
@@ -2677,7 +2677,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
                     "Export Successful",
                     f"Pose library exported to {filename}",
                 )
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 QtWidgets.QMessageBox.critical(
                     self,
                     "Export Error",
@@ -2706,7 +2706,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
                     "Import Successful",
                     f"Imported {count} poses from {filename}",
                 )
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 QtWidgets.QMessageBox.critical(
                     self,
                     "Import Error",
@@ -2736,7 +2736,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
 
         # Get selected poses
         selected_items = self.pose_list.selectedItems()
-        if len(selected_items) != 2:
+        if len(selected_items) != 2:  # noqa: PLR2004
             return
 
         pose_a = selected_items[0].text()
@@ -2769,22 +2769,20 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
 class ActuatorDetailDialog(QtWidgets.QDialog):
     """On-demand editor for actuator control parameters."""
 
-    CONTROL_TYPE_LABELS = [
+    CONTROL_TYPE_LABELS: typing.ClassVar[list[str]] = [
         "Constant",
         "Polynomial (6th order)",
         "Sine Wave",
         "Step Function",
     ]
 
-    def __init__(
+    def __init__(  # noqa: PLR0913, PLR0915
         self,
-        *,
         control_system: ControlSystem,
         actuator_index: int,
         actuator_name: str,
-        slider_sync: Callable[[float], None] | None,
         parent: QtWidgets.QWidget | None = None,
-    ):
+    ) -> None:
         """Build the detail dialog for a single actuator."""
         super().__init__(parent)
         self.control_system = control_system
@@ -2988,5 +2986,5 @@ class ActuatorDetailDialog(QtWidgets.QDialog):
         """Show or hide parameter sections based on control type."""
         index = self.control_type_combo.currentIndex()
         self.poly_widget.setVisible(index == 1)
-        self.sine_widget.setVisible(index == 2)
-        self.step_widget.setVisible(index == 3)
+        self.sine_widget.setVisible(index == 2)  # noqa: PLR2004
+        self.step_widget.setVisible(index == 3)  # noqa: PLR2004

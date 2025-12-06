@@ -77,11 +77,7 @@ exclude = [
 ]
 
 # Specific modules from MuJoCo migration
-"python/mujoco_golf_pendulum/advanced_gui.py" = [
-    "PLR0915", "PLR0911", "PLR0912", "PLR0913", "PLR2004", "C901", 
-    "N802", "FBT001", "ARG002", "BLE001", "PTH123", "E501", "SIM102", 
-    "RUF012", "ANN204"
-]
+"python/mujoco_golf_pendulum/advanced_gui.py" = []
 "python/mujoco_golf_pendulum/sim_widget.py" = []
 "python/mujoco_golf_pendulum/video_export.py" = []
 "python/mujoco_golf_pendulum/*.py" = [
@@ -114,11 +110,8 @@ exclude = [
     "RUF003", # ambiguous unicode
     "NPY002", # legacy numpy random
 ]
-"python/mujoco_golf_pendulum/advanced_export.py" = ["F401"]
-"python/mujoco_golf_pendulum/interactive_manipulation.py" = [
-    "PLR0913", "PLR0911", "SIM102", "FBT001", "FBT002", "PLR2004", 
-    "PLR0915", "N806", "ERA001", "PTH123", "TRY300", "BLE001"
-]
+"python/mujoco_golf_pendulum/advanced_export.py" = []
+"python/mujoco_golf_pendulum/interactive_manipulation.py" = []
 
 
 
