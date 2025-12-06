@@ -8,6 +8,7 @@ import pinocchio as pin
 import pink
 from pink import AbstractTask
 import typing
+
 if typing.TYPE_CHECKING:
     import numpy as np
 
@@ -49,7 +50,7 @@ class PinkSolver:
         tasks: list[AbstractTask],
         dt: float,
         solver: str = "quadprog",
-        damping: float = 1e-6
+        damping: float = 1e-6,
     ) -> np.ndarray:
         """Solve differential IK for one step.
 
@@ -67,20 +68,13 @@ class PinkSolver:
         # Note: Depending on pink version, signature might vary.
         # Assuming standard pink.Configuration usage.
 
-        configuration = pink.Configuration(
-            self.model, self.data, q_init
-        )
+        configuration = pink.Configuration(self.model, self.data, q_init)
 
         # Solve delta_q or velocity
         # pink.solve_ik returns the velocity (v) usually to achieve tasks
         velocity = pink.solve_ik(
-            configuration,
-            tasks,
-            dt,
-            solver=solver,
-            damping=damping
+            configuration, tasks, dt, solver=solver, damping=damping
         )
 
         # Integrate velocity to update configuration: q_next = q + v * dt
         return pin.integrate(self.model, q_init, velocity * dt)
-

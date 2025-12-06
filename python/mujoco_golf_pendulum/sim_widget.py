@@ -281,7 +281,7 @@ class MuJoCoSimWidget(QtWidgets.QWidget):
                 and self.model.jnt_type[0] == mujoco.mjtJoint.mjJNT_FREE
                 and len(self.data.qpos) >= 3
             ):
-                        self.data.qpos[2] = 0.9  # Z position (height)
+                self.data.qpos[2] = 0.9  # Z position (height)
             # Keep other joints at 0 (address position)
 
         elif self.model.nq >= 1:
@@ -624,7 +624,11 @@ class MuJoCoSimWidget(QtWidgets.QWidget):
                 # Background color setting not supported in this MuJoCo version
                 pass
 
-    def set_background_color(self, sky_color=None, ground_color=None) -> None:
+    def set_background_color(
+        self,
+        sky_color: np.ndarray | list[float] | None = None,
+        ground_color: np.ndarray | list[float] | None = None,
+    ) -> None:
         """Set the background colors for the scene.
 
         Args:
@@ -640,7 +644,10 @@ class MuJoCoSimWidget(QtWidgets.QWidget):
             self._update_background_colors()
             self._render_once()
 
-    def _add_force_torque_overlays(self, rgb: np.ndarray) -> np.ndarray:
+    def _add_force_torque_overlays(
+        self,
+        rgb: np.ndarray,
+    ) -> np.ndarray:
         """Overlay torque/force vectors using screen-space arrows."""
         if self.model is None or self.data is None:
             return rgb
@@ -962,17 +969,17 @@ class MuJoCoSimWidget(QtWidgets.QWidget):
             and self.model is not None
             and self.manipulator.selected_body_id is not None
         ):
-                # Drag body to new position
-                success = self.manipulator.drag_to(
-                    x,
-                    y,
-                    self.frame_width,
-                    self.frame_height,
-                    self.camera,
-                )
+            # Drag body to new position
+            success = self.manipulator.drag_to(
+                x,
+                y,
+                self.frame_width,
+                self.frame_height,
+                self.camera,
+            )
 
-                if success:
-                    self._render_once()
+            if success:
+                self._render_once()
 
         super().mouseMoveEvent(event)
 

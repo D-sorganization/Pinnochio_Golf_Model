@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from enum import Enum
 import typing
+
 if typing.TYPE_CHECKING:
     from pathlib import Path
 

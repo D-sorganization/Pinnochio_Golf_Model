@@ -1521,10 +1521,10 @@ def generate_rigid_club_xml(club_type: str = "driver") -> str:
   <!-- Club Head -->
   <body name="clubhead" pos="0 0 -{total_length:.4f}">
     <inertial pos="0 {float(head_size[1])/2:.4f} 0.002" mass="{head_mass:.4f}"
-              diaginertia="{head_mass*float(head_size[0])**2/12:.6f} {head_mass*float(head_size[1])**2/12:.6f} {head_mass*float(head_size[2])**2/12:.6f}"/>
-    <geom name="head_body" type="box" size="{float(head_size[0]):.4f} {float(head_size[1]):.4f} {float(head_size[2]):.4f}"
+              diaginertia="{head_mass*float(head_size[0])**2/12:.6f} {head_mass*float(head_size[1])**2/12:.6f} {head_mass*float(head_size[2])**2/12:.6f}"/>  # noqa: E501
+    <geom name="head_body" type="box" size="{float(head_size[0]):.4f} {float(head_size[1]):.4f} {float(head_size[2]):.4f}"  # noqa: E501
           pos="0 {float(head_size[1]):.4f} 0" material="club_head_mat"/>
-    <geom name="face" type="box" size="{float(head_size[0])+0.001:.4f} 0.003 {float(head_size[2])+0.001:.4f}"
+    <geom name="face" type="box" size="{float(head_size[0])+0.001:.4f} 0.003 {float(head_size[2])+0.001:.4f}"  # noqa: E501
           pos="0 {float(head_size[1])*2+0.003:.4f} 0" rgba="0.85 0.15 0.15 0.9"/>
   </body>
 </body>"""

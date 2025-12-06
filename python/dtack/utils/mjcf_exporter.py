@@ -45,7 +45,9 @@ class MJCFExporter:
         lines.append("  <!-- Generated from canonical YAML specification -->")
 
         # Options
-        lines.append('  <option timestep="0.002" gravity="0 0 -9.81" integrator="RK4"/>')
+        lines.append(
+            '  <option timestep="0.002" gravity="0 0 -9.81" integrator="RK4"/>'
+        )
 
         # Visual
         lines.append("  <visual>")
@@ -55,7 +57,9 @@ class MJCFExporter:
 
         # Worldbody
         lines.append("  <worldbody>")
-        lines.append('    <geom name="floor" type="plane" size="10 10 0.1" rgba="0.8 0.8 0.8 1"/>')
+        lines.append(
+            '    <geom name="floor" type="plane" size="10 10 0.1" rgba="0.8 0.8 0.8 1"/>'
+        )
 
         # Root body
         root = self.spec["root"]
@@ -108,12 +112,18 @@ class MJCFExporter:
                         f'range="{limits[0]} {limits[1]}" damping="{damping}"/>'
                     )
                 elif joint_type == "ball":
-                    lines.append(f'{indent}  <joint name="{seg_name}_joint" type="ball"/>')
+                    lines.append(
+                        f'{indent}  <joint name="{seg_name}_joint" type="ball"/>'
+                    )
                 elif joint_type == "fixed":
-                    lines.append(f'{indent}  <joint name="{seg_name}_joint" type="fixed"/>')
+                    lines.append(
+                        f'{indent}  <joint name="{seg_name}_joint" type="fixed"/>'
+                    )
 
                 # Geometry
-                lines.extend([indent + "  " + line for line in self._generate_body_geom(segment)])
+                lines.extend(
+                    [indent + "  " + line for line in self._generate_body_geom(segment)]
+                )
 
                 # Recursive children
                 lines.extend(self._generate_segments_mjcf(seg_name, depth + 1))

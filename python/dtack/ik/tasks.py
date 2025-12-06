@@ -17,7 +17,7 @@ def create_frame_task(
     body_name: str,
     position_cost: float = 1.0,
     orientation_cost: float = 1.0,
-    lm_damping: float = 0.0
+    lm_damping: float = 0.0,
 ) -> pink.tasks.FrameTask:
     """Create a FrameTask (SE3 target) for a specific body frame.
 
@@ -38,8 +38,7 @@ def create_frame_task(
 
 
 def create_posture_task(
-    cost: float = 1e-3,
-    q_ref: np.ndarray[typing.Any, typing.Any] | None = None
+    cost: float = 1e-3, q_ref: np.ndarray[typing.Any, typing.Any] | None = None
 ) -> pink.tasks.PostureTask:
     """Create a PostureTask to regularize joint configuration.
 

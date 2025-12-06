@@ -59,7 +59,7 @@ class VideoResolution(Enum):
 class VideoExporter:
     """Export MuJoCo simulations as video files."""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         model: mj.MjModel,
         data: mj.MjData,
@@ -142,7 +142,7 @@ class VideoExporter:
                     return False
 
             self.frame_count = 0
-            return True  # noqa: TRY300
+            return True
 
         except Exception:
             LOGGER.exception("Error starting recording.")
@@ -200,7 +200,7 @@ class VideoExporter:
             self.writer.release()
             self.writer = None
 
-    def export_recording(  # noqa: PLR0913
+    def export_recording(
         self,
         output_path: str,
         initial_state: np.ndarray,
@@ -272,7 +272,7 @@ class VideoExporter:
 
             # Finish
             self.finish_recording(output_path)
-            return True  # noqa: TRY300
+            return True
 
         except Exception:
             LOGGER.exception("Error during recording export.")
@@ -285,7 +285,7 @@ class VideoExporter:
             self.writer.release()
 
 
-def create_metrics_overlay(  # noqa: PLR0913
+def create_metrics_overlay(
     frame: np.ndarray,
     time: float,
     data: mj.MjData,
@@ -340,14 +340,14 @@ def create_metrics_overlay(  # noqa: PLR0913
 
             cv2.putText(frame, text, (10, y_offset), font, font_scale, color, thickness)
             y_offset += line_height
-        except Exception:  # noqa: BLE001
+        except Exception:
             LOGGER.debug("Failed to extract metric: %s", name)
             # Continue to next metric
 
     return frame
 
 
-def export_simulation_video(  # noqa: PLR0913, PLR0915
+def export_simulation_video(
     model: mj.MjModel,
     data: mj.MjData,
     output_path: str,
@@ -358,7 +358,7 @@ def export_simulation_video(  # noqa: PLR0913, PLR0915
     height: int = 1080,
     fps: int = 60,
     camera_id: int | None = None,
-    show_metrics: bool = True,  # noqa: FBT001, FBT002
+    show_metrics: bool = True,
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> bool:
     """Export a recorded simulation as video.
@@ -443,7 +443,7 @@ def export_simulation_video(  # noqa: PLR0913, PLR0915
 
         # Finish
         exporter.finish_recording(output_path)
-        return True  # noqa: TRY300
+        return True
 
     except Exception:
         LOGGER.exception("Error exporting simulation video.")
@@ -471,7 +471,7 @@ def _setup_metrics_for_frame(
             vel = jacp @ data.qvel
             speed = np.linalg.norm(vel) * 2.237  # m/s to mph
             metrics["Club Speed"] = lambda _, s=speed: int(s)  # type: ignore[assignment]
-    except Exception:  # noqa: BLE001
+    except Exception:
         # Club head body might not exist or other error
         LOGGER.debug("Could not calculate Club Speed metrics")
 

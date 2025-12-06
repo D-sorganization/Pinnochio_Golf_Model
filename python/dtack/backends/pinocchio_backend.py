@@ -41,7 +41,9 @@ class PinocchioBackend:
             FileNotFoundError: If model file does not exist
         """
         if not PINOCCHIO_AVAILABLE:
-            msg = "Pinocchio is required but not installed. Install with: pip install pin"
+            msg = (
+                "Pinocchio is required but not installed. Install with: pip install pin"
+            )
             raise ImportError(msg)
 
         model_path_obj = Path(model_path)
@@ -51,8 +53,8 @@ class PinocchioBackend:
 
         # For now, assume URDF. Later we'll add YAML parser
         if model_path_obj.suffix == ".urdf":
-            self.model, self.collision_model, self.visual_model = pin.buildModelsFromUrdf(
-                str(model_path_obj), ""
+            self.model, self.collision_model, self.visual_model = (
+                pin.buildModelsFromUrdf(str(model_path_obj), "")
             )
         else:
             msg = f"Unsupported model format: {model_path_obj.suffix}"
@@ -174,9 +176,7 @@ class PinocchioBackend:
             self.model, self.data, q_arr, frame_id, reference_frame
         )
 
-    def forward_kinematics(
-        self, q: npt.NDArray[np.float64]
-    ) -> list[pin.SE3]:
+    def forward_kinematics(self, q: npt.NDArray[np.float64]) -> list[pin.SE3]:
         """Compute forward kinematics for all frames.
 
         Args:

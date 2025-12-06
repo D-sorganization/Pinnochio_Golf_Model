@@ -17,6 +17,7 @@ MAX_VELOCITY = 10.0
 MIN_UNIVERSAL_DOFS = 2
 MIN_GIMBAL_DOFS = 3
 
+
 class URDFExporter:
     """Export URDF from canonical YAML model specification."""
 
@@ -64,7 +65,9 @@ class URDFExporter:
         lines.append("</robot>")
         return "\n".join(lines)
 
-    def _generate_segment_urdf(self, segment: dict[str, typing.Any], parent_name: str) -> list[str]:
+    def _generate_segment_urdf(
+        self, segment: dict[str, typing.Any], parent_name: str
+    ) -> list[str]:
         """Generate URDF for a segment.
 
         Handles revolute, universal (2 revolute), and gimbal (3 revolute) joints.
@@ -85,23 +88,17 @@ class URDFExporter:
         if joint_type == "gimbal":
             # Gimbal joint: 3 revolute joints (Z, Y, X axes)
             lines.extend(
-                self._generate_gimbal_joint(
-                    parent_name, seg_name, joint, segment
-                )
+                self._generate_gimbal_joint(parent_name, seg_name, joint, segment)
             )
         elif joint_type == "universal":
             # Universal joint: 2 revolute joints (perpendicular axes)
             lines.extend(
-                self._generate_universal_joint(
-                    parent_name, seg_name, joint, segment
-                )
+                self._generate_universal_joint(parent_name, seg_name, joint, segment)
             )
         else:
             # Single revolute joint
             lines.extend(
-                self._generate_single_joint(
-                    parent_name, seg_name, joint, segment
-                )
+                self._generate_single_joint(parent_name, seg_name, joint, segment)
             )
 
         return lines

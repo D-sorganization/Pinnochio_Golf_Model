@@ -6,6 +6,7 @@ import logging
 from pathlib import Path
 
 import typing
+
 if typing.TYPE_CHECKING:
     import numpy.typing as npt
     import numpy as np

@@ -24,11 +24,7 @@ class DynamicsEngine:
         self.data = data
 
     def forward_dynamics(
-        self,
-        q: np.ndarray,
-        v: np.ndarray,
-        tau: np.ndarray,
-        f_ext: list | None = None
+        self, q: np.ndarray, v: np.ndarray, tau: np.ndarray, f_ext: list | None = None
     ) -> np.ndarray:
         """Compute forward dynamics (FD).
 
@@ -49,11 +45,7 @@ class DynamicsEngine:
         return pin.aba(self.model, self.data, q, v, tau, f_ext)
 
     def inverse_dynamics(
-        self,
-        q: np.ndarray,
-        v: np.ndarray,
-        a: np.ndarray,
-        f_ext: list | None = None
+        self, q: np.ndarray, v: np.ndarray, a: np.ndarray, f_ext: list | None = None
     ) -> np.ndarray:
         """Compute inverse dynamics (ID).
 
@@ -64,10 +56,7 @@ class DynamicsEngine:
         return pin.rnea(self.model, self.data, q, v, a, f_ext)
 
     def compute_ztcf(
-        self,
-        q: np.ndarray,
-        v: np.ndarray,
-        dt: float
+        self, q: np.ndarray, v: np.ndarray, dt: float
     ) -> tuple[np.ndarray, np.ndarray]:
         """Compute Zero Torque Counterfactual (ZTCF).
 
@@ -86,10 +75,7 @@ class DynamicsEngine:
         return q_next, v_next
 
     def compute_zvcf(
-        self,
-        q: np.ndarray,
-        tau: np.ndarray,
-        dt: float
+        self, q: np.ndarray, tau: np.ndarray, dt: float
     ) -> tuple[np.ndarray, np.ndarray]:
         """Compute Zero Velocity Counterfactual (ZVCF).
 

@@ -6,6 +6,7 @@ import logging
 from pathlib import Path
 
 import typing
+
 if typing.TYPE_CHECKING:
     import numpy.typing as npt
     import numpy as np
@@ -125,4 +126,5 @@ class MATLABImporter:
             RuntimeError: Parser not yet implemented. File format requires reverse engineering.
         """
         from dtack.utils.gears_parser import GearsParser
+
         return GearsParser.load(file_path)

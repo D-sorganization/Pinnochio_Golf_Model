@@ -6,6 +6,7 @@ import logging
 from pathlib import Path
 
 import typing
+
 if typing.TYPE_CHECKING:
     import numpy.typing as npt
     import numpy as np
@@ -53,6 +54,4 @@ class GearsParser:
             "File format requires reverse engineering. "
             "Please convert to C3D or MAT using Gears software."
         )
-        raise RuntimeError(
-            msg
-        )
+        raise RuntimeError(msg)
