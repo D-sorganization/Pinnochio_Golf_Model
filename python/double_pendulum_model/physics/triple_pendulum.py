@@ -278,7 +278,9 @@ class TriplePendulumDynamics:
         mass = self.mass_matrix(state)
         bias = self.bias_vector(state)
         accelerations = np.linalg.solve(mass, np.array(control, dtype=float) - bias)
-        return tuple(float(a) for a in accelerations)
+        return typing.cast(
+            tuple[float, float, float], tuple(float(a) for a in accelerations)
+        )
 
     def inverse_dynamics(
         self, state: TriplePendulumState, accelerations: tuple[float, float, float]
@@ -288,7 +290,7 @@ class TriplePendulumDynamics:
         mass = self.mass_matrix(state)
         bias = self.bias_vector(state)
         torques = mass @ np.array(accelerations, dtype=float) + bias
-        return tuple(float(t) for t in torques)
+        return typing.cast(tuple[float, float, float], tuple(float(t) for t in torques))
 
     def joint_torque_breakdown(
         self, state: TriplePendulumState, control: tuple[float, float, float]
@@ -313,9 +315,13 @@ class TriplePendulumDynamics:
         )
         return TripleJointTorques(
             applied=control,
-            gravitational=tuple(float(c) for c in gravity_components),
-            damping=damping_components,
-            coriolis_centripetal=tuple(float(c) for c in coriolis_bias),
+            gravitational=typing.cast(
+                tuple[float, float, float], tuple(float(c) for c in gravity_components)
+            ),
+            damping=typing.cast(tuple[float, float, float], damping_components),
+            coriolis_centripetal=typing.cast(
+                tuple[float, float, float], tuple(float(c) for c in coriolis_bias)
+            ),
         )
 
     def step(

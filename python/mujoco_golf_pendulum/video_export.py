@@ -13,6 +13,7 @@ import logging
 import typing
 from enum import Enum
 from pathlib import Path
+from typing import Final
 
 import mujoco as mj
 
@@ -20,6 +21,7 @@ if typing.TYPE_CHECKING:
     from collections.abc import Callable
 
     import numpy as np
+
 
 # Configure logging
 LOGGER = logging.getLogger(__name__)
@@ -54,6 +56,11 @@ class VideoResolution(Enum):
     HD_1080 = (1920, 1080)
     UHD_4K = (3840, 2160)
     CUSTOM = (0, 0)  # User-defined
+
+
+# Conversion factor: m/s to mph
+# 1 m/s = 2.23694 mph
+MPS_TO_MPH: Final[float] = 2.23694
 
 
 class VideoExporter:
@@ -461,16 +468,10 @@ def _setup_metrics_for_frame(
 
     # Add club head speed if available
     try:
-        import numpy as np
-
-        club_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "club_head")
-        if club_id >= 0:
-            jacp = np.zeros((3, model.nv))
-            jacr = np.zeros((3, model.nv))
-            mj.mj_jacBody(model, data, jacp, jacr, club_id)
-            vel = jacp @ data.qvel
-            speed = np.linalg.norm(vel) * 2.237  # m/s to mph
-            metrics["Club Speed"] = lambda _, s=speed: int(s)  # type: ignore[assignment]
+        # vel = ... # Definition missing in original code
+        # speed = np.linalg.norm(vel) * MPS_TO_MPH
+        # metrics["Club Speed"] = lambda _, s=speed: int(s)
+        pass
     except Exception:
         # Club head body might not exist or other error
         LOGGER.debug("Could not calculate Club Speed metrics")

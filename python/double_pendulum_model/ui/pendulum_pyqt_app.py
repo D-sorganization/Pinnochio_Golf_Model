@@ -41,8 +41,8 @@ class SimulationConfig:
 class PendulumCanvas(FigureCanvasQTAgg):
     def __init__(self) -> None:
         fig = Figure(figsize=(8, 8), dpi=100)
-        self.ax = fig.add_subplot(111, projection="3d")
-        super().__init__(fig)
+        self.ax: typing.Any = fig.add_subplot(111, projection="3d")
+        super().__init__(fig)  # type: ignore[no-untyped-call]
         self._configure_axes()
 
     def _configure_axes(self) -> None:
@@ -54,12 +54,12 @@ class PendulumCanvas(FigureCanvasQTAgg):
         self.ax.set_ylim([-2.5, 2.5])
         self.ax.set_zlim([-1.5, 1.5])
 
-    def draw_chain(self, points: np.ndarray) -> None:
+    def draw_chain(self, points: np.ndarray[typing.Any, typing.Any]) -> None:
         self.ax.cla()
         self._configure_axes()
         xs, ys, zs = points.T
         self.ax.plot(xs, ys, zs, marker="o", linestyle="-", linewidth=2)
-        self.draw()
+        self.draw()  # type: ignore[no-untyped-call]
 
 
 class PendulumController(QtWidgets.QWidget):
@@ -324,7 +324,9 @@ class PendulumController(QtWidgets.QWidget):
             points = self._points_triple(self.state_triple)
         self.canvas.draw_chain(points)
 
-    def _points_double(self, state: DoublePendulumState) -> np.ndarray:
+    def _points_double(
+        self, state: DoublePendulumState
+    ) -> np.ndarray[typing.Any, typing.Any]:
         import numpy as np
 
         plane_rotation = self._plane_rotation(self.double_params.plane_inclination_deg)
@@ -339,7 +341,9 @@ class PendulumController(QtWidgets.QWidget):
         )
         return np.vstack([shoulder, upper, lower])
 
-    def _points_triple(self, state: TriplePendulumState) -> np.ndarray:
+    def _points_triple(
+        self, state: TriplePendulumState
+    ) -> np.ndarray[typing.Any, typing.Any]:
         import numpy as np
 
         shoulder = np.array([0.0, 0.0, 0.0])
@@ -357,8 +361,8 @@ class PendulumController(QtWidgets.QWidget):
         return np.vstack([shoulder, p1, p2, p3])
 
     def _point_from_angles(
-        self, angle: float, rotation: np.ndarray, length: float
-    ) -> np.ndarray:
+        self, angle: float, rotation: np.ndarray[typing.Any, typing.Any], length: float
+    ) -> np.ndarray[typing.Any, typing.Any]:
         import numpy as np
 
         local = np.array(
@@ -370,7 +374,9 @@ class PendulumController(QtWidgets.QWidget):
         )
         return rotation @ local
 
-    def _plane_rotation(self, inclination_deg: float) -> np.ndarray:
+    def _plane_rotation(
+        self, inclination_deg: float
+    ) -> np.ndarray[typing.Any, typing.Any]:
         import numpy as np
 
         inclination_rad = math.radians(inclination_deg)

@@ -21,7 +21,7 @@ import tkinter as tk
 import logging
 from dataclasses import dataclass
 import typing
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 from pathlib import Path
 
 if typing.TYPE_CHECKING:
@@ -81,8 +81,8 @@ class DoublePendulumApp:
         self.data_logging_enabled = False
         self.data_granularity = 1  # Log every N steps
         self.data_step_counter = 0
-        self.data_file: csv.Writer | None = None
-        self.data_file_handle: object | None = None
+        self.data_file: typing.Any | None = None
+        self.data_file_handle: typing.TextIO | None = None
         self.data_file_stack: contextlib.ExitStack | None = None
 
         # Build UI
@@ -103,7 +103,7 @@ class DoublePendulumApp:
     def _setup_visualization(self, parent: tk.Widget) -> None:
         """Setup 3D visualization area."""
         self.fig = Figure(figsize=(9, 9), dpi=100, facecolor="white")
-        self.ax = self.fig.add_subplot(111, projection="3d")
+        self.ax: typing.Any = self.fig.add_subplot(111, projection="3d")
         self.ax.set_xlabel("X (m)", fontsize=10)
         self.ax.set_ylabel("Y (m)", fontsize=10)
         self.ax.set_zlabel("Z (m)", fontsize=10)
@@ -139,7 +139,7 @@ class DoublePendulumApp:
         canvas_scroll.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas_scroll.configure(yscrollcommand=scrollbar.set)
 
-        self.entries = {}
+        self.entries: dict[str, tk.Entry] = {}
         row = 0
 
         title_label = tk.Label(
@@ -517,7 +517,9 @@ class DoublePendulumApp:
         if self.data_file_handle is not None:
             return
 
-        timestamp = datetime.now(tz=UTC).strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(tz=timezone.utc).strftime(  # noqa: UP017
+            "%Y%m%d_%H%M%S"
+        )
         filename = f"pendulum_data_{timestamp}.csv"
         self.data_file_stack = contextlib.ExitStack()
         self.data_file_handle = self.data_file_stack.enter_context(
@@ -585,7 +587,8 @@ class DoublePendulumApp:
                         f"{breakdown.coriolis_centripetal[1]:.6f}",
                     ]
                 )
-                self.data_file_handle.flush()
+                if self.data_file_handle:
+                    self.data_file_handle.flush()
 
     def _calculate_upper_inertia(self, user_inputs: UserInputs) -> float:
         """Calculate inertia of upper segment."""
