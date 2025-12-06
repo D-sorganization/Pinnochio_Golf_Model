@@ -2,7 +2,7 @@
 
 import logging
 import numpy as np
-import numpy as np
+
 import pytest
 
 pin = pytest.importorskip("pinocchio")
