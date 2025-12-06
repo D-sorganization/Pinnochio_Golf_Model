@@ -142,7 +142,7 @@ class MuJoCoBackend:
         """
         forces = np.zeros(self.data.ncon * 6)
         for i in range(self.data.ncon):
-            contact = self.data.contact[i]
+
             mujoco.mj_contactForce(
                 self.model, self.data, i, forces[i * 6 : (i + 1) * 6]
             )

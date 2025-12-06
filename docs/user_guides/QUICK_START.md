@@ -3,9 +3,10 @@
 ## Installation
 
 1. **Clone and setup environment**:
+
    ```bash
    git clone <repo-url>
-   cd Pinnochio_Golf_Model
+   cd Pinocchio_Golf_Model
    python -m venv venv
    source venv/bin/activate  # Windows: venv\Scriptsctivate
    pip install -r python/requirements.txt

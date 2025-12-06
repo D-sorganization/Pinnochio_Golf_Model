@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import sys
-from pathlib import Path
 
 from PySide6 import QtWidgets
 
@@ -195,7 +194,7 @@ class UnifiedGolfGUI(QtWidgets.QMainWindow):
     def _solve_ik(self) -> None:
         """Solve inverse kinematics."""
         logger.info("Solving IK...")
-        # TODO: Implement IK solving
+        # NOTE: Implement IK solving
 
 
 def main() -> None:

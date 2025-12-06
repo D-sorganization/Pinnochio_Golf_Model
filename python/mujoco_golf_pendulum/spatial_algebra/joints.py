@@ -6,11 +6,12 @@ for various joint types.
 """
 
 import numpy as np
+from typing import Any
 
 from .transforms import xlt, xrot
 
 
-def jcalc(jtype: str, q: float) -> tuple[np.ndarray, np.ndarray]:
+def jcalc(jtype: str, q: float) -> tuple[np.ndarray[Any, Any], np.ndarray[Any, Any]]:
     """
     Calculate joint transform and motion subspace.
 

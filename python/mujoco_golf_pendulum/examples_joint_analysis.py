@@ -109,7 +109,7 @@ def example_constraint_forces() -> None:
         wrist_u2_force.append(data.qfrc_constraint[model.jnt_dofadr[wrist_u2_joint_id]])
 
     # Plot results
-    _fig, axes = plt.subplots(3, 1, figsize=(12, 10))  # type: ignore[misc]
+    _fig, axes = plt.subplots(3, 1, figsize=(12, 10))
 
     time_array = np.array(time_history)
 
@@ -199,7 +199,7 @@ def example_interactive_universal_joint() -> None:
     shoulder_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_ACTUATOR, "shoulder_motor")
     wrist_u1_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_ACTUATOR, "wrist_u1_motor")
 
-    def controller(model, data) -> None:
+    def controller(model: mj.MjModel, data: mj.MjData) -> None:
         """Simple sinusoidal controller for demonstration."""
         t = data.time
         data.ctrl[shoulder_id] = 30 * np.sin(2 * np.pi * 0.3 * t)

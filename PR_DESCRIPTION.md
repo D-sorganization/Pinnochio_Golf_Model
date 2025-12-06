@@ -2,31 +2,36 @@
 
 ## Overview
 
-This PR integrates three existing projects (MuJoCo Golf Model, Pinocchio Golf Model, and Golf_Model reference) into a single, unified platform housed within the Pinnochio_Golf_Model repository. This creates a comprehensive "full-body, physics-grounded, IK/Dynamics-driven Golfer Simulation Toolkit" that supports multiple physics engines and visualization tools.
+This PR integrates three existing projects (MuJoCo Golf Model, Pinocchio Golf Model, and Golf_Model reference) into a single, unified platform housed within the Pinocchio_Golf_Model repository. This creates a comprehensive "full-body, physics-grounded, IK/Dynamics-driven Golfer Simulation Toolkit" that supports multiple physics engines and visualization tools.
 
 ## Key Features
 
 ### 🎯 Canonical Model Specification
+
 - **Single Source of Truth**: YAML-based canonical model specification (`models/spec/golfer_canonical.yaml`)
 - **Multi-Backend Export**: URDF and MJCF exporters for generating backend-specific models
 - **Complete Model Definition**: Includes segments, joints, constraints, contacts, and named frames
 
 ### 🔧 Backend Integration
+
 - **PinocchioBackend**: Full dynamics support (RNEA, ABA, CRBA, Jacobians)
 - **MuJoCoBackend**: Forward simulation with contact dynamics
 - **PINKBackend**: IK solver foundation (stub implementation ready for expansion)
 - **BackendFactory**: Unified interface for creating backend instances
 
 ### 🎨 Visualization
+
 - **MeshCatViewer**: Browser-based visualization wrapper
 - **GeppettoViewer**: Desktop visualization wrapper
 - **Unified GUI**: PySide6 application with tabbed interface (Model Viewer, IK, Dynamics, Counterfactuals, ML, Settings)
 
 ### 📊 MATLAB Integration
+
 - **Simscape Extraction**: MATLAB script to extract parameters from Simscape models
 - **Data Import**: Python utilities for loading `.mat` and `.c3d` files
 
 ### 🧪 Testing & Quality
+
 - **Comprehensive Test Structure**: Unit, integration, validation, and performance test directories
 - **Code Quality**: Unified ruff.toml, mypy.ini, .pre-commit-config.yaml with strictest settings
 - **Documentation**: Sphinx API documentation foundation, quick start guide, updated README
@@ -34,12 +39,14 @@ This PR integrates three existing projects (MuJoCo Golf Model, Pinocchio Golf Mo
 ## Repository Consolidation
 
 ### Files Added
+
 - **Data**: Copied from Golf_Model (Rob Neal data, Gears Tour Average)
 - **Models**: MATLAB Simulink model copied to `models/matlab/`
 - **MuJoCo Code**: Migrated to `python/mujoco_golf_pendulum/`
 - **Pinocchio Code**: Reorganized to `python/pinocchio_golf/`
 
 ### Core Library Structure (`python/dtack/`)
+
 ```
 dtack/
 ├── backends/      # Physics engine wrappers
@@ -75,6 +82,7 @@ dtack/
 ## Commits
 
 This PR includes 10 commits:
+
 1. `feat: Add backend wrappers for Pinocchio, MuJoCo, and PINK`
 2. `feat: Add URDF exporter and dtack module structure`
 3. `feat: Add MJCF exporter and visualization wrappers`
@@ -89,6 +97,7 @@ This PR includes 10 commits:
 ## Next Steps
 
 After merge:
+
 1. Fill in stub implementations (PINK IK solver, counterfactuals, ML modules)
 2. Add comprehensive unit tests for each module
 3. Generate full API documentation with Sphinx

@@ -1,3 +1,4 @@
+# mypy: disable-error-code="no-any-unimported"
 """Factory for creating backend instances."""
 
 from __future__ import annotations

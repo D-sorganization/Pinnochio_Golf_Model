@@ -1,3 +1,4 @@
+# mypy: disable-error-code="no-any-unimported, no-any-return"
 """Pinocchio interface for advanced dynamics algorithms.
 
 This module provides a bridge between MuJoCo and Pinocchio, enabling:
@@ -20,6 +21,7 @@ Usage:
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 import mujoco
 import numpy as np
@@ -169,7 +171,7 @@ class PinocchioWrapper:
         # The configuration should already be synchronized via sync_mujoco_to_pinocchio
         # This method exists for API completeness but is a no-op
 
-    def _mujoco_q_to_pinocchio_q(self, q_mj: np.ndarray) -> np.ndarray:
+    def _mujoco_q_to_pinocchio_q(self, q_mj: np.ndarray[Any, Any]) -> np.ndarray[Any, Any]:
         """Convert MuJoCo configuration to Pinocchio format.
 
         Handles quaternion conventions (MuJoCo: w,x,y,z vs Pinocchio: x,y,z,w).
@@ -200,7 +202,7 @@ class PinocchioWrapper:
 
         return q_pin
 
-    def _pinocchio_q_to_mujoco_q(self, q_pin: np.ndarray) -> np.ndarray:
+    def _pinocchio_q_to_mujoco_q(self, q_pin: np.ndarray[Any, Any]) -> np.ndarray[Any, Any]:
         """Convert Pinocchio configuration to MuJoCo format.
 
         Handles quaternion conventions (Pinocchio: x,y,z,w vs MuJoCo: w,x,y,z).
@@ -230,10 +232,10 @@ class PinocchioWrapper:
 
     def compute_inverse_dynamics(
         self,
-        q: np.ndarray | None = None,
-        v: np.ndarray | None = None,
-        a: np.ndarray | None = None,
-    ) -> np.ndarray:
+        q: np.ndarray[Any, Any] | None = None,
+        v: np.ndarray[Any, Any] | None = None,
+        a: np.ndarray[Any, Any] | None = None,
+    ) -> np.ndarray[Any, Any]:
         """Compute inverse dynamics (RNEA) using Pinocchio.
 
         Computes joint torques required to achieve desired accelerations.
@@ -271,10 +273,10 @@ class PinocchioWrapper:
 
     def compute_forward_dynamics(
         self,
-        q: np.ndarray | None = None,
-        v: np.ndarray | None = None,
-        tau: np.ndarray | None = None,
-    ) -> np.ndarray:
+        q: np.ndarray[Any, Any] | None = None,
+        v: np.ndarray[Any, Any] | None = None,
+        tau: np.ndarray[Any, Any] | None = None,
+    ) -> np.ndarray[Any, Any]:
         """Compute forward dynamics (ABA) using Pinocchio.
 
         Computes joint accelerations from applied torques.
@@ -310,8 +312,8 @@ class PinocchioWrapper:
 
     def compute_mass_matrix(
         self,
-        q: np.ndarray | None = None,
-    ) -> np.ndarray:
+        q: np.ndarray[Any, Any] | None = None,
+    ) -> np.ndarray[Any, Any]:
         """Compute mass matrix using Pinocchio.
 
         Args:
@@ -333,9 +335,9 @@ class PinocchioWrapper:
 
     def compute_coriolis_matrix(
         self,
-        q: np.ndarray | None = None,
-        v: np.ndarray | None = None,
-    ) -> np.ndarray:
+        q: np.ndarray[Any, Any] | None = None,
+        v: np.ndarray[Any, Any] | None = None,
+    ) -> np.ndarray[Any, Any]:
         """Compute Coriolis matrix using Pinocchio.
 
         Args:
@@ -360,8 +362,8 @@ class PinocchioWrapper:
 
     def compute_gravity_vector(
         self,
-        q: np.ndarray | None = None,
-    ) -> np.ndarray:
+        q: np.ndarray[Any, Any] | None = None,
+    ) -> np.ndarray[Any, Any]:
         """Compute gravity vector using Pinocchio.
 
         Args:
@@ -384,10 +386,10 @@ class PinocchioWrapper:
     def compute_end_effector_jacobian(
         self,
         frame_name: str,
-        q: np.ndarray | None = None,
+        q: np.ndarray[Any, Any] | None = None,
         *,
         local: bool = True,
-    ) -> np.ndarray:
+    ) -> np.ndarray[Any, Any]:
         """Compute end-effector Jacobian using Pinocchio.
 
         Args:
@@ -437,10 +439,10 @@ class PinocchioWrapper:
 
     def compute_dynamics_derivatives(
         self,
-        q: np.ndarray | None = None,
-        v: np.ndarray | None = None,
-        tau: np.ndarray | None = None,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        q: np.ndarray[Any, Any] | None = None,
+        v: np.ndarray[Any, Any] | None = None,
+        tau: np.ndarray[Any, Any] | None = None,
+    ) -> tuple[np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any]]:
         """Compute analytical derivatives of dynamics.
 
         Computes ∂f/∂q, ∂f/∂v, ∂f/∂τ, ∂f/∂u (for control).
@@ -485,8 +487,8 @@ class PinocchioWrapper:
 
     def compute_kinetic_energy(
         self,
-        q: np.ndarray | None = None,
-        v: np.ndarray | None = None,
+        q: np.ndarray[Any, Any] | None = None,
+        v: np.ndarray[Any, Any] | None = None,
     ) -> float:
         """Compute kinetic energy using Pinocchio.
 
@@ -515,7 +517,7 @@ class PinocchioWrapper:
 
     def compute_potential_energy(
         self,
-        q: np.ndarray | None = None,
+        q: np.ndarray[Any, Any] | None = None,
     ) -> float:
         """Compute potential energy using Pinocchio.
 

@@ -1,3 +1,4 @@
+# mypy: disable-error-code="no-any-unimported, no-any-return"
 """Analysis tools for joint constraint forces, torque transmission, and universal joint behavior.
 
 This module provides tools for analyzing:
@@ -12,6 +13,8 @@ Author: MuJoCo Golf Swing Project
 import matplotlib.pyplot as plt
 import mujoco as mj
 import numpy as np
+from matplotlib.axes import Axes
+from typing import Any
 
 
 class UniversalJointAnalyzer:
@@ -27,7 +30,7 @@ class UniversalJointAnalyzer:
         self.model = model
         self.data = data
 
-    def get_joint_forces(self, joint_name: str) -> np.ndarray:
+    def get_joint_forces(self, joint_name: str) -> np.ndarray[Any, Any]:
         """Get constraint forces for a specific joint.
 
         Args:
@@ -118,7 +121,7 @@ class UniversalJointAnalyzer:
         input_joint: str,
         output_joint: str,
         num_cycles: int = 2,
-    ) -> dict[str, np.ndarray | float]:
+    ) -> dict[str, np.ndarray[Any, Any] | float]:
         """Analyze torque transmission through a universal joint over full rotations.
 
         Args:
@@ -239,7 +242,7 @@ class GimbalJointAnalyzer:
 
 
 def plot_torque_wobble(
-    analysis_results: dict[str, np.ndarray | float],
+    analysis_results: dict[str, np.ndarray[Any, Any] | float],
     save_path: str | None = None,
 ) -> None:
     """Plot torque wobble analysis results.
@@ -284,7 +287,7 @@ def analyze_constraint_forces_over_time(
     joint_names: list[str],
     duration: float = 2.0,
     timestep: float | None = None,
-) -> dict[str, np.ndarray]:
+) -> dict[str, np.ndarray[Any, Any]]:
     """Record constraint forces for specified joints over a simulation duration.
 
     Args:
@@ -338,7 +341,7 @@ def analyze_constraint_forces_over_time(
 
 
 def plot_constraint_forces(
-    force_data: dict[str, np.ndarray],
+    force_data: dict[str, np.ndarray[Any, Any]],
     joint_names: list[str],
     save_path: str | None = None,
 ) -> None:
@@ -353,13 +356,13 @@ def plot_constraint_forces(
     _fig, axes = plt.subplots(num_joints, 1, figsize=(12, 4 * num_joints))
 
     # Ensure axes is always a list for type checking
-    axes_list: list[plt.Axes] = (
+    axes_list: list[Axes] = (
         [axes] if num_joints == 1 else axes  # type: ignore[assignment,list-item]
     )
 
     time = force_data["time"]
 
-    for _idx, (ax, joint_name) in enumerate(zip(axes_list, joint_names)):  # type: ignore[arg-type]  # noqa: B905
+    for _idx, (ax, joint_name) in enumerate(zip(axes_list, joint_names)):
         forces = force_data[joint_name]
 
         if forces.ndim == 1:

@@ -215,7 +215,7 @@ class InverseDynamicsSolver:
         full_result = self.compute_required_torques(qpos, qvel, qacc)
 
         # Create selection matrix for actuated joints
-        actuated_joints = [
+        [
             i for i in range(self.model.nv) if i not in constrained_joints
         ]
 

@@ -5,7 +5,9 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-import yaml
+from typing import Any
+
+import yaml  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,7 @@ class MJCFExporter:
             yaml_path: Path to canonical YAML specification
         """
         self.yaml_path = Path(yaml_path)
-        with open(self.yaml_path) as f:
+        with self.yaml_path.open() as f:
             self.spec = yaml.safe_load(f)
 
     def export(self, output_path: Path | str) -> None:
@@ -44,17 +46,17 @@ class MJCFExporter:
         lines.append("  <!-- Generated from canonical YAML specification -->")
 
         # Options
-        lines.append("  <option timestep="0.002" gravity="0 0 -9.81" integrator="RK4"/>")
+        lines.append('  <option timestep="0.002" gravity="0 0 -9.81" integrator="RK4"/>')
 
         # Visual
         lines.append("  <visual>")
-        lines.append("    <global offwidth="1024" offheight="1024"/>")
-        lines.append("    <map znear="0.01" zfar="50"/>")
+        lines.append('    <global offwidth="1024" offheight="1024"/>')
+        lines.append('    <map znear="0.01" zfar="50"/>')
         lines.append("  </visual>")
 
         # Worldbody
         lines.append("  <worldbody>")
-        lines.append("    <geom name="floor" type="plane" size="10 10 0.1" rgba="0.8 0.8 0.8 1"/>")
+        lines.append('    <geom name="floor" type="plane" size="10 10 0.1" rgba="0.8 0.8 0.8 1"/>')
 
         # Root body
         root = self.spec["root"]
@@ -107,11 +109,11 @@ class MJCFExporter:
                 # Recursive children
                 lines.extend(self._generate_segments_mjcf(seg_name, depth + 1))
 
-                lines.append(f'{indent}</body>')
+                lines.append(f"{indent}</body>")
 
         return lines
 
-    def _generate_body_geom(self, body: dict) -> list[str]:
+    def _generate_body_geom(self, body: dict[str, Any]) -> list[str]:
         """Generate geometry for body.
 
         Args:

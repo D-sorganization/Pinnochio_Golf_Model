@@ -231,7 +231,7 @@ class KinematicForceAnalyzer:
 
         return C
 
-    def compute_club_head_apparent_forces(  # noqa: PLR0915
+    def compute_club_head_apparent_forces(
         self,
         qpos: np.ndarray,
         qvel: np.ndarray,

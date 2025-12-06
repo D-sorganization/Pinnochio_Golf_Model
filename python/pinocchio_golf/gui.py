@@ -119,11 +119,11 @@ class PinocchioGUI(QtWidgets.QWidget):
             self.model = pin.buildModelFromUrdf(fname)
             if self.model is None:
                 msg = "Failed to build model from URDF"
-                raise RuntimeError(msg)
+                raise RuntimeError(msg)  # noqa: TRY301
             self.data = self.model.createData()
             if self.data is None:
                 msg = "Failed to create model data"
-                raise RuntimeError(msg)
+                raise RuntimeError(msg)  # noqa: TRY301
             # Type narrowing: at this point, self.model and self.data are guaranteed to be non-None
             self.frame_box.clear()
 

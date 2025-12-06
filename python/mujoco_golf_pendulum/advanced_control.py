@@ -161,7 +161,7 @@ class AdvancedController:
         """
         self.hybrid_mask = mask
 
-    def compute_control(  # noqa: PLR0911 - Multiple return paths for different control modes
+    def compute_control(  # - Multiple return paths for different control modes
         self,
         target_position: np.ndarray | None = None,
         target_velocity: np.ndarray | None = None,

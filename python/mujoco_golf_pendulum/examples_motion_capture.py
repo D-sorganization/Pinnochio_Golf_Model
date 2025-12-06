@@ -14,10 +14,12 @@ motion capture systems.
 
 import mujoco
 import numpy as np
+from typing import Any
 
 from .inverse_dynamics import (
     InverseDynamicsAnalyzer,
     InverseDynamicsSolver,
+    InverseDynamicsResult,
     export_inverse_dynamics_to_csv,
 )
 from .kinematic_forces import KinematicForceAnalyzer, export_kinematic_forces_to_csv
@@ -67,10 +69,10 @@ def example_1_load_motion_capture() -> MotionCaptureSequence:
     marker_name = "MARKER_0"
     _times_marker, _positions = mocap_sequence.get_marker_trajectory(marker_name)
 
-    return mocap_sequence  # type: ignore[return-value]
+    return mocap_sequence
 
 
-def example_2_motion_retargeting() -> tuple[np.ndarray, np.ndarray]:
+def example_2_motion_retargeting() -> tuple[np.ndarray[Any, Any], np.ndarray[Any, Any]]:
     """Example 2: Retarget motion capture to MuJoCo model.
 
     Shows how to map marker positions to joint angles using IK.

@@ -88,8 +88,7 @@ class PinocchioBackend:
         v_arr = np.asarray(v, dtype=np.float64)
         a_arr = np.asarray(a, dtype=np.float64)
 
-        tau = pin.rnea(self.model, self.data, q_arr, v_arr, a_arr)
-        return tau
+        return pin.rnea(self.model, self.data, q_arr, v_arr, a_arr)
 
     def compute_forward_dynamics(
         self,
@@ -111,8 +110,7 @@ class PinocchioBackend:
         v_arr = np.asarray(v, dtype=np.float64)
         tau_arr = np.asarray(tau, dtype=np.float64)
 
-        a = pin.aba(self.model, self.data, q_arr, v_arr, tau_arr)
-        return a
+        return pin.aba(self.model, self.data, q_arr, v_arr, tau_arr)
 
     def compute_mass_matrix(
         self, q: npt.NDArray[np.float64]
@@ -126,8 +124,7 @@ class PinocchioBackend:
             Mass matrix [nv x nv]
         """
         q_arr = np.asarray(q, dtype=np.float64)
-        M = pin.crba(self.model, self.data, q_arr)
-        return M
+        return pin.crba(self.model, self.data, q_arr)
 
     def compute_bias_forces(
         self,
@@ -173,10 +170,9 @@ class PinocchioBackend:
 
         pin.forwardKinematics(self.model, self.data, q_arr)
         pin.updateFramePlacements(self.model, self.data)
-        J = pin.computeFrameJacobian(
+        return pin.computeFrameJacobian(
             self.model, self.data, q_arr, frame_id, reference_frame
         )
-        return J
 
     def forward_kinematics(
         self, q: npt.NDArray[np.float64]

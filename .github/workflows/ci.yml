@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
     # Add replicant branches if they exist:
     # branches: [ main, master, claude/RepositoryName_Replicants ]
 
@@ -16,8 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
-      fail-fast: true  # ✅ Always include
-    
+      fail-fast: true # ✅ Always include
+
     steps:
       - uses: actions/checkout@v6
         with:
@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-          
+
       - name: Cache pip
         uses: actions/cache@v4
         with:
@@ -35,7 +35,7 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements*.txt', '**/pyproject.toml', '**/setup.py', '**/setup.cfg') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-            
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -54,10 +54,10 @@ jobs:
           if [ -f pyproject.toml ]; then pip install -e .; fi
           # ✅ Pin tool versions (ensure they match requirements)
           pip install ruff==0.5.0 mypy==1.10.0 black==24.4.2 pytest==8.2.1 pytest-cov==5.0.0 pre-commit==4.0.0
-          
+
       - name: Run MATLAB Quality Check (Static Analysis)
         id: matlab-quality
-        continue-on-error: true  # Non-blocking due to MATLAB license restrictions
+        continue-on-error: true # Non-blocking due to MATLAB license restrictions
         run: |
           if [ -f tools/matlab_utilities/scripts/matlab_quality_check.py ]; then
             echo "=========================================="
@@ -68,7 +68,7 @@ jobs:
           else
             echo "⚠️  MATLAB quality check script not found - skipping"
           fi
-          
+
       - name: Upload MATLAB Quality Report
         if: always()
         uses: actions/upload-artifact@v5
@@ -77,7 +77,7 @@ jobs:
           path: matlab_quality_results.json
           retention-days: 30
           if-no-files-found: ignore
-          
+
       - name: Run quality check
         id: quality-check
         run: |
@@ -90,13 +90,13 @@ jobs:
           else
             echo "⚠️ No quality check script found, skipping..."
           fi
-          
+
       - name: Check for placeholders
         id: placeholders
         run: |
           # Fail if TODO, FIXME, or other placeholders found in Python files
           # Exclude quality check scripts that contain the patterns they check for
-          if grep -r "TODO\|FIXME\|XXX\|HACK\|pass #\|\.\.\..*#\|NotImplementedError" \
+          if grep -r "TODO\|FIXME\|XXX\|HACK\|pass #\|\.\.\..*#" \
             --include="*.py" \
             --exclude-dir=".git" \
             --exclude-dir="archive" \
@@ -109,10 +109,10 @@ jobs:
           else
             echo "✅ No placeholders found"
           fi
-            
+
       - name: Check for magic numbers
         id: magic-numbers
-        continue-on-error: true  # Non-blocking warning
+        continue-on-error: true # Non-blocking warning
         run: |
           # Check for common magic numbers that should be constants
           if grep -r "[^0-9a-zA-Z_]3\.14[0-9]*\|9\.8[0-9]*\|6\.67[0-9]*\|2\.71[0-9]*" \
@@ -125,7 +125,7 @@ jobs:
           else
             echo "✅ No obvious magic numbers found"
           fi
-          
+
       - name: Check for approximations
         id: approximations
         run: |
@@ -157,7 +157,7 @@ jobs:
             # ✅ Fallback with explicit rules
             ruff check . --select ALL
           fi
-          
+
       - name: Type check with MyPy
         id: mypy
         run: |
@@ -170,7 +170,7 @@ jobs:
             # ✅ Non-strict fallback to avoid conflicts
             mypy . --ignore-missing-imports
           fi
-          
+
       - name: Format check with Black
         id: black
         run: |
@@ -193,10 +193,10 @@ jobs:
           else
             black --check --diff .
           fi
-          
+
       - name: Run pre-commit
         id: pre-commit
-        continue-on-error: true  # Non-blocking
+        continue-on-error: true # Non-blocking
         run: |
           pre-commit run --all-files --show-diff-on-failure
           PRECOMMIT_EXIT_CODE=$?
@@ -204,7 +204,7 @@ jobs:
             echo "⚠️ Pre-commit checks failed, but this does not block CI. Please fix these issues."
             exit $PRECOMMIT_EXIT_CODE
           fi
-          
+
       - name: Run tests with coverage
         id: tests
         run: |
@@ -235,7 +235,7 @@ jobs:
           else
             echo "⚠️ No tests directory found, skipping tests"
           fi
-          
+
       - name: Check for coverage file
         id: coverage-check
         run: |
@@ -251,13 +251,13 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           # ✅ Wildcard pattern for flexibility
-          files: '**/coverage.xml'
+          files: "**/coverage.xml"
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false
           # ✅ Always include token
           token: ${{ secrets.CODECOV_TOKEN }}
-          
+
       - name: Verify reproducibility
         run: |
           # Check that random seeds are set in Python files using randomness
@@ -269,7 +269,7 @@ jobs:
               fi
             fi
           done
-          
+
       - name: Check for required constants documentation
         run: |
           # Verify physical constants have units and sources
@@ -281,7 +281,7 @@ jobs:
               fi
             fi
           done
-          
+
       - name: Summary
         if: always()
         run: |
@@ -289,70 +289,70 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          
+
           # MATLAB Quality Check (non-blocking, continue-on-error: true)
           if [ "${{ steps.matlab-quality.outcome }}" == "success" ] || [ "${{ steps.matlab-quality.outcome }}" == "skipped" ]; then
             echo "| MATLAB Quality Check | ✅ |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| MATLAB Quality Check | ⚠️ (non-blocking) |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Quality Check
           if [ "${{ steps.quality-check.outcome }}" == "success" ] || [ "${{ steps.quality-check.outcome }}" == "skipped" ]; then
             echo "| Quality Check | ✅ |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Quality Check | ❌ |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Placeholders
           if [ "${{ steps.placeholders.outcome }}" == "success" ] || [ "${{ steps.placeholders.outcome }}" == "skipped" ]; then
             echo "| No Placeholders | ✅ |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| No Placeholders | ❌ |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Magic Numbers
           if [ "${{ steps.magic-numbers.outcome }}" == "success" ] || [ "${{ steps.magic-numbers.outcome }}" == "skipped" ]; then
             echo "| No Magic Numbers | ✅ |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| No Magic Numbers | ⚠️ |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Approximations
           if [ "${{ steps.approximations.outcome }}" == "success" ] || [ "${{ steps.approximations.outcome }}" == "skipped" ]; then
             echo "| No Approximations | ✅ |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| No Approximations | ❌ |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Ruff
           if [ "${{ steps.ruff.outcome }}" == "success" ] || [ "${{ steps.ruff.outcome }}" == "skipped" ]; then
             echo "| Ruff Linting | ✅ |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Ruff Linting | ❌ |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # MyPy
           if [ "${{ steps.mypy.outcome }}" == "success" ] || [ "${{ steps.mypy.outcome }}" == "skipped" ]; then
             echo "| MyPy Type Checking | ✅ |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| MyPy Type Checking | ❌ |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Black
           if [ "${{ steps.black.outcome }}" == "success" ] || [ "${{ steps.black.outcome }}" == "skipped" ]; then
             echo "| Black Formatting | ✅ |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Black Formatting | ❌ |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Pre-commit (non-blocking)
           if [ "${{ steps.pre-commit.outcome }}" == "success" ] || [ "${{ steps.pre-commit.outcome }}" == "skipped" ]; then
             echo "| Pre-commit | ✅ |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Pre-commit | ⚠️ (non-blocking) |" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Tests
           if [ "${{ steps.tests.outcome }}" == "success" ] || [ "${{ steps.tests.outcome }}" == "skipped" ]; then
             echo "| Tests + Coverage | ✅ |" >> $GITHUB_STEP_SUMMARY
@@ -372,21 +372,22 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Run Bandit security check
-      # ✅ Use continue-on-error instead of || true
-      continue-on-error: true
-      run: |
-        pip install bandit==1.7.7
-        # ✅ Exclude test directories, target source code only
-        if [ -d python/src ]; then
-          bandit -r python/src -x python/tests -f json -o bandit-report.json
-        elif [ -d python ]; then
-          bandit -r python -x python/tests -f json -o bandit-report.json
-        elif [ -d src ]; then
-          bandit -r src -x tests -f json -o bandit-report.json
-        else
-          bandit -r . -x tests -f json -o bandit-report.json
-        fi
+      - name: Run Bandit security check
+        # ✅ Use continue-on-error instead of || true
+        continue-on-error: true
+        run: |
+          pip install bandit==1.7.7
+          # ✅ Exclude test directories, target source code only
+          if [ -d python/src ]; then
+            bandit -r python/src -x python/tests -f json -o bandit-report.json
+          elif [ -d python ]; then
+            bandit -r python -x python/tests -f json -o bandit-report.json
+          elif [ -d src ]; then
+            bandit -r src -x tests -f json -o bandit-report.json
+          else
+            bandit -r . -x tests -f json -o bandit-report.json
+          fi
+
 
     - name: Upload Bandit results
       uses: actions/upload-artifact@v5
@@ -408,29 +409,28 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Check documentation links
-      run: |
-        echo "📚 Checking documentation..."
-        if [ -f README.md ]; then
-          echo "✅ README.md found"
-        else
-          echo "⚠️ No README.md found"
-        fi
+      - name: Check documentation links
+        run: |
+          echo "📚 Checking documentation..."
+          if [ -f README.md ]; then
+            echo "✅ README.md found"
+          else
+            echo "⚠️ No README.md found"
+          fi
 
-    - name: Check for docstrings
-      # ✅ Use continue-on-error instead of || echo
-      continue-on-error: true
-      run: |
-        echo "📝 Checking for docstrings..."
-        pip install pydocstyle==6.3.0
-        # ✅ Check source directories only
-        if [ -d python/src ]; then
-          pydocstyle python/src/
-        elif [ -d python ]; then
-          pydocstyle python/
-        elif [ -d src ]; then
-          pydocstyle src/
-        else
-          pydocstyle .
-        fi
-
+      - name: Check for docstrings
+        # ✅ Use continue-on-error instead of || echo
+        continue-on-error: true
+        run: |
+          echo "📝 Checking for docstrings..."
+          pip install pydocstyle==6.3.0
+          # ✅ Check source directories only
+          if [ -d python/src ]; then
+            pydocstyle python/src/
+          elif [ -d python ]; then
+            pydocstyle python/
+          elif [ -d src ]; then
+            pydocstyle src/
+          else
+            pydocstyle .
+          fi

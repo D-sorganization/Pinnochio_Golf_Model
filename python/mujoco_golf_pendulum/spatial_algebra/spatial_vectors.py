@@ -161,4 +161,4 @@ def spatial_cross(
     if cross_type == "force":
         return crf(v) @ u
     msg = f"cross_type must be 'motion' or 'force', got '{cross_type}'"
-    raise ValueError(msg)
+    raise ValueError(msg)  # type: ignore[unreachable]

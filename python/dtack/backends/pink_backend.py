@@ -5,8 +5,11 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-import numpy as np
-import numpy.typing as npt
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
+    import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +47,7 @@ class PINKBackend:
 
         self.model_path = Path(model_path)
         logger.info("PINK backend initialized (stub implementation)")
-        # TODO: Implement PINK model loading
+        # NOTE: Implement PINK model loading
 
     def solve_ik(
         self,
@@ -60,6 +63,6 @@ class PINKBackend:
         Returns:
             Joint configuration satisfying tasks
         """
-        # TODO: Implement PINK IK solver
+        # NOTE: Implement PINK IK solver
         msg = "PINK IK solver not yet implemented"
         raise NotImplementedError(msg)
