@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import logging
+import typing
 from pathlib import Path
-
-from typing import Any
 
 import yaml  # type: ignore[import-untyped]
 
@@ -61,7 +60,10 @@ class MJCFExporter:
         # Root body
         root = self.spec["root"]
         root_pos = root.get("position", [0.0, 0.0, 0.9])
-        lines.append(f'    <body name="{root["name"]}" pos="{root_pos[0]} {root_pos[1]} {root_pos[2]}">')
+        lines.append(
+            f'    <body name="{root["name"]}" '
+            f'pos="{root_pos[0]} {root_pos[1]} {root_pos[2]}">'
+        )
         lines.extend(self._generate_body_geom(root))
         lines.extend(self._generate_segments_mjcf(root["name"]))
         lines.append("    </body>")
@@ -89,7 +91,10 @@ class MJCFExporter:
                 frame_offset = segment.get("frame_offset", [0.0, 0.0, 0.0])
                 joint = segment.get("joint", {})
 
-                lines.append(f'{indent}<body name="{seg_name}" pos="{frame_offset[0]} {frame_offset[1]} {frame_offset[2]}">')
+                lines.append(
+                    f'{indent}<body name="{seg_name}" '
+                    f'pos="{frame_offset[0]} {frame_offset[1]} {frame_offset[2]}">'
+                )
 
                 # Joint
                 joint_type = joint.get("type", "hinge")
@@ -97,7 +102,11 @@ class MJCFExporter:
                     axis = joint.get("axis", [0, 0, 1])
                     limits = joint.get("limits", [-3.14, 3.14])
                     damping = joint.get("damping", 0.0)
-                    lines.append(f'{indent}  <joint name="{seg_name}_joint" type="hinge" axis="{axis[0]} {axis[1]} {axis[2]}" range="{limits[0]} {limits[1]}" damping="{damping}"/>')
+                    lines.append(
+                        f'{indent}  <joint name="{seg_name}_joint" type="hinge" '
+                        f'axis="{axis[0]} {axis[1]} {axis[2]}" '
+                        f'range="{limits[0]} {limits[1]}" damping="{damping}"/>'
+                    )
                 elif joint_type == "ball":
                     lines.append(f'{indent}  <joint name="{seg_name}_joint" type="ball"/>')
                 elif joint_type == "fixed":
@@ -113,7 +122,7 @@ class MJCFExporter:
 
         return lines
 
-    def _generate_body_geom(self, body: dict[str, Any]) -> list[str]:
+    def _generate_body_geom(self, body: dict[str, typing.Any]) -> list[str]:
         """Generate geometry for body.
 
         Args:
@@ -130,13 +139,24 @@ class MJCFExporter:
 
         if geom_type == "box":
             size = geom.get("size", [0.1, 0.1, 0.1])
-            lines.append(f'      <geom name="{body["name"]}_geom" type="box" size="{size[0]} {size[1]} {size[2]}" rgba="{rgba_str}" mass="{body["mass"]}"/>')
+            lines.append(
+                f'      <geom name="{body["name"]}_geom" type="box" '
+                f'size="{size[0]} {size[1]} {size[2]}" rgba="{rgba_str}" '
+                f'mass="{body["mass"]}"/>'
+            )
         elif geom_type == "sphere":
             size = geom.get("size", 0.1)
-            lines.append(f'      <geom name="{body["name"]}_geom" type="sphere" size="{size}" rgba="{rgba_str}" mass="{body["mass"]}"/>')
+            lines.append(
+                f'      <geom name="{body["name"]}_geom" type="sphere" '
+                f'size="{size}" rgba="{rgba_str}" mass="{body["mass"]}"/>'
+            )
         elif geom_type in ("cylinder", "capsule"):
             size = geom.get("size", [0.1, 0.1])
             geom_tag = "cylinder" if geom_type == "cylinder" else "capsule"
-            lines.append(f'      <geom name="{body["name"]}_geom" type="{geom_tag}" size="{size[0]} {size[1]}" rgba="{rgba_str}" mass="{body["mass"]}"/>')
+            lines.append(
+                f'      <geom name="{body["name"]}_geom" type="{geom_tag}" '
+                f'size="{size[0]} {size[1]}" rgba="{rgba_str}" '
+                f'mass="{body["mass"]}"/>'
+            )
 
         return lines

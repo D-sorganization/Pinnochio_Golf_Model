@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-import numpy as np
+import numpy as np  # noqa: TID253
 import pinocchio as pin
 
 logger = logging.getLogger(__name__)

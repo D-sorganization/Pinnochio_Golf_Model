@@ -119,26 +119,7 @@ exclude = [
     "PLR0913", "PLR0911", "SIM102", "FBT001", "FBT002", "PLR2004", 
     "PLR0915", "N806", "ERA001", "PTH123", "TRY300", "BLE001"
 ]
-"python/dtack/viz/*.py" = [
-    "ICN003", # typing import
-    "F401",   # unused import
-    "TID253", # numpy import
-    "FBT001", "FBT002", # boolean trap
-    "E501",   # line length
-    "ARG002", # unused argument
-]
-"python/dtack/**/*.py" = [
-    "ICN003", # typing import
-    "F401",   # unused import
-    "TID253", # numpy import
-    "FBT001", "FBT002", # boolean trap
-    "E501",   # line length
-    "ARG002", "ARG001", # unused argument
-    "BLE001", # blind except
-    "PLR0915", "PLR2004", "PLR0913", # complexity
-    "ERA001", # commented code
-    "UP007", # union types
-]
+
 
 
 # Scientific modules using mathematical notation

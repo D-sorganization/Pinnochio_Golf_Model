@@ -5,9 +5,8 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
+import typing
+if typing.TYPE_CHECKING:
     import numpy.typing as npt
     import numpy as np
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # PINK availability check
 try:
-    import pink
+    import pink  # noqa: F401
 
     PINK_AVAILABLE = True
 except ImportError:
@@ -51,8 +50,8 @@ class PINKBackend:
 
     def solve_ik(
         self,
-        tasks: dict[str, npt.NDArray[np.float64]],
-        q_init: npt.NDArray[np.float64],
+        tasks: dict[str, npt.NDArray[np.float64]],  # noqa: ARG002
+        q_init: npt.NDArray[np.float64],  # noqa: ARG002
     ) -> npt.NDArray[np.float64]:
         """Solve inverse kinematics for given tasks.
 

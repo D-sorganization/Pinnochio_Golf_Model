@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+import typing
+
+if typing.TYPE_CHECKING:
+    import pinocchio as pin
 
 try:
     import gepetto.corbaserver
@@ -12,7 +15,7 @@ try:
 except ImportError:
     GEPETTO_AVAILABLE = False
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     import pinocchio as pin
 
 logger = logging.getLogger(__name__)
@@ -31,14 +34,17 @@ class GeppettoViewer:
             ImportError: If Geppetto is not installed
         """
         if not GEPETTO_AVAILABLE:
-            msg = "Geppetto is required but not installed. Install with: conda install -c conda-forge gepetto-viewer"
+            msg = (
+                "Geppetto is required but not installed. Install with: "
+                "conda install -c conda-forge gepetto-viewer"
+            )
             raise ImportError(msg)
 
         try:
             self.client = gepetto.corbaserver.Client()
             self.client.gui.createWindow("golfer_viewer")
             logger.info("Geppetto viewer initialized")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.warning("Failed to connect to Geppetto server: %s", e)
             logger.info("Start Geppetto server with: gepetto-gui")
 

@@ -7,9 +7,8 @@ import logging
 import pinocchio as pin
 import pink
 from pink import AbstractTask
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
+import typing
+if typing.TYPE_CHECKING:
     import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -18,7 +17,13 @@ logger = logging.getLogger(__name__)
 class PinkSolver:
     """Inverse Kinematics solver wrapper for Pink."""
 
-    def __init__(self, robot_model: pin.Model, robot_data: pin.Data, robot_visual: pin.GeometryModel, robot_collision: pin.GeometryModel) -> None:
+    def __init__(
+        self,
+        robot_model: pin.Model,
+        robot_data: pin.Data,
+        robot_visual: pin.GeometryModel,
+        robot_collision: pin.GeometryModel,
+    ) -> None:
         """Initialize Pink solver.
 
         Args:
@@ -38,7 +43,7 @@ class PinkSolver:
         # but for simple usage we might just recreate it or update it.
         # A Pink 'Configuration' binds a model to a specific joint configuration `q`.
 
-    def solve(
+    def solve(  # noqa: PLR0913
         self,
         q_init: np.ndarray,
         tasks: list[AbstractTask],
@@ -76,6 +81,6 @@ class PinkSolver:
             damping=damping
         )
 
-        # Integrate: q_next = q + v * dt
+        # Integrate velocity to update configuration: q_next = q + v * dt
         return pin.integrate(self.model, q_init, velocity * dt)
 
