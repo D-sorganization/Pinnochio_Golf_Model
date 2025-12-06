@@ -364,13 +364,13 @@ jobs:
     name: Security Check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-    # ✅ Always set up Python
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.11'
+      # ✅ Always set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
 
 
       - name: Run Bandit security check
@@ -388,25 +388,25 @@ jobs:
           else
             bandit -r . -x tests -f json -o bandit-report.json
           fi
-    - name: Upload Bandit results
-      uses: actions/upload-artifact@v5
-      with:
-        name: bandit-report
-        path: bandit-report.json
-        # ✅ Handle missing files gracefully
-        if-no-files-found: ignore
+      - name: Upload Bandit results
+        uses: actions/upload-artifact@v5
+        with:
+          name: bandit-report
+          path: bandit-report.json
+          # ✅ Handle missing files gracefully
+          if-no-files-found: ignore
 
   documentation-check:
     name: Documentation Check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-    # ✅ Always set up Python
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.11'
+      # ✅ Always set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
 
       - name: Check documentation links
         run: |
