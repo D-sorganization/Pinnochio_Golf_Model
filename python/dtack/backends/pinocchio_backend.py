@@ -15,6 +15,19 @@ try:
 except ImportError:
     PINOCCHIO_AVAILABLE = False
 
+    # Define dummy pin module to allow import without pinocchio
+    class DummyPin:
+        """Dummy class to prevent NameError when Pinocchio is missing."""
+
+        class ReferenceFrame:
+            """Dummy ReferenceFrame enum."""
+
+            LOCAL_WORLD_ALIGNED = 0
+
+        class SE3:
+            """Dummy SE3 class."""
+
+    pin = DummyPin()
 logger = logging.getLogger(__name__)
 
 

@@ -31,6 +31,8 @@ MIN_UNIVERSAL_DOFS = 2
 # Gimbal joints require 3 rotational axes (pitch, yaw, roll).
 # Source: See https://en.wikipedia.org/wiki/Gimbal
 MIN_GIMBAL_DOFS = 3
+# Number of joint limits expected for a revolute joint [lower, upper]
+JOINT_LIMIT_COUNT = 2
 
 
 class URDFExporter:
@@ -380,7 +382,7 @@ class URDFExporter:
             f'    <axis xyz="{axis[0]} {axis[1]} {axis[2]}"/>',
         ]
 
-        if limits and len(limits) == 2:  # noqa: PLR2004
+        if limits and len(limits) == JOINT_LIMIT_COUNT:
             lines.append(
                 f'    <limit lower="{limits[0]}" upper="{limits[1]}" '
                 f'effort="{MAX_EFFORT}" velocity="{MAX_VELOCITY}"/>'

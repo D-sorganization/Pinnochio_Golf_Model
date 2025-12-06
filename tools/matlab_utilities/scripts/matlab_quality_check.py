@@ -45,7 +45,7 @@ class MATLABQualityChecker:
         self.project_root = project_root
         self.matlab_dir = project_root / "matlab"
         self.results = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),  # noqa: UP017
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "total_files": 0,
             "issues": [],
             "passed": True,

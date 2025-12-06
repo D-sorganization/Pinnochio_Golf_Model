@@ -263,10 +263,12 @@ class VideoExporter:
                 if overlay_callback is not None:
 
                     def frame_overlay(
-                        frame: np.ndarray, t_val: float = t
+                        frame: np.ndarray,
+                        t_val: float = t,
+                        data_val: mj.MjData = self.data,
                     ) -> np.ndarray:
                         """Apply overlay callback with captured time and data."""
-                        return overlay_callback(frame, t_val, self.data)
+                        return overlay_callback(frame, t_val, data_val)
 
                     frame_overlay_fn = frame_overlay
 
@@ -429,12 +431,13 @@ def export_simulation_video(
                     frame: np.ndarray,
                     t_val: float = t,
                     m_val: dict = metrics,
+                    d_val: mj.MjData = data,
                 ) -> np.ndarray:
                     """Create metrics overlay on frame."""
                     return create_metrics_overlay(
                         frame,
                         t_val,
-                        data,
+                        d_val,
                         m_val,
                         font_scale=0.8,
                     )
