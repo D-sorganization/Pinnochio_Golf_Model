@@ -2,10 +2,16 @@
 
 import logging
 import numpy as np
-import pinocchio as pin
+import numpy as np
+import pytest
 
-from dtack.ik.pink_solver import PinkSolver
-from dtack.ik.tasks import create_frame_task, create_posture_task
+pin = pytest.importorskip("pinocchio")
+
+try:
+    from dtack.ik.pink_solver import PinkSolver
+    from dtack.ik.tasks import create_frame_task, create_posture_task
+except ImportError:
+    pytest.skip("dtack.ik dependencies missing", allow_module_level=True)
 
 
 def test_ik_convergence() -> None:
