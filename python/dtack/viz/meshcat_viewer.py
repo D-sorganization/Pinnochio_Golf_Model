@@ -3,21 +3,22 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+import typing
+
+if typing.TYPE_CHECKING:
+    import pinocchio as pin
 
 
 try:
-    import meshcat.geometry as g
     import meshcat.visualizer as viz
 
     MESHCAT_AVAILABLE = True
 except ImportError:
     MESHCAT_AVAILABLE = False
 
-import numpy as np  # noqa: TCH002
-import numpy.typing as npt  # noqa: TCH002
-
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
+    import numpy as np
+    import numpy.typing as npt
     import pinocchio as pin
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,9 @@ class MeshCatViewer:
         self.viewer.open()
         logger.info("MeshCat viewer initialized")
 
-    def load_model(self, model: pin.Model, visual_model: pin.GeometryModel | None = None) -> None:
+    def load_model(
+        self, model: pin.Model, visual_model: pin.GeometryModel | None = None
+    ) -> None:
         """Load Pinocchio model into viewer.
 
         Args:

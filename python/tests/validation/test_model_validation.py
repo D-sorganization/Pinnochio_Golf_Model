@@ -10,14 +10,21 @@ class TestModelValidation:
 
     def test_canonical_yaml_exists(self) -> None:
         """Test that canonical YAML specification exists."""
-        yaml_path = Path("models/spec/golfer_canonical.yaml")
-        assert yaml_path.exists(), "Canonical YAML specification not found"
+        # Resolve path relative to repository root
+        # This file is in python/tests/validation/
+        # Root is 3 levels up: python/tests/validation/ -> python/tests/ -> python/ -> root
+        repo_root = Path(__file__).resolve().parents[3]
+        yaml_path = repo_root / "models/spec/golfer_canonical.yaml"
+        assert (
+            yaml_path.exists()
+        ), f"Canonical YAML specification not found at {yaml_path}"
 
     def test_yaml_structure(self) -> None:
         """Test that YAML has required structure."""
-        import yaml  # type: ignore[import-untyped]
+        import yaml
 
-        yaml_path = Path("models/spec/golfer_canonical.yaml")
+        repo_root = Path(__file__).resolve().parents[3]
+        yaml_path = repo_root / "models/spec/golfer_canonical.yaml"
         if yaml_path.exists():
             with yaml_path.open() as f:
                 spec = yaml.safe_load(f)

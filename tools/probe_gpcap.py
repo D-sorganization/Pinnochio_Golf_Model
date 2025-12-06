@@ -1,11 +1,12 @@
 """Probe .gpcap file structure."""
+
 import struct
 import sys
+
 
 def probe(filepath: str) -> None:
     with open(filepath, "rb") as f:
         data = f.read()
-
 
     # Identify strings (sequence of printable chars > 3)
     current_string = []
@@ -25,6 +26,7 @@ def probe(filepath: str) -> None:
                     print(f"  Preceding 4 bytes (int): {pre_value}")
 
             current_string = []
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:

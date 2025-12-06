@@ -11,8 +11,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
+from pathlib import Path
+import logging
+
 import mujoco
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -252,11 +257,13 @@ def export_telemetry_json(filename: str, data_dict: dict[str, Any]) -> bool:
             else:
                 serializable_dict[key] = value
 
-        with open(filename, "w") as f:
+        with Path(filename).open("w") as f:
             json.dump(serializable_dict, f, indent=2)
-        return True
     except Exception:
+        logger.exception("Failed to export telemetry JSON")
         return False
+    else:
+        return True
 
 
 def export_telemetry_csv(filename: str, data_dict: dict[str, Any]) -> bool:
@@ -292,7 +299,7 @@ def export_telemetry_csv(filename: str, data_dict: dict[str, Any]) -> bool:
 
         flat_keys = list(flat_data.keys())
 
-        with open(filename, "w", newline="") as f:
+        with Path(filename).open("w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(flat_keys)
 
@@ -305,6 +312,8 @@ def export_telemetry_csv(filename: str, data_dict: dict[str, Any]) -> bool:
                     else:
                         row.append("")
                 writer.writerow(row)
-        return True
     except Exception:
+        logger.exception("Failed to export telemetry CSV")
         return False
+    else:
+        return True

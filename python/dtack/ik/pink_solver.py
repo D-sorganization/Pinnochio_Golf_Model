@@ -7,9 +7,9 @@ import logging
 import pinocchio as pin
 import pink
 from pink import AbstractTask
-from typing import TYPE_CHECKING
+import typing
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,13 @@ logger = logging.getLogger(__name__)
 class PinkSolver:
     """Inverse Kinematics solver wrapper for Pink."""
 
-    def __init__(self, robot_model: pin.Model, robot_data: pin.Data, robot_visual: pin.GeometryModel, robot_collision: pin.GeometryModel) -> None:
+    def __init__(
+        self,
+        robot_model: pin.Model,
+        robot_data: pin.Data,
+        robot_visual: pin.GeometryModel,
+        robot_collision: pin.GeometryModel,
+    ) -> None:
         """Initialize Pink solver.
 
         Args:
@@ -38,13 +44,13 @@ class PinkSolver:
         # but for simple usage we might just recreate it or update it.
         # A Pink 'Configuration' binds a model to a specific joint configuration `q`.
 
-    def solve(
+    def solve(  # noqa: PLR0913
         self,
         q_init: np.ndarray,
         tasks: list[AbstractTask],
         dt: float,
         solver: str = "quadprog",
-        damping: float = 1e-6
+        damping: float = 1e-6,
     ) -> np.ndarray:
         """Solve differential IK for one step.
 
@@ -62,20 +68,13 @@ class PinkSolver:
         # Note: Depending on pink version, signature might vary.
         # Assuming standard pink.Configuration usage.
 
-        configuration = pink.Configuration(
-            self.model, self.data, q_init
-        )
+        configuration = pink.Configuration(self.model, self.data, q_init)
 
         # Solve delta_q or velocity
         # pink.solve_ik returns the velocity (v) usually to achieve tasks
         velocity = pink.solve_ik(
-            configuration,
-            tasks,
-            dt,
-            solver=solver,
-            damping=damping
+            configuration, tasks, dt, solver=solver, damping=damping
         )
 
-        # Integrate: q_next = q + v * dt
+        # Integrate velocity to update configuration: q_next = q + v * dt
         return pin.integrate(self.model, q_init, velocity * dt)
-

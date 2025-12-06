@@ -2,21 +2,22 @@
 
 from __future__ import annotations
 
-from typing import Any, Union
+import typing
 
-import numpy as np
+
+import numpy as np  # noqa: TID253
 import pinocchio as pin
 import pink.tasks
 
 # Type alias for transformation matrices
-Transform = Union[pin.SE3, np.ndarray]
+Transform = pin.SE3 | np.ndarray
 
 
 def create_frame_task(
     body_name: str,
     position_cost: float = 1.0,
     orientation_cost: float = 1.0,
-    lm_damping: float = 0.0
+    lm_damping: float = 0.0,
 ) -> pink.tasks.FrameTask:
     """Create a FrameTask (SE3 target) for a specific body frame.
 
@@ -29,14 +30,15 @@ def create_frame_task(
     Returns:
         Configured FrameTask
     """
-    task = pink.tasks.FrameTask(body_name, position_cost=position_cost, orientation_cost=orientation_cost)
+    task = pink.tasks.FrameTask(
+        body_name, position_cost=position_cost, orientation_cost=orientation_cost
+    )
     task.lm_damping = lm_damping
     return task
 
 
 def create_posture_task(
-    cost: float = 1e-3,
-    q_ref: np.ndarray[Any, Any] | None = None
+    cost: float = 1e-3, q_ref: np.ndarray[typing.Any, typing.Any] | None = None
 ) -> pink.tasks.PostureTask:
     """Create a PostureTask to regularize joint configuration.
 
@@ -54,9 +56,9 @@ def create_posture_task(
 
 
 def create_joint_coupling_task(
-    joint_names: list[str],
-    ratios: list[float],
-    cost: float = 100.0
+    joint_names: list[str],  # noqa: ARG001
+    ratios: list[float],  # noqa: ARG001
+    cost: float = 100.0,  # noqa: ARG001
 ) -> pink.tasks.LinearHolonomicTask:
     """Create a task to enforce linear coupling between joints.
 

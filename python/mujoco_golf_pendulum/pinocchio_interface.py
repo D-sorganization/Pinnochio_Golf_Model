@@ -171,7 +171,9 @@ class PinocchioWrapper:
         # The configuration should already be synchronized via sync_mujoco_to_pinocchio
         # This method exists for API completeness but is a no-op
 
-    def _mujoco_q_to_pinocchio_q(self, q_mj: np.ndarray[Any, Any]) -> np.ndarray[Any, Any]:
+    def _mujoco_q_to_pinocchio_q(
+        self, q_mj: np.ndarray[Any, Any]
+    ) -> np.ndarray[Any, Any]:
         """Convert MuJoCo configuration to Pinocchio format.
 
         Handles quaternion conventions (MuJoCo: w,x,y,z vs Pinocchio: x,y,z,w).
@@ -202,7 +204,9 @@ class PinocchioWrapper:
 
         return q_pin
 
-    def _pinocchio_q_to_mujoco_q(self, q_pin: np.ndarray[Any, Any]) -> np.ndarray[Any, Any]:
+    def _pinocchio_q_to_mujoco_q(
+        self, q_pin: np.ndarray[Any, Any]
+    ) -> np.ndarray[Any, Any]:
         """Convert Pinocchio configuration to MuJoCo format.
 
         Handles quaternion conventions (Pinocchio: x,y,z,w vs MuJoCo: w,x,y,z).
@@ -442,7 +446,12 @@ class PinocchioWrapper:
         q: np.ndarray[Any, Any] | None = None,
         v: np.ndarray[Any, Any] | None = None,
         tau: np.ndarray[Any, Any] | None = None,
-    ) -> tuple[np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any]]:
+    ) -> tuple[
+        np.ndarray[Any, Any],
+        np.ndarray[Any, Any],
+        np.ndarray[Any, Any],
+        np.ndarray[Any, Any],
+    ]:
         """Compute analytical derivatives of dynamics.
 
         Computes ∂f/∂q, ∂f/∂v, ∂f/∂τ, ∂f/∂u (for control).

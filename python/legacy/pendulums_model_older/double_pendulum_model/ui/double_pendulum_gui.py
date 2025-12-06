@@ -34,6 +34,7 @@ from double_pendulum_model.physics.double_pendulum import (
 )
 
 TIME_STEP = 0.01
+ANGLE_TOLERANCE_DEG = 0.1
 
 
 @dataclass
@@ -104,7 +105,9 @@ class DoublePendulumApp:
 
         # Enable interactive rotation and zoom
         self.canvas = FigureCanvasTkAgg(self.fig, main_frame)
-        self.canvas.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+        self.canvas.get_tk_widget().pack(
+            side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5)
+        )
 
         # Draw initial empty plot
         self.canvas.draw()
@@ -116,7 +119,9 @@ class DoublePendulumApp:
 
         # Scrollable frame for controls
         canvas_scroll = tk.Canvas(panel_frame, bg="white", highlightthickness=0)
-        scrollbar = tk.Scrollbar(panel_frame, orient="vertical", command=canvas_scroll.yview)
+        scrollbar = tk.Scrollbar(
+            panel_frame, orient="vertical", command=canvas_scroll.yview
+        )
         scrollable_frame = tk.Frame(canvas_scroll, bg="white")
 
         scrollable_frame.bind(
@@ -144,7 +149,9 @@ class DoublePendulumApp:
         self._create_section_header(scrollable_frame, "Initial Conditions", row)
         row += 1
 
-        def labeled_row(label: str, default: str, row: int, tooltip: str = "") -> tk.Entry:
+        def labeled_row(
+            label: str, default: str, row: int, tooltip: str = ""
+        ) -> tk.Entry:
             frame = tk.Frame(scrollable_frame, bg="white")
             frame.grid(row=row, column=0, columnspan=2, sticky="ew", pady=2)
 
@@ -343,11 +350,13 @@ class DoublePendulumApp:
 
         granularity_frame = tk.Frame(scrollable_frame, bg="white")
         granularity_frame.grid(row=row, column=0, columnspan=2, sticky="w", pady=2)
-        tk.Label(granularity_frame, text="Granularity (every N steps):", bg="white").pack(
-            side=tk.LEFT, padx=(20, 5)
-        )
+        tk.Label(
+            granularity_frame, text="Granularity (every N steps):", bg="white"
+        ).pack(side=tk.LEFT, padx=(20, 5))
         self.granularity_var = tk.StringVar(value="1")
-        granularity_entry = tk.Entry(granularity_frame, textvariable=self.granularity_var, width=8)
+        granularity_entry = tk.Entry(
+            granularity_frame, textvariable=self.granularity_var, width=8
+        )
         granularity_entry.pack(side=tk.LEFT)
         granularity_entry.bind("<KeyRelease>", lambda e: self._on_granularity_change())
         row += 1
@@ -572,14 +581,18 @@ class DoublePendulumApp:
             if abs(com_ratio - 0.5) < 0.01:
                 # Close to uniform rod - use standard formula
                 upper_inertia = (
-                    (1.0 / 12.0) * user_inputs.upper_mass_kg * user_inputs.upper_length_m**2
+                    (1.0 / 12.0)
+                    * user_inputs.upper_mass_kg
+                    * user_inputs.upper_length_m**2
                 )
             else:
                 # For non-uniform distribution, use an approximation
                 # Scale the uniform rod inertia based on how far COM is from center
                 # This is an approximation - exact value depends on actual mass distribution
                 uniform_inertia = (
-                    (1.0 / 12.0) * user_inputs.upper_mass_kg * user_inputs.upper_length_m**2
+                    (1.0 / 12.0)
+                    * user_inputs.upper_mass_kg
+                    * user_inputs.upper_length_m**2
                 )
                 # Adjust based on COM position (empirical scaling factor)
                 com_offset_factor = 1.0 + 3.0 * (com_ratio - 0.5) ** 2
@@ -608,7 +621,9 @@ class DoublePendulumApp:
             forcing = compile_forcing_functions(
                 user_inputs.shoulder_expression, user_inputs.wrist_expression
             )
-            self.dynamics = DoublePendulumDynamics(parameters=parameters, forcing_functions=forcing)
+            self.dynamics = DoublePendulumDynamics(
+                parameters=parameters, forcing_functions=forcing
+            )
 
             # Update state with new parameters
             # If simulation is running and angles change, pause to avoid physically
@@ -622,12 +637,15 @@ class DoublePendulumApp:
                 # Check if angles actually changed
                 old_theta1 = math.degrees(self.state.theta1)
                 old_theta2 = math.degrees(self.state.theta2)
-                old_phi = math.degrees(self.state.phi) if hasattr(self.state, "phi") else 0.0
+                old_phi = (
+                    math.degrees(self.state.phi) if hasattr(self.state, "phi") else 0.0
+                )
 
+                # Check for significant changes
                 angles_changed = (
-                    abs(old_theta1 - user_inputs.shoulder_angle_deg) > 0.1
-                    or abs(old_theta2 - user_inputs.wrist_angle_deg) > 0.1
-                    or abs(old_phi - user_inputs.out_of_plane_angle_deg) > 0.1
+                    abs(old_theta1 - user_inputs.shoulder_angle_deg) > ANGLE_TOLERANCE_DEG
+                    or abs(old_theta2 - user_inputs.wrist_angle_deg) > ANGLE_TOLERANCE_DEG
+                    or abs(old_phi - user_inputs.out_of_plane_angle_deg) > ANGLE_TOLERANCE_DEG
                 )
 
                 if angles_changed:
@@ -654,7 +672,11 @@ class DoublePendulumApp:
                     omega1=self.state.omega1,
                     omega2=self.state.omega2,
                     phi=math.radians(user_inputs.out_of_plane_angle_deg),
-                    omega_phi=(self.state.omega_phi if hasattr(self.state, "omega_phi") else 0.0),
+                    omega_phi=(
+                        self.state.omega_phi
+                        if hasattr(self.state, "omega_phi")
+                        else 0.0
+                    ),
                 )
 
             self._draw_pendulum_3d()
@@ -672,7 +694,8 @@ class DoublePendulumApp:
                     omega_phi=0.0,
                 )
                 self._draw_pendulum_3d()
-            raise RuntimeError(f"Error updating pendulum: {error}") from error
+            msg = f"Error updating pendulum: {error}"
+            raise RuntimeError(msg) from error
 
     def start(self) -> None:
         """Start or resume simulation."""
@@ -724,94 +747,125 @@ class DoublePendulumApp:
         self.root.after(int(TIME_STEP * 1000), self._update)
 
     def _draw_pendulum_3d(self) -> None:
-        """Draw pendulum in 3D space with correct pivot point and angle references."""
+        """Draw pendulum in 3D space using helper methods."""
         if self.state is None or self.dynamics is None:
-            print(f"DEBUG: state={self.state}, dynamics={self.dynamics}")
+            logging.debug("DEBUG: state=%s, dynamics=%s", self.state, self.dynamics)
             return
 
         try:
             self.ax.clear()
         except Exception as e:
-            print(f"Error clearing axes: {e}")
+            logging.error("Error clearing axes: %s", e)
             return
+
+        # Prepare
+        pivot = np.array([0.0, 0.0, 0.0])
+        upper = self.dynamics.parameters.upper_segment
+        lower = self.dynamics.parameters.lower_segment
+        max_range = (upper.length_m + lower.length_m) * 1.3
+
+        # Calculate Positions
+        pivot, elbow, wrist = self._calculate_3d_positions(pivot)
+
+        # Draw Elements
+        self._draw_reference_lines(pivot, max_range, self.state.theta1)
+        self._draw_segments(pivot, elbow, wrist)
+        self._draw_plane(upper.length_m + lower.length_m)
+
+        # Finalize Plot
+        self.ax.set_xlim([-max_range, max_range])
+        self.ax.set_ylim([-max_range, max_range])
+        self.ax.set_zlim([-max_range * 0.5, max_range * 0.5])
+        self.ax.set_xlabel("X (m)", fontsize=10)
+        self.ax.set_ylabel("Y (m)", fontsize=10)
+        self.ax.set_zlabel("Z (m)", fontsize=10)
+        self.ax.set_title(
+            "Double Pendulum 3D View\nPivot at origin, θ₁=0° is vertical down",
+            fontsize=11,
+            fontweight="bold",
+        )
+        self.ax.legend(loc="upper left", fontsize=8, framealpha=0.9)
+        self.canvas.draw()
+
+    def _calculate_3d_positions(
+        self, pivot: npt.NDArray[np.float64]
+    ) -> tuple[
+        npt.NDArray[np.float64], npt.NDArray[np.float64], npt.NDArray[np.float64]
+    ]:
+        """Calculate the 3D positions of pendulum joints."""
+        if self.state is None or self.dynamics is None:
+            # Should not happen given caller checks, but for safety:
+            return pivot, pivot, pivot
 
         upper = self.dynamics.parameters.upper_segment
         lower = self.dynamics.parameters.lower_segment
-
-        # PIVOT POINT: Base of upper segment (hub/pivot)
-        # This is the fixed point from which the pendulum swings
-        pivot = np.array([0.0, 0.0, 0.0])
-
-        # Calculate positions in the plane
-        # Coordinate system: X=horizontal, Y=depth, Z=vertical (positive Z is up)
-        # theta1: angle of upper segment from vertical (0° = pointing straight down = negative Z)
-        # theta2: relative angle of lower segment from upper segment
         theta1 = self.state.theta1
         theta2 = self.state.theta2
 
-        # Upper segment: extends from pivot
-        # In standard pendulum coordinates: theta=0 means vertical down (negative Z)
-        # So we use: x = l * sin(theta), z = -l * cos(theta) where z is vertical
+        # Upper segment vector
         upper_vec = np.array(
             [
-                math.sin(theta1) * upper.length_m,  # Horizontal component (X)
-                0.0,  # Depth component (Y, initially zero)
-                -math.cos(theta1) * upper.length_m,  # Vertical component (Z, negative = down)
+                math.sin(theta1) * upper.length_m,
+                0.0,
+                -math.cos(theta1) * upper.length_m,
             ]
         )
         elbow = pivot + upper_vec
 
-        # Lower segment: extends from elbow
-        # Absolute angle is theta1 + theta2
+        # Lower segment vector
         lower_abs_angle = theta1 + theta2
         lower_vec = np.array(
             [
-                math.sin(lower_abs_angle) * lower.length_m,  # Horizontal (X)
-                0.0,  # Depth (Y)
-                -math.cos(lower_abs_angle) * lower.length_m,  # Vertical (Z, negative = down)
+                math.sin(lower_abs_angle) * lower.length_m,
+                0.0,
+                -math.cos(lower_abs_angle) * lower.length_m,
             ]
         )
         wrist = elbow + lower_vec
 
-        # Apply out-of-plane rotation if not constrained
-        # This rotates around the vertical (Z) axis to create motion in the Y (depth) direction
+        # Apply rotations
         if not self.dynamics.parameters.constrained_to_plane:
+            # Out of plane rotation
             phi = self.state.phi if hasattr(self.state, "phi") else 0.0
-            cos_phi = math.cos(phi)
-            sin_phi = math.sin(phi)
+            elbow = self._rotate_out_of_plane(elbow, phi)
+            wrist = self._rotate_out_of_plane(wrist, phi)
 
-            # Rotate around vertical (Z) axis to move in Y (depth) direction
-            def rotate_out_of_plane(point):
-                x, y, z = point[0], point[1], point[2]
-                # Rotate around vertical (Z) axis
-                new_x = x * cos_phi - y * sin_phi
-                new_y = x * sin_phi + y * cos_phi
-                return np.array([new_x, new_y, z])
-
-            elbow = rotate_out_of_plane(elbow)
-            wrist = rotate_out_of_plane(wrist)
-
-        # Apply plane rotation if constrained
         if self.dynamics.parameters.constrained_to_plane:
+            # Plane inclination rotation
             plane_angle = self.dynamics.parameters.plane_inclination_rad
-            cos_plane = math.cos(plane_angle)
-            sin_plane = math.sin(plane_angle)
+            pivot = self._rotate_plane(pivot, plane_angle)
+            elbow = self._rotate_plane(elbow, plane_angle)
+            wrist = self._rotate_plane(wrist, plane_angle)
 
-            def rotate_plane(point):
-                y, z = point[1], point[2]
-                new_y = y * cos_plane - z * sin_plane
-                new_z = y * sin_plane + z * cos_plane
-                return np.array([point[0], new_y, new_z])
+        return pivot, elbow, wrist
 
-            pivot = rotate_plane(pivot)
-            elbow = rotate_plane(elbow)
-            wrist = rotate_plane(wrist)
+    def _rotate_out_of_plane(
+        self, point: npt.NDArray[np.float64], phi: float
+    ) -> npt.NDArray[np.float64]:
+        """Rotate point around Z axis by phi."""
+        x, y, z = point[0], point[1], point[2]
+        cos_phi = math.cos(phi)
+        sin_phi = math.sin(phi)
+        new_x = x * cos_phi - y * sin_phi
+        new_y = x * sin_phi + y * cos_phi
+        return np.array([new_x, new_y, z])
 
-        # Draw reference axes and angle indicators
-        max_range = (upper.length_m + lower.length_m) * 1.3
+    def _rotate_plane(
+        self, point: npt.NDArray[np.float64], angle: float
+    ) -> npt.NDArray[np.float64]:
+        """Rotate point around X axis by angle."""
+        y, z = point[1], point[2]
+        cos_a = math.cos(angle)
+        sin_a = math.sin(angle)
+        new_y = y * cos_a - z * sin_a
+        new_z = y * sin_a + z * cos_a
+        return np.array([point[0], new_y, new_z])
 
-        # Draw vertical reference line (shows theta1=0 reference in plane)
-        # Z is vertical, so theta1=0 means pointing in negative Z direction
+    def _draw_reference_lines(
+        self, pivot: npt.NDArray[np.float64], max_range: float, theta1: float
+    ) -> None:
+        """Draw reference lines, arcs, and gravity vector."""
+        # Vertical reference
         self.ax.plot(
             [pivot[0], pivot[0]],
             [pivot[1], pivot[1]],
@@ -821,8 +875,7 @@ class DoublePendulumApp:
             alpha=0.3,
             label="Plane Vertical (θ₁=0°)",
         )
-
-        # Draw horizontal reference line (in X direction)
+        # Horizontal reference
         self.ax.plot(
             [pivot[0] - max_range * 0.3, pivot[0] + max_range * 0.3],
             [pivot[1], pivot[1]],
@@ -832,50 +885,37 @@ class DoublePendulumApp:
             alpha=0.3,
             label="Plane Horizontal",
         )
-
-        # Draw angle arc for theta1 (in X-Z plane)
-        arc_points = 20
-        arc_theta = np.linspace(0, theta1, arc_points)
+        # Theta1 arc
+        arc_theta = np.linspace(0, theta1, 20)
         arc_radius = max_range * 0.2
         arc_x = [pivot[0] + arc_radius * math.sin(t) for t in arc_theta]
-        arc_y = [pivot[1]] * arc_points  # Y stays constant
-        arc_z = [pivot[2] - arc_radius * math.cos(t) for t in arc_theta]  # Z is vertical
+        arc_z = [pivot[2] - arc_radius * math.cos(t) for t in arc_theta]
         if len(arc_x) > 1:
-            self.ax.plot(arc_x, arc_y, arc_z, "b-", linewidth=2, alpha=0.5)
+            self.ax.plot(arc_x, [pivot[1]] * 20, arc_z, "b-", linewidth=2, alpha=0.5)
 
-        # Draw gravity vector - ALWAYS points straight down in WORLD coordinates
-        # Gravity is independent of plane rotation - it always points in negative Z direction
-        # This is the true direction of gravity in the real world (Z is vertical, positive Z is up)
-        gravity_length = max_range * 0.35
-
-        # Position gravity arrow at a visible location
-        gravity_start = pivot + np.array([max_range * 0.6, max_range * 0.2, max_range * 0.3])
-
-        # Gravity vector ALWAYS points straight down in world coordinates (negative Z)
-        # This is independent of any plane rotation
-        gravity_vec_world = np.array([0, 0, -gravity_length])
-
-        # Draw gravity arrow with quiver - this will show the true gravity direction
+        # Gravity
+        gravity_len = max_range * 0.35
+        g_start = pivot + np.array([max_range * 0.6, max_range * 0.2, max_range * 0.3])
+        g_vec = np.array([0, 0, -gravity_len])
         self.ax.quiver(
-            gravity_start[0],
-            gravity_start[1],
-            gravity_start[2],
-            gravity_vec_world[0],
-            gravity_vec_world[1],
-            gravity_vec_world[2],
+            g_start[0],
+            g_start[1],
+            g_start[2],
+            g_vec[0],
+            g_vec[1],
+            g_vec[2],
             color="#00AA00",
             arrow_length_ratio=0.3,
             linewidth=5,
             label="Gravity (g) - Always Vertical Down",
             alpha=0.95,
         )
-
-        # Add prominent gravity label with arrow symbol
-        gravity_label_pos = gravity_start + gravity_vec_world * 0.5
+        # Gravity label
+        g_label_pos = g_start + g_vec * 0.5
         self.ax.text(
-            gravity_label_pos[0] + max_range * 0.1,
-            gravity_label_pos[1],
-            gravity_label_pos[2],
+            g_label_pos[0] + max_range * 0.1,
+            g_label_pos[1],
+            g_label_pos[2],
             "g↓",
             fontsize=16,
             color="#00AA00",
@@ -889,22 +929,14 @@ class DoublePendulumApp:
             },
         )
 
-        # Draw a reference line showing true vertical (world vertical) from pivot
-        # This helps visualize that gravity is always straight down, even when plane is inclined
-        world_vertical_start = pivot + np.array([-max_range * 0.5, -max_range * 0.5, 0])
-        world_vertical_end = world_vertical_start + np.array([0, 0, -max_range * 0.3])
-        self.ax.plot(
-            [world_vertical_start[0], world_vertical_end[0]],
-            [world_vertical_start[1], world_vertical_end[1]],
-            [world_vertical_start[2], world_vertical_end[2]],
-            "g--",
-            linewidth=2.5,
-            alpha=0.7,
-            label="True Vertical (World Gravity Direction)",
-        )
-
-        # Draw pendulum segments with clear color coding
-        # UPPER SEGMENT: Blue (shoulder to elbow)
+    def _draw_segments(
+        self,
+        pivot: npt.NDArray[np.float64],
+        elbow: npt.NDArray[np.float64],
+        wrist: npt.NDArray[np.float64],
+    ) -> None:
+        """Draw the pendulum segments and joints."""
+        # Upper Segment
         self.ax.plot(
             [pivot[0], elbow[0]],
             [pivot[1], elbow[1]],
@@ -915,8 +947,7 @@ class DoublePendulumApp:
             alpha=0.9,
             zorder=5,
         )
-
-        # LOWER SEGMENT: Red (elbow to wrist/clubhead)
+        # Lower Segment
         self.ax.plot(
             [elbow[0], wrist[0]],
             [elbow[1], wrist[1]],
@@ -927,8 +958,7 @@ class DoublePendulumApp:
             alpha=0.9,
             zorder=5,
         )
-
-        # Draw pivot point (hub) - make it prominent
+        # Joints
         self.ax.scatter(
             *pivot,
             color="black",
@@ -939,8 +969,6 @@ class DoublePendulumApp:
             linewidths=3,
             zorder=10,
         )
-
-        # Draw elbow joint - blue to match upper segment
         self.ax.scatter(
             *elbow,
             color="#2E86AB",
@@ -950,8 +978,6 @@ class DoublePendulumApp:
             linewidths=2,
             zorder=9,
         )
-
-        # Draw wrist/end point (clubhead) - red to match lower segment
         self.ax.scatter(
             *wrist,
             color="#A23B72",
@@ -963,8 +989,7 @@ class DoublePendulumApp:
             zorder=9,
         )
 
-        # Add text labels for segments
-        # Upper segment label (midpoint)
+        # Labels
         upper_mid = (pivot + elbow) / 2
         self.ax.text(
             upper_mid[0],
@@ -974,16 +999,15 @@ class DoublePendulumApp:
             fontsize=9,
             color="#2E86AB",
             weight="bold",
+            ha="center",
             bbox={
                 "boxstyle": "round,pad=0.2",
                 "facecolor": "white",
                 "alpha": 0.8,
                 "edgecolor": "#2E86AB",
             },
-            ha="center",
         )
 
-        # Lower segment label (midpoint)
         lower_mid = (elbow + wrist) / 2
         self.ax.text(
             lower_mid[0],
@@ -993,55 +1017,38 @@ class DoublePendulumApp:
             fontsize=9,
             color="#A23B72",
             weight="bold",
+            ha="center",
             bbox={
                 "boxstyle": "round,pad=0.2",
                 "facecolor": "white",
                 "alpha": 0.8,
                 "edgecolor": "#A23B72",
             },
-            ha="center",
         )
 
-        # Draw plane if constrained
-        # The plane is in the X-Y plane, rotated around X axis by plane_angle
-        if self.dynamics.parameters.constrained_to_plane:
-            plane_size = (upper.length_m + lower.length_m) * 1.2
-            x_plane = np.linspace(-plane_size, plane_size, 15)
-            y_plane = np.linspace(-plane_size, plane_size, 15)
-            x_plane_grid, y_plane_grid = np.meshgrid(x_plane, y_plane)
+    def _draw_plane(self, size: float) -> None:
+        """Draw the inclined plane surface."""
+        if not self.dynamics or not self.dynamics.parameters.constrained_to_plane:
+            return
 
-            plane_angle = self.dynamics.parameters.plane_inclination_rad
-            # Rotate around X axis: Y becomes Y*cos - Z*sin, Z becomes Y*sin + Z*cos
-            # For the plane surface, we start with Z=0, so:
-            z_plane = y_plane_grid * math.sin(plane_angle)
-            y_plane_rotated = y_plane_grid * math.cos(plane_angle)
+        plane_size = size * 1.2
+        x_plane = np.linspace(-plane_size, plane_size, 15)
+        y_plane = np.linspace(-plane_size, plane_size, 15)
+        x_grid, y_grid = np.meshgrid(x_plane, y_plane)
 
-            self.ax.plot_surface(
-                x_plane_grid,
-                y_plane_rotated,
-                z_plane,
-                alpha=0.15,
-                color="gray",
-                edgecolor="none",
-            )
+        angle = self.dynamics.parameters.plane_inclination_rad
+        z_plane = y_grid * math.sin(angle)
+        y_rot = y_grid * math.cos(angle)
 
-        # Set equal aspect ratio and labels
-        self.ax.set_xlim([-max_range, max_range])
-        self.ax.set_ylim([-max_range, max_range])
-        self.ax.set_zlim([-max_range * 0.5, max_range * 0.5])
-        self.ax.set_xlabel("X (m)", fontsize=10)
-        self.ax.set_ylabel("Y (m)", fontsize=10)
-        self.ax.set_zlabel("Z (m)", fontsize=10)
-        self.ax.set_title(
-            "Double Pendulum 3D View\nPivot at origin, θ₁=0° is vertical down",
-            fontsize=11,
-            fontweight="bold",
+        self.ax.plot_surface(
+            x_grid,
+            y_rot,
+            z_plane,
+            color="#B0C4DE",
+            alpha=0.3,
+            linewidth=0,
+            antialiased=True,
         )
-
-        # Add legend
-        self.ax.legend(loc="upper left", fontsize=8, framealpha=0.9)
-
-        self.canvas.draw()
 
     def __del__(self) -> None:
         """Cleanup on destruction."""

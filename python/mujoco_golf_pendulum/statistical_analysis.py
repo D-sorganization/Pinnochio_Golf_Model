@@ -8,6 +8,7 @@ Provides comprehensive statistical analysis including:
 """
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -542,7 +543,7 @@ class StatisticalAnalyzer:
         if report is None:
             report = self.generate_comprehensive_report()
 
-        with open(filename, "w", newline="") as f:
+        with Path(filename).open("w", newline="") as f:
             writer = csv.writer(f)
 
             # Header

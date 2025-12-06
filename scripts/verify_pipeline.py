@@ -18,6 +18,7 @@ from dtack.ik.pink_solver import PinkSolver
 from dtack.sim.dynamics import DynamicsEngine
 from dtack.utils.matlab_importer import MATLABImporter
 
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("VerifyWorkflow")
@@ -49,6 +50,7 @@ def main() -> None:
     logger.info("MATLABImporter instantiated.")
 
     logger.info("Verification Complete. Ready for integration.")
+
 
 if __name__ == "__main__":
     main()

@@ -13,6 +13,7 @@ import json
 import logging
 import typing
 from collections.abc import Callable
+from pathlib import Path
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
@@ -598,7 +599,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
             count = len(self.actuator_sliders)
             self.actuator_summary_label.setText(f"{count} actuators")
 
-    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:  # noqa: N802
         """Handle keyboard shortcuts."""
         key = event.key()
 
@@ -1529,10 +1530,8 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
         detail_btn = QtWidgets.QPushButton("Edit…")
         detail_btn.setToolTip("Open detailed control options for this actuator")
         detail_btn.clicked.connect(
-            lambda *, i=actuator_index, name=actuator_name, s=slider: self.open_actuator_detail_dialog(
-                i,
-                name,
-                slider=s,
+            lambda *, i=actuator_index, name=actuator_name, s=slider: (
+                self.open_actuator_detail_dialog(i, name, slider=s)
             ),
         )
         layout.addWidget(detail_btn)
@@ -2372,7 +2371,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
                 data_dict = recorder.export_to_dict()
 
                 # Write to CSV
-                with open(filename, "w", newline="") as csvfile:
+                with Path(filename).open("w", newline="") as csvfile:
                     writer = csv.writer(csvfile)
 
                     # Write header
@@ -2423,7 +2422,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
             try:
                 data_dict = recorder.export_to_dict()
 
-                with open(filename, "w") as jsonfile:
+                with Path(filename).open("w") as jsonfile:
                     json.dump(data_dict, jsonfile, indent=2)
 
                 QtWidgets.QMessageBox.information(
@@ -2643,14 +2642,16 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
             | QtWidgets.QMessageBox.StandardButton.No,
         )
 
-        if reply == QtWidgets.QMessageBox.StandardButton.Yes:
-            if manipulator.delete_pose(pose_name):
-                self.update_pose_list()
-                QtWidgets.QMessageBox.information(
-                    self,
-                    "Pose Deleted",
-                    f"Pose '{pose_name}' deleted successfully.",
-                )
+        if (
+            reply == QtWidgets.QMessageBox.StandardButton.Yes
+            and manipulator.delete_pose(pose_name)
+        ):
+            self.update_pose_list()
+            QtWidgets.QMessageBox.information(
+                self,
+                "Pose Deleted",
+                f"Pose '{pose_name}' deleted successfully.",
+            )
 
     def on_export_poses(self) -> None:
         """Export pose library to file."""
@@ -2769,7 +2770,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
 class ActuatorDetailDialog(QtWidgets.QDialog):
     """On-demand editor for actuator control parameters."""
 
-    CONTROL_TYPE_LABELS = [
+    CONTROL_TYPE_LABELS: typing.ClassVar[list[str]] = [
         "Constant",
         "Polynomial (6th order)",
         "Sine Wave",
@@ -2778,13 +2779,12 @@ class ActuatorDetailDialog(QtWidgets.QDialog):
 
     def __init__(
         self,
-        *,
         control_system: ControlSystem,
         actuator_index: int,
         actuator_name: str,
-        slider_sync: Callable[[float], None] | None,
+        slider_sync: Callable[[float], None] | None = None,
         parent: QtWidgets.QWidget | None = None,
-    ):
+    ) -> None:
         """Build the detail dialog for a single actuator."""
         super().__init__(parent)
         self.control_system = control_system
