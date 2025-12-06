@@ -5,7 +5,9 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-import yaml
+from typing import Any
+
+import yaml  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +113,7 @@ class MJCFExporter:
 
         return lines
 
-    def _generate_body_geom(self, body: dict) -> list[str]:
+    def _generate_body_geom(self, body: dict[str, Any]) -> list[str]:
         """Generate geometry for body.
 
         Args:

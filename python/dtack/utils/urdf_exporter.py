@@ -5,7 +5,9 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-import yaml
+from typing import Any
+
+import yaml  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +59,7 @@ class URDFExporter:
         lines.append("</robot>")
         return "\n".join(lines)
 
-    def _generate_segment_urdf(self, segment: dict, parent_name: str) -> list[str]:
+    def _generate_segment_urdf(self, segment: dict[str, Any], parent_name: str) -> list[str]:
         """Generate URDF for a segment.
 
         Handles revolute, universal (2 revolute), and gimbal (3 revolute) joints.
@@ -100,7 +102,7 @@ class URDFExporter:
         return lines
 
     def _generate_single_joint(
-        self, parent_name: str, seg_name: str, joint: dict, segment: dict
+        self, parent_name: str, seg_name: str, joint: dict[str, Any], segment: dict[str, Any]
     ) -> list[str]:
         """Generate URDF for a single revolute joint.
 
@@ -148,7 +150,7 @@ class URDFExporter:
         return lines
 
     def _generate_universal_joint(
-        self, parent_name: str, seg_name: str, joint: dict, segment: dict
+        self, parent_name: str, seg_name: str, joint: dict[str, Any], segment: dict[str, Any]
     ) -> list[str]:
         """Generate URDF for a universal joint (2 revolute joints).
 
@@ -228,7 +230,7 @@ class URDFExporter:
         return lines
 
     def _generate_gimbal_joint(
-        self, parent_name: str, seg_name: str, joint: dict, segment: dict
+        self, parent_name: str, seg_name: str, joint: dict[str, Any], segment: dict[str, Any]
     ) -> list[str]:
         """Generate URDF for a gimbal joint (3 revolute joints: Z, Y, X).
 
@@ -335,7 +337,7 @@ class URDFExporter:
 
         return lines
 
-    def _generate_inertial(self, body: dict) -> list[str]:
+    def _generate_inertial(self, body: dict[str, Any]) -> list[str]:
         """Generate inertial properties.
 
         Args:
@@ -356,7 +358,7 @@ class URDFExporter:
         lines.append("    </inertial>")
         return lines
 
-    def _generate_visual(self, body: dict) -> list[str]:
+    def _generate_visual(self, body: dict[str, Any]) -> list[str]:
         """Generate visual geometry.
 
         Args:
