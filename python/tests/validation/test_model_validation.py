@@ -15,7 +15,7 @@ class TestModelValidation:
 
     def test_yaml_structure(self) -> None:
         """Test that YAML has required structure."""
-        import yaml  # type: ignore[import-untyped]
+        import yaml
 
         yaml_path = Path("models/spec/golfer_canonical.yaml")
         if yaml_path.exists():

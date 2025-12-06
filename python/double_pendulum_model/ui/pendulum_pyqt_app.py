@@ -62,7 +62,7 @@ class PendulumCanvas(FigureCanvasQTAgg):
         self.draw()  # type: ignore[no-untyped-call]
 
 
-class PendulumController(QtWidgets.QWidget):
+class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("Driven Pendulum Explorer — PyQt6")
