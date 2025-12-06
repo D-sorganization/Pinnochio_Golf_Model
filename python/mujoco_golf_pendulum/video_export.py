@@ -7,13 +7,24 @@ This module provides professional video export capabilities:
 - Progress tracking
 """
 
-from collections.abc import Callable
+from __future__ import annotations
+
+import logging
+import typing
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Final
 
 import mujoco as mj
-import numpy as np
+
+if typing.TYPE_CHECKING:
+    from collections.abc import Callable
+
+    import numpy as np
+
+
+# Configure logging
+LOGGER = logging.getLogger(__name__)
 
 try:
     import cv2
@@ -45,6 +56,11 @@ class VideoResolution(Enum):
     HD_1080 = (1920, 1080)
     UHD_4K = (3840, 2160)
     CUSTOM = (0, 0)  # User-defined
+
+
+# Conversion factor: m/s to mph
+# 1 m/s = 2.23694 mph
+MPS_TO_MPH: Final[float] = 2.23694
 
 
 class VideoExporter:
@@ -80,7 +96,7 @@ class VideoExporter:
         self.renderer = mj.Renderer(model, width=width, height=height)
 
         # Video writer
-        self.writer: Any = None
+        self.writer: typing.Any = None
         self.frames: list[np.ndarray] = []  # For GIF export
         self.frame_count = 0
 
@@ -103,19 +119,23 @@ class VideoExporter:
             elif self.format == VideoFormat.AVI:
                 codec = "XVID"
 
+        # Check dependencies before try block
+        if self.format == VideoFormat.GIF:
+            if not IMAGEIO_AVAILABLE:
+                msg = "imageio required for GIF export"
+                LOGGER.error(msg)
+                raise ImportError(msg)
+        elif not CV2_AVAILABLE:
+            msg = "opencv-python required for video export"
+            LOGGER.error(msg)
+            raise ImportError(msg)
+
         try:
             if self.format == VideoFormat.GIF:
                 # For GIF, accumulate frames in memory
-                if not IMAGEIO_AVAILABLE:
-                    msg = "imageio required for GIF export"
-                    raise ImportError(msg)
                 self.frames = []
             else:
                 # For video formats, use OpenCV
-                if not CV2_AVAILABLE:
-                    msg = "opencv-python required for video export"
-                    raise ImportError(msg)
-
                 fourcc = cv2.VideoWriter_fourcc(*codec)  # type: ignore[attr-defined]
                 self.writer = cv2.VideoWriter(
                     str(output_path_obj),
@@ -125,12 +145,14 @@ class VideoExporter:
                 )
 
                 if self.writer is not None and not self.writer.isOpened():
+                    LOGGER.error("Failed to open video writer.")
                     return False
 
             self.frame_count = 0
             return True
 
         except Exception:
+            LOGGER.exception("Error starting recording.")
             return False
 
     def add_frame(
@@ -237,15 +259,21 @@ class VideoExporter:
                 mj.mj_step(self.model, self.data)
 
                 # Create overlay function with captured time
-                frame_overlay = None
+                frame_overlay_fn = None
                 if overlay_callback is not None:
 
-                    def frame_overlay(frame: np.ndarray) -> np.ndarray:
+                    def frame_overlay(
+                        frame: np.ndarray,
+                        t_val: float = t,
+                        data_val: mj.MjData = self.data,
+                    ) -> np.ndarray:
                         """Apply overlay callback with captured time and data."""
-                        return overlay_callback(frame, t, self.data)
+                        return overlay_callback(frame, t_val, data_val)
+
+                    frame_overlay_fn = frame_overlay
 
                 # Add frame
-                self.add_frame(camera_id, frame_overlay)
+                self.add_frame(camera_id, frame_overlay_fn)
 
                 # Report progress
                 if progress_callback is not None:
@@ -256,6 +284,7 @@ class VideoExporter:
             return True
 
         except Exception:
+            LOGGER.exception("Error during recording export.")
             self.finish_recording()
             return False
 
@@ -312,15 +341,17 @@ def create_metrics_overlay(
     for name, extractor in metrics.items():
         try:
             value = extractor(data)
-            if isinstance(value, (int, float, np.number)):  # noqa: UP038
-                text = f"{name}: {value:.2f}"
-            else:
-                text = f"{name}: {value}"
+            text = (
+                f"{name}: {value:.2f}"
+                if isinstance(value, int | float)
+                else f"{name}: {value}"
+            )
 
             cv2.putText(frame, text, (10, y_offset), font, font_scale, color, thickness)
             y_offset += line_height
         except Exception:
-            pass
+            LOGGER.debug("Failed to extract metric: %s", name)
+            # Continue to next metric
 
     return frame
 
@@ -394,34 +425,24 @@ def export_simulation_video(
             overlay_fn = None
             if show_metrics:
                 t = times[i]
+                metrics = _setup_metrics_for_frame(model, data, i)
 
-                # Define metrics to display
-                metrics = {
-                    "Frame": lambda _, i=i: i,
-                }
-
-                # Add club head speed if available
-                try:
-                    club_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "club_head")
-                    if club_id >= 0:
-                        jacp = np.zeros((3, model.nv))
-                        jacr = np.zeros((3, model.nv))
-                        mj.mj_jacBody(model, data, jacp, jacr, club_id)
-                        vel = jacp @ data.qvel
-                        speed = np.linalg.norm(vel) * 2.237  # m/s to mph
-                        metrics["Club Speed"] = lambda d, s=speed: int(s)  # type: ignore[assignment]
-                except Exception:
-                    pass
-
-                def overlay_fn(frame: np.ndarray) -> np.ndarray:
+                def frame_bg_fn(
+                    frame: np.ndarray,
+                    t_val: float = t,
+                    m_val: dict = metrics,
+                    d_val: mj.MjData = data,
+                ) -> np.ndarray:
                     """Create metrics overlay on frame."""
                     return create_metrics_overlay(
                         frame,
-                        t,
-                        data,
-                        metrics,
+                        t_val,
+                        d_val,
+                        m_val,
                         font_scale=0.8,
                     )
+
+                overlay_fn = frame_bg_fn
 
             # Add frame
             exporter.add_frame(camera_id, overlay_fn)
@@ -435,5 +456,53 @@ def export_simulation_video(
         return True
 
     except Exception:
+        LOGGER.exception("Error exporting simulation video.")
         exporter.finish_recording()
         return False
+
+
+def _setup_metrics_for_frame(
+    model: mj.MjModel, data: mj.MjData, i: int
+) -> dict[str, typing.Any]:
+    """Setup metrics dictionary for a single frame.
+
+    Returns:
+        dict: {
+            "Frame": int,
+            "Club Head Speed (m/s)": float,
+            "Club Head Speed (mph)": float,
+        }
+
+    Club head speed is calculated as the Euclidean norm of the club head's linear velocity.
+    Conversion: 1 m/s = 2.23694 mph (NIST SP 811, 2008, Table 8. Unit conversion factors).
+    """
+    # The name of the club head body in the model. This must match the model's definition.
+    club_head_body_name: Final[str] = "club_head"
+    try:
+        club_head_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, club_head_body_name)
+        if club_head_id < 0:
+            # Body not found, return NaNs
+            club_head_speed_mps = float("nan")
+            club_head_speed_mph = float("nan")
+        else:
+            # mj.MjData.cvel is (nbody, 6): [linear(3), angular(3)] velocities in global frame
+            # See: https://mujoco.readthedocs.io/en/stable/APIreference.html#mjdata
+            club_head_cvel = data.cvel[club_head_id]  # shape (6,)
+            club_head_linear_vel = club_head_cvel[:3]  # [vx, vy, vz] in m/s
+
+            # Compute Euclidean norm (speed)
+            club_head_speed_mps = float((club_head_linear_vel**2).sum() ** 0.5)
+            # Use defined constant for conversion
+            club_head_speed_mph = club_head_speed_mps * MPS_TO_MPH
+
+    except Exception:
+        # If any error occurs during calculation, log it and return NaNs
+        LOGGER.exception("Could not compute club head speed for frame %d", i)
+        club_head_speed_mps = float("nan")
+        club_head_speed_mph = float("nan")
+
+    return {
+        "Frame": lambda _, idx=i: idx,
+        "Club Head Speed (m/s)": lambda _, v=club_head_speed_mps: v,
+        "Club Head Speed (mph)": lambda _, v=club_head_speed_mph: v,
+    }

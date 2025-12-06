@@ -2,10 +2,17 @@
 
 import logging
 import numpy as np
-import pinocchio as pin
 
-from dtack.ik.pink_solver import PinkSolver
-from dtack.ik.tasks import create_frame_task, create_posture_task
+import pytest
+
+pin = pytest.importorskip("pinocchio")
+
+try:
+    from dtack.ik.pink_solver import PinkSolver
+    from dtack.ik.tasks import create_frame_task, create_posture_task
+except ImportError:
+    pytest.skip("dtack.ik dependencies missing", allow_module_level=True)
+
 
 def test_ik_convergence() -> None:
     """Test that IK converges for a simple manipulator."""
@@ -45,7 +52,6 @@ def test_ik_convergence() -> None:
     dt = 1e-2
     q = q_init.copy()
 
-
     for i in range(100):
         try:
             q = solver.solve(q, tasks, dt)
@@ -67,6 +73,7 @@ def test_ik_convergence() -> None:
     final_error = np.linalg.norm(current_pose.translation - target_pose.translation)
 
     assert final_error < 1e-3, "IK did not converge"
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

@@ -178,11 +178,10 @@ class MuJoCoSimWidget(QtWidgets.QWidget):
         Args:
             xml_path: Path to the XML model file (absolute or relative to project root)
         """
-        import os
         from pathlib import Path
 
         # Convert to absolute path if needed
-        if not os.path.isabs(xml_path):
+        if not Path(xml_path).is_absolute():
             project_root = Path(__file__).parent.parent.parent
             xml_path = str(project_root / xml_path)
 
@@ -277,12 +276,12 @@ class MuJoCoSimWidget(QtWidgets.QWidget):
             # Most models start at qpos=0 which is typically address position
             # For models with free joints (pelvis), ensure they're at ground level
             # Check if first joint is a free joint (7 DOF: 3 pos + 4 quat)
-            if self.model.njnt > 0:
-                first_joint_type = self.model.jnt_type[0]
-                if first_joint_type == mujoco.mjtJoint.mjJNT_FREE:
-                    # Free joint: set position to reasonable height (Z is at index 2)
-                    if len(self.data.qpos) >= 3:
-                        self.data.qpos[2] = 0.9  # Z position (height)
+            if (
+                self.model.njnt > 0
+                and self.model.jnt_type[0] == mujoco.mjtJoint.mjJNT_FREE
+                and len(self.data.qpos) >= 3
+            ):
+                self.data.qpos[2] = 0.9  # Z position (height)
             # Keep other joints at 0 (address position)
 
         elif self.model.nq >= 1:
@@ -625,7 +624,11 @@ class MuJoCoSimWidget(QtWidgets.QWidget):
                 # Background color setting not supported in this MuJoCo version
                 pass
 
-    def set_background_color(self, sky_color=None, ground_color=None) -> None:
+    def set_background_color(
+        self,
+        sky_color: np.ndarray | list[float] | None = None,
+        ground_color: np.ndarray | list[float] | None = None,
+    ) -> None:
         """Set the background colors for the scene.
 
         Args:
@@ -641,7 +644,10 @@ class MuJoCoSimWidget(QtWidgets.QWidget):
             self._update_background_colors()
             self._render_once()
 
-    def _add_force_torque_overlays(self, rgb: np.ndarray) -> np.ndarray:
+    def _add_force_torque_overlays(
+        self,
+        rgb: np.ndarray,
+    ) -> np.ndarray:
         """Overlay torque/force vectors using screen-space arrows."""
         if self.model is None or self.data is None:
             return rgb
@@ -855,7 +861,7 @@ class MuJoCoSimWidget(QtWidgets.QWidget):
 
     # -------- Mouse event handling for interactive manipulation --------
 
-    def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
+    def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:  # noqa: N802
         """Handle mouse press for body selection and camera control."""
         modifiers = event.modifiers()
         button = event.button()
@@ -910,7 +916,7 @@ class MuJoCoSimWidget(QtWidgets.QWidget):
 
         super().mousePressEvent(event)
 
-    def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
+    def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:  # noqa: N802
         """Handle mouse move for dragging bodies or camera."""
         pos = event.position()
         x = int(pos.x())
@@ -958,23 +964,26 @@ class MuJoCoSimWidget(QtWidgets.QWidget):
             return
 
         # Body dragging
-        if self.manipulator is not None and self.model is not None:
-            if self.manipulator.selected_body_id is not None:
-                # Drag body to new position
-                success = self.manipulator.drag_to(
-                    x,
-                    y,
-                    self.frame_width,
-                    self.frame_height,
-                    self.camera,
-                )
+        if (
+            self.manipulator is not None
+            and self.model is not None
+            and self.manipulator.selected_body_id is not None
+        ):
+            # Drag body to new position
+            success = self.manipulator.drag_to(
+                x,
+                y,
+                self.frame_width,
+                self.frame_height,
+                self.camera,
+            )
 
-                if success:
-                    self._render_once()
+            if success:
+                self._render_once()
 
         super().mouseMoveEvent(event)
 
-    def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:
+    def mouseReleaseEvent(self, event: QtGui.QMouseEvent) -> None:  # noqa: N802
         """Handle mouse release to end dragging."""
         # End camera manipulation
         if self.is_dragging:
@@ -997,7 +1006,7 @@ class MuJoCoSimWidget(QtWidgets.QWidget):
 
         super().mouseReleaseEvent(event)
 
-    def wheelEvent(self, event: QtGui.QWheelEvent) -> None:
+    def wheelEvent(self, event: QtGui.QWheelEvent) -> None:  # noqa: N802
         """Handle mouse wheel for camera zoom."""
         if self.camera is not None:
             # Zoom in/out with smooth scaling

@@ -47,7 +47,8 @@ def mcI(mass: float, com: np.ndarray, I_com: np.ndarray) -> np.ndarray:
     com = np.asarray(com).flatten()
     i_com = np.asarray(I_com)
 
-    assert isinstance(mass, (int, float)) and mass > 0, "mass must be positive scalar"  # noqa: UP038
+    assert isinstance(mass, int | float), "mass must be number"
+    assert mass > 0, "mass must be positive scalar"
     assert com.shape == (3,), f"com must be 3x1 vector, got shape {com.shape}"
     assert i_com.shape == (3, 3), f"I_com must be 3x3 matrix, got shape {i_com.shape}"
 

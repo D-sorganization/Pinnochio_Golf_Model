@@ -77,15 +77,8 @@ exclude = [
 ]
 
 # Specific modules from MuJoCo migration
-"python/mujoco_golf_pendulum/advanced_gui.py" = [
-    "PLR0915", "PLR0911", "PLR0912", "PLR0913", "PLR2004", "C901", 
-    "N802", "FBT001", "ARG002", "BLE001", "PTH123", "E501", "SIM102", 
-    "RUF012", "ANN204"
-]
-"python/mujoco_golf_pendulum/sim_widget.py" = [
-    "N802", "SIM102", "ICN003", "PLR0915", "ANN001", "PTH117", 
-    "PLR2004", "PLR0911", "BLE001", "FBT001", "C901"
-]
+"python/mujoco_golf_pendulum/advanced_gui.py" = []
+"python/mujoco_golf_pendulum/sim_widget.py" = []
 "python/mujoco_golf_pendulum/*.py" = [
     "PLR0915", "PLR0912", "C901", "PLR0913", # complexity
     "TID253", "ICN003", # imports
@@ -115,37 +108,12 @@ exclude = [
     "PTH103", # os.makedirs
     "RUF003", # ambiguous unicode
     "NPY002", # legacy numpy random
-    "RUF012", # mutable class attributes
-    "ANN003", # missing kwargs annotation
-    "ARG001", # unused argument
-    "PTH103", # os.makedirs
-    "RUF003", # ambiguous unicode
 ]
-"python/mujoco_golf_pendulum/advanced_export.py" = ["F401"]
-"python/dtack/viz/*.py" = [
-    "ICN003", # typing import
-    "F401",   # unused import
-    "TID253", # numpy import
-    "FBT001", "FBT002", # boolean trap
-    "E501",   # line length
-    "ARG002", # unused argument
-]
-"python/dtack/**/*.py" = [
-    "ICN003", # typing import
-    "F401",   # unused import
-    "TID253", # numpy import
-    "FBT001", "FBT002", # boolean trap
-    "E501",   # line length
-    "ARG002", "ARG001", # unused argument
-    "BLE001", # blind except
-    "PLR0915", "PLR2004", "PLR0913", # complexity
-    "ERA001", # commented code
-    "UP007", # union types
-]
-"python/mujoco_golf_pendulum/interactive_manipulation.py" = [
-    "PLR0913", "PLR0911", "SIM102", "FBT001", "FBT002", "PLR2004", 
-    "PLR0915", "N806", "ERA001", "PTH123", "TRY300", "BLE001"
-]
+
+"python/mujoco_golf_pendulum/advanced_export.py" = []
+"python/mujoco_golf_pendulum/interactive_manipulation.py" = []
+
+
 
 # Scientific modules using mathematical notation
 "**/spatial_algebra/*.py" = ["RUF002", "RUF003", "N802", "N803", "N806", "S101", "ICN003", "PLR0915"]
@@ -200,8 +168,8 @@ exclude = [
 "python/pinocchio_golf/torque_fitting.py" = ["T201", "FBT003"]
 "python/pinocchio_golf/gui.py" = ["PLR0915"]
 
+
 "python/legacy/**/*.py" = ["ALL"]
-"python/double_pendulum_model/**/*.py" = ["ALL"]
 "python/examples/double_pendulum_standalone.py" = ["ALL"]
 
 [lint.mccabe]

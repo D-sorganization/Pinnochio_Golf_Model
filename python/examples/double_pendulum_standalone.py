@@ -303,9 +303,7 @@ def compute_tau_natural_trajectory(
         gq = g_vector(q)
 
         # qddot from dynamics
-        qddot = np.asarray(
-            np.linalg.solve(mq, u - cq - gq), dtype=np.float64
-        )
+        qddot = np.asarray(np.linalg.solve(mq, u - cq - gq), dtype=np.float64)
 
         # natural torque for this state
         tau_nat_traj[i, :] = tau_natural(q, qdot, qddot)

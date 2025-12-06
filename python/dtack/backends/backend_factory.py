@@ -4,9 +4,9 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING
+import typing
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from pathlib import Path
 
     from dtack.backends.mujoco_backend import MuJoCoBackend

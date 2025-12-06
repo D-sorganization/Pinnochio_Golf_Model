@@ -145,7 +145,7 @@ class GolfSwingPlotter:
         ax.set_ylabel("Joint Angle (degrees)", fontsize=12, fontweight="bold")
         ax.set_title("Joint Angles vs Time", fontsize=14, fontweight="bold")
         ax.legend(loc="best", framealpha=0.9)
-        ax.grid(True, alpha=0.3, linestyle="--")
+        ax.grid(visible=True, alpha=0.3, linestyle="--")
         fig.tight_layout()
 
     def plot_joint_velocities(
@@ -184,7 +184,7 @@ class GolfSwingPlotter:
         ax.set_ylabel("Angular Velocity (deg/s)", fontsize=12, fontweight="bold")
         ax.set_title("Joint Velocities vs Time", fontsize=14, fontweight="bold")
         ax.legend(loc="best", framealpha=0.9)
-        ax.grid(True, alpha=0.3, linestyle="--")
+        ax.grid(visible=True, alpha=0.3, linestyle="--")
         fig.tight_layout()
 
     def plot_joint_torques(
@@ -223,7 +223,7 @@ class GolfSwingPlotter:
         ax.set_ylabel("Torque (Nm)", fontsize=12, fontweight="bold")
         ax.set_title("Applied Joint Torques vs Time", fontsize=14, fontweight="bold")
         ax.legend(loc="best", framealpha=0.9)
-        ax.grid(True, alpha=0.3, linestyle="--")
+        ax.grid(visible=True, alpha=0.3, linestyle="--")
         ax.axhline(y=0, color="k", linestyle="-", alpha=0.3)
         fig.tight_layout()
 
@@ -254,7 +254,7 @@ class GolfSwingPlotter:
         ax.set_ylabel("Power (W)", fontsize=12, fontweight="bold")
         ax.set_title("Actuator Powers vs Time", fontsize=14, fontweight="bold")
         ax.legend(loc="best", framealpha=0.9, ncol=2)
-        ax.grid(True, alpha=0.3, linestyle="--")
+        ax.grid(visible=True, alpha=0.3, linestyle="--")
         ax.axhline(y=0, color="k", linestyle="-", alpha=0.3)
         fig.tight_layout()
 
@@ -302,7 +302,7 @@ class GolfSwingPlotter:
         ax.set_ylabel("Energy (J)", fontsize=12, fontweight="bold")
         ax.set_title("Energy Analysis", fontsize=14, fontweight="bold")
         ax.legend(loc="best", framealpha=0.9)
-        ax.grid(True, alpha=0.3, linestyle="--")
+        ax.grid(visible=True, alpha=0.3, linestyle="--")
         fig.tight_layout()
 
     def plot_club_head_speed(self, fig: Figure) -> None:
@@ -346,7 +346,7 @@ class GolfSwingPlotter:
         ax.set_ylabel("Club Head Speed (mph)", fontsize=12, fontweight="bold")
         ax.set_title("Club Head Speed vs Time", fontsize=14, fontweight="bold")
         ax.legend(loc="best", framealpha=0.9)
-        ax.grid(True, alpha=0.3, linestyle="--")
+        ax.grid(visible=True, alpha=0.3, linestyle="--")
         fig.tight_layout()
 
     def plot_club_head_trajectory(self, fig: Figure) -> None:
@@ -450,7 +450,7 @@ class GolfSwingPlotter:
         ax.set_ylabel(f"{joint_name} Velocity (deg/s)", fontsize=12, fontweight="bold")
         ax.set_title(f"Phase Diagram: {joint_name}", fontsize=14, fontweight="bold")
         ax.legend(loc="best")
-        ax.grid(True, alpha=0.3, linestyle="--")
+        ax.grid(visible=True, alpha=0.3, linestyle="--")
         plt.colorbar(sc, ax=ax, label="Time (s)")
         fig.tight_layout()
 
@@ -489,7 +489,7 @@ class GolfSwingPlotter:
         ax.set_ylabel("Torque (Nm)", fontsize=12, fontweight="bold")
         ax.set_title("Joint Torque Contributions", fontsize=14, fontweight="bold")
         ax.legend(loc="upper left", bbox_to_anchor=(1, 1), framealpha=0.9)
-        ax.grid(True, alpha=0.3, linestyle="--")
+        ax.grid(visible=True, alpha=0.3, linestyle="--")
         ax.axhline(y=0, color="k", linestyle="-", alpha=0.5)
         fig.tight_layout()
 
@@ -525,7 +525,7 @@ class GolfSwingPlotter:
             )
             ax1.set_xlabel("Time (s)", fontsize=9)
             ax1.set_ylabel("Speed (mph)", fontsize=9)
-            ax1.grid(True, alpha=0.3)
+            ax1.grid(visible=True, alpha=0.3)
         else:
             ax1.text(0.5, 0.5, "No club head data", ha="center", va="center")
 
@@ -552,7 +552,7 @@ class GolfSwingPlotter:
             ax2.set_xlabel("Time (s)", fontsize=9)
             ax2.set_ylabel("Energy (J)", fontsize=9)
             ax2.legend(fontsize=8)
-            ax2.grid(True, alpha=0.3)
+            ax2.grid(visible=True, alpha=0.3)
         else:
             ax2.text(0.5, 0.5, "No energy data", ha="center", va="center")
 
@@ -573,7 +573,7 @@ class GolfSwingPlotter:
             ax3.set_xlabel("Time (s)", fontsize=9)
             ax3.set_ylabel("Angle (deg)", fontsize=9)
             ax3.legend(fontsize=7, loc="best")
-            ax3.grid(True, alpha=0.3)
+            ax3.grid(visible=True, alpha=0.3)
         else:
             ax3.text(0.5, 0.5, "No position data", ha="center", va="center")
 
@@ -594,7 +594,7 @@ class GolfSwingPlotter:
             ax4.set_xlabel("Time (s)", fontsize=9)
             ax4.set_ylabel("Torque (Nm)", fontsize=9)
             ax4.legend(fontsize=7, loc="best")
-            ax4.grid(True, alpha=0.3)
+            ax4.grid(visible=True, alpha=0.3)
             ax4.axhline(y=0, color="k", linestyle="-", alpha=0.3)
         else:
             ax4.text(0.5, 0.5, "No torque data", ha="center", va="center")

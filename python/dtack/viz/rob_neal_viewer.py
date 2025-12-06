@@ -17,8 +17,8 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-import numpy as np
-import numpy.typing as npt
+import numpy as np  # noqa: TID253
+import numpy.typing as npt  # noqa: TID253
 
 try:
     from scipy.io import loadmat
@@ -96,8 +96,8 @@ class RobNealDataViewer:
         self.current_frame = 0
 
         if self.data is None:
-             msg = "Failed to load data"
-             raise ValueError(msg)
+            msg = "Failed to load data"
+            raise ValueError(msg)
 
         logger.info("Loaded data file: %s", mat_path.name)
         logger.info("  Time points: %d", len(self.data["time"]))
@@ -105,9 +105,9 @@ class RobNealDataViewer:
     def visualize_frame(
         self,
         frame: int,
-        show_trace: bool = False,
-        show_velocity: bool = False,
-        show_acceleration: bool = False,
+        show_trace: bool = False,  # noqa: FBT001, FBT002
+        show_velocity: bool = False,  # noqa: FBT001, FBT002
+        show_acceleration: bool = False,  # noqa: ARG002, FBT001, FBT002
     ) -> None:
         """Visualize a single frame of data.
 
