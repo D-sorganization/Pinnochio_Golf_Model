@@ -200,6 +200,10 @@ exclude = [
 "python/pinocchio_golf/torque_fitting.py" = ["T201", "FBT003"]
 "python/pinocchio_golf/gui.py" = ["PLR0915"]
 
+"python/legacy/**/*.py" = ["ALL"]
+"python/double_pendulum_model/**/*.py" = ["ALL"]
+"python/examples/double_pendulum_standalone.py" = ["ALL"]
+
 [lint.mccabe]
 max-complexity = 10
 

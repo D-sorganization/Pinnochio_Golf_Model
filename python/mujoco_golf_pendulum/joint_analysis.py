@@ -13,8 +13,10 @@ Author: MuJoCo Golf Swing Project
 import matplotlib.pyplot as plt
 import mujoco as mj
 import numpy as np
-from matplotlib.axes import Axes
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 
 class UniversalJointAnalyzer:
@@ -362,7 +364,7 @@ def plot_constraint_forces(
 
     time = force_data["time"]
 
-    for _idx, (ax, joint_name) in enumerate(zip(axes_list, joint_names)):
+    for _idx, (ax, joint_name) in enumerate(zip(axes_list, joint_names, strict=False)):
         forces = force_data[joint_name]
 
         if forces.ndim == 1:

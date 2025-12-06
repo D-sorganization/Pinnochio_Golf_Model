@@ -96,7 +96,8 @@ class RobNealDataViewer:
         self.current_frame = 0
 
         if self.data is None:
-             raise ValueError("Failed to load data")
+             msg = "Failed to load data"
+             raise ValueError(msg)
 
         logger.info("Loaded data file: %s", mat_path.name)
         logger.info("  Time points: %d", len(self.data["time"]))
