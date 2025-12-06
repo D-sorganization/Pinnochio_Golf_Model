@@ -364,15 +364,6 @@ jobs:
     name: Security Check
     runs-on: ubuntu-latest
     steps:
-<<<<<<< HEAD
-      - uses: actions/checkout@v4
-
-      # ✅ Always set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-=======
     - uses: actions/checkout@v6
 
     # ✅ Always set up Python
