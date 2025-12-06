@@ -7,13 +7,22 @@ This module provides professional video export capabilities:
 - Progress tracking
 """
 
-from collections.abc import Callable
+from __future__ import annotations
+
+import logging
+import typing
 from enum import Enum
 from pathlib import Path
-from typing import Any
 
 import mujoco as mj
-import numpy as np
+
+if typing.TYPE_CHECKING:
+    from collections.abc import Callable
+
+    import numpy as np
+
+# Configure logging
+LOGGER = logging.getLogger(__name__)
 
 try:
     import cv2
@@ -50,7 +59,7 @@ class VideoResolution(Enum):
 class VideoExporter:
     """Export MuJoCo simulations as video files."""
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         model: mj.MjModel,
         data: mj.MjData,
@@ -80,7 +89,7 @@ class VideoExporter:
         self.renderer = mj.Renderer(model, width=width, height=height)
 
         # Video writer
-        self.writer: Any = None
+        self.writer: typing.Any = None
         self.frames: list[np.ndarray] = []  # For GIF export
         self.frame_count = 0
 
@@ -103,19 +112,23 @@ class VideoExporter:
             elif self.format == VideoFormat.AVI:
                 codec = "XVID"
 
+        # Check dependencies before try block
+        if self.format == VideoFormat.GIF:
+            if not IMAGEIO_AVAILABLE:
+                msg = "imageio required for GIF export"
+                LOGGER.error(msg)
+                raise ImportError(msg)
+        elif not CV2_AVAILABLE:
+            msg = "opencv-python required for video export"
+            LOGGER.error(msg)
+            raise ImportError(msg)
+
         try:
             if self.format == VideoFormat.GIF:
                 # For GIF, accumulate frames in memory
-                if not IMAGEIO_AVAILABLE:
-                    msg = "imageio required for GIF export"
-                    raise ImportError(msg)
                 self.frames = []
             else:
                 # For video formats, use OpenCV
-                if not CV2_AVAILABLE:
-                    msg = "opencv-python required for video export"
-                    raise ImportError(msg)
-
                 fourcc = cv2.VideoWriter_fourcc(*codec)  # type: ignore[attr-defined]
                 self.writer = cv2.VideoWriter(
                     str(output_path_obj),
@@ -125,12 +138,14 @@ class VideoExporter:
                 )
 
                 if self.writer is not None and not self.writer.isOpened():
+                    LOGGER.error("Failed to open video writer.")
                     return False
 
             self.frame_count = 0
-            return True
+            return True  # noqa: TRY300
 
         except Exception:
+            LOGGER.exception("Error starting recording.")
             return False
 
     def add_frame(
@@ -185,7 +200,7 @@ class VideoExporter:
             self.writer.release()
             self.writer = None
 
-    def export_recording(
+    def export_recording(  # noqa: PLR0913
         self,
         output_path: str,
         initial_state: np.ndarray,
@@ -237,15 +252,19 @@ class VideoExporter:
                 mj.mj_step(self.model, self.data)
 
                 # Create overlay function with captured time
-                frame_overlay = None
+                frame_overlay_fn = None
                 if overlay_callback is not None:
 
-                    def frame_overlay(frame: np.ndarray) -> np.ndarray:
+                    def frame_overlay(
+                        frame: np.ndarray, t_val: float = t
+                    ) -> np.ndarray:
                         """Apply overlay callback with captured time and data."""
-                        return overlay_callback(frame, t, self.data)
+                        return overlay_callback(frame, t_val, self.data)
+
+                    frame_overlay_fn = frame_overlay
 
                 # Add frame
-                self.add_frame(camera_id, frame_overlay)
+                self.add_frame(camera_id, frame_overlay_fn)
 
                 # Report progress
                 if progress_callback is not None:
@@ -253,9 +272,10 @@ class VideoExporter:
 
             # Finish
             self.finish_recording(output_path)
-            return True
+            return True  # noqa: TRY300
 
         except Exception:
+            LOGGER.exception("Error during recording export.")
             self.finish_recording()
             return False
 
@@ -265,7 +285,7 @@ class VideoExporter:
             self.writer.release()
 
 
-def create_metrics_overlay(
+def create_metrics_overlay(  # noqa: PLR0913
     frame: np.ndarray,
     time: float,
     data: mj.MjData,
@@ -312,20 +332,22 @@ def create_metrics_overlay(
     for name, extractor in metrics.items():
         try:
             value = extractor(data)
-            if isinstance(value, (int, float, np.number)):  # noqa: UP038
-                text = f"{name}: {value:.2f}"
-            else:
-                text = f"{name}: {value}"
+            text = (
+                f"{name}: {value:.2f}"
+                if isinstance(value, int | float)
+                else f"{name}: {value}"
+            )
 
             cv2.putText(frame, text, (10, y_offset), font, font_scale, color, thickness)
             y_offset += line_height
-        except Exception:
-            pass
+        except Exception:  # noqa: BLE001
+            LOGGER.debug("Failed to extract metric: %s", name)
+            # Continue to next metric
 
     return frame
 
 
-def export_simulation_video(
+def export_simulation_video(  # noqa: PLR0913, PLR0915
     model: mj.MjModel,
     data: mj.MjData,
     output_path: str,
@@ -336,7 +358,7 @@ def export_simulation_video(
     height: int = 1080,
     fps: int = 60,
     camera_id: int | None = None,
-    show_metrics: bool = True,
+    show_metrics: bool = True,  # noqa: FBT001, FBT002
     progress_callback: Callable[[int, int], None] | None = None,
 ) -> bool:
     """Export a recorded simulation as video.
@@ -394,34 +416,23 @@ def export_simulation_video(
             overlay_fn = None
             if show_metrics:
                 t = times[i]
+                metrics = _setup_metrics_for_frame(model, data, i)
 
-                # Define metrics to display
-                metrics = {
-                    "Frame": lambda _, i=i: i,
-                }
-
-                # Add club head speed if available
-                try:
-                    club_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "club_head")
-                    if club_id >= 0:
-                        jacp = np.zeros((3, model.nv))
-                        jacr = np.zeros((3, model.nv))
-                        mj.mj_jacBody(model, data, jacp, jacr, club_id)
-                        vel = jacp @ data.qvel
-                        speed = np.linalg.norm(vel) * 2.237  # m/s to mph
-                        metrics["Club Speed"] = lambda d, s=speed: int(s)  # type: ignore[assignment]
-                except Exception:
-                    pass
-
-                def overlay_fn(frame: np.ndarray) -> np.ndarray:
+                def frame_bg_fn(
+                    frame: np.ndarray,
+                    t_val: float = t,
+                    m_val: dict = metrics,
+                ) -> np.ndarray:
                     """Create metrics overlay on frame."""
                     return create_metrics_overlay(
                         frame,
-                        t,
+                        t_val,
                         data,
-                        metrics,
+                        m_val,
                         font_scale=0.8,
                     )
+
+                overlay_fn = frame_bg_fn
 
             # Add frame
             exporter.add_frame(camera_id, overlay_fn)
@@ -432,8 +443,36 @@ def export_simulation_video(
 
         # Finish
         exporter.finish_recording(output_path)
-        return True
+        return True  # noqa: TRY300
 
     except Exception:
+        LOGGER.exception("Error exporting simulation video.")
         exporter.finish_recording()
         return False
+
+
+def _setup_metrics_for_frame(
+    model: mj.MjModel, data: mj.MjData, i: int
+) -> dict[str, typing.Any]:
+    """Setup metrics dictionary for a single frame."""
+    metrics = {
+        "Frame": lambda _, idx=i: idx,
+    }
+
+    # Add club head speed if available
+    try:
+        import numpy as np
+
+        club_id = mj.mj_name2id(model, mj.mjtObj.mjOBJ_BODY, "club_head")
+        if club_id >= 0:
+            jacp = np.zeros((3, model.nv))
+            jacr = np.zeros((3, model.nv))
+            mj.mj_jacBody(model, data, jacp, jacr, club_id)
+            vel = jacp @ data.qvel
+            speed = np.linalg.norm(vel) * 2.237  # m/s to mph
+            metrics["Club Speed"] = lambda _, s=speed: int(s)  # type: ignore[assignment]
+    except Exception:  # noqa: BLE001
+        # Club head body might not exist or other error
+        LOGGER.debug("Could not calculate Club Speed metrics")
+
+    return metrics

@@ -83,6 +83,7 @@ exclude = [
     "RUF012", "ANN204"
 ]
 "python/mujoco_golf_pendulum/sim_widget.py" = []
+"python/mujoco_golf_pendulum/video_export.py" = []
 "python/mujoco_golf_pendulum/*.py" = [
     "PLR0915", "PLR0912", "C901", "PLR0913", # complexity
     "TID253", "ICN003", # imports
@@ -112,13 +113,12 @@ exclude = [
     "PTH103", # os.makedirs
     "RUF003", # ambiguous unicode
     "NPY002", # legacy numpy random
-    "RUF012", # mutable class attributes
-    "ANN003", # missing kwargs annotation
-    "ARG001", # unused argument
-    "PTH103", # os.makedirs
-    "RUF003", # ambiguous unicode
 ]
 "python/mujoco_golf_pendulum/advanced_export.py" = ["F401"]
+"python/mujoco_golf_pendulum/interactive_manipulation.py" = [
+    "PLR0913", "PLR0911", "SIM102", "FBT001", "FBT002", "PLR2004", 
+    "PLR0915", "N806", "ERA001", "PTH123", "TRY300", "BLE001"
+]
 "python/dtack/viz/*.py" = [
     "ICN003", # typing import
     "F401",   # unused import
@@ -139,10 +139,7 @@ exclude = [
     "ERA001", # commented code
     "UP007", # union types
 ]
-"python/mujoco_golf_pendulum/interactive_manipulation.py" = [
-    "PLR0913", "PLR0911", "SIM102", "FBT001", "FBT002", "PLR2004", 
-    "PLR0915", "N806", "ERA001", "PTH123", "TRY300", "BLE001"
-]
+
 
 # Scientific modules using mathematical notation
 "**/spatial_algebra/*.py" = ["RUF002", "RUF003", "N802", "N803", "N806", "S101", "ICN003", "PLR0915"]
