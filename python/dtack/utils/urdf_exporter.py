@@ -12,9 +12,24 @@ import yaml  # type: ignore[import-untyped]
 logger = logging.getLogger(__name__)
 
 
+# Maximum joint effort (torque) allowed in URDF export.
+# Units: Newton-meters (N⋅m)
+# Source: Typical upper bound for hobbyist/educational robot actuators.
 MAX_EFFORT = 1000.0
+
+# Maximum joint velocity allowed in URDF export.
+# Units: Radians per second (rad/s)
+# Source: Typical upper bound for safe robot simulation; adjust as needed for hardware.
 MAX_VELOCITY = 10.0
+
+# Minimum degrees of freedom for a universal joint.
+# Universal joints, by definition, require at least 2 rotational axes.
+# Source: See https://en.wikipedia.org/wiki/Universal_joint
 MIN_UNIVERSAL_DOFS = 2
+
+# Minimum degrees of freedom for a gimbal joint.
+# Gimbal joints require 3 rotational axes (pitch, yaw, roll).
+# Source: See https://en.wikipedia.org/wiki/Gimbal
 MIN_GIMBAL_DOFS = 3
 
 

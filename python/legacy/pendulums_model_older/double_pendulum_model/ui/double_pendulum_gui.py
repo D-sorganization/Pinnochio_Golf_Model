@@ -34,6 +34,7 @@ from double_pendulum_model.physics.double_pendulum import (
 )
 
 TIME_STEP = 0.01
+ANGLE_TOLERANCE_DEG = 0.1
 
 
 @dataclass
@@ -641,11 +642,10 @@ class DoublePendulumApp:
                 )
 
                 # Check for significant changes
-                TOLERANCE = 0.1
                 angles_changed = (
-                    abs(old_theta1 - user_inputs.shoulder_angle_deg) > TOLERANCE
-                    or abs(old_theta2 - user_inputs.wrist_angle_deg) > TOLERANCE
-                    or abs(old_phi - user_inputs.out_of_plane_angle_deg) > TOLERANCE
+                    abs(old_theta1 - user_inputs.shoulder_angle_deg) > ANGLE_TOLERANCE_DEG
+                    or abs(old_theta2 - user_inputs.wrist_angle_deg) > ANGLE_TOLERANCE_DEG
+                    or abs(old_phi - user_inputs.out_of_plane_angle_deg) > ANGLE_TOLERANCE_DEG
                 )
 
                 if angles_changed:
@@ -1037,8 +1037,18 @@ class DoublePendulumApp:
         x_grid, y_grid = np.meshgrid(x_plane, y_plane)
 
         angle = self.dynamics.parameters.plane_inclination_rad
-        # Z = Y * sin(angle)
-        # Y_rot = Y * cos(angle)
+        z_plane = y_grid * math.sin(angle)
+        y_rot = y_grid * math.cos(angle)
+
+        self.ax.plot_surface(
+            x_grid,
+            y_rot,
+            z_plane,
+            color="#B0C4DE",
+            alpha=0.3,
+            linewidth=0,
+            antialiased=True,
+        )
 
     def __del__(self) -> None:
         """Cleanup on destruction."""

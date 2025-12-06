@@ -127,7 +127,7 @@ class ExpressionFunction:
             if isinstance(child, ast.Call):
                 if not isinstance(child.func, ast.Name | ast.Attribute):
                     msg = "Only direct function calls are permitted"
-                    raise TypeError(msg)
+                    raise ValueError(msg)  # noqa: TRY004
                 if (
                     isinstance(child.func, ast.Name)
                     and child.func.id not in self._ALLOWED_NAMES

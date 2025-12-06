@@ -40,7 +40,12 @@ from double_pendulum_model.physics.double_pendulum import (
 )
 
 TIME_STEP = 0.01
+
+# Tolerance for angle comparisons in the GUI [degrees] (UI precision only)
 ANGLE_TOLERANCE_DEG = 0.1
+
+# Tolerance for center-of-mass ratio comparisons [unitless, ratio]
+# Used to determine when two COM positions are effectively equal.
 COM_TOLERANCE = 0.01
 
 
@@ -413,7 +418,7 @@ class DoublePendulumApp:
         """Create a styled section header."""
         header_frame = tk.Frame(parent, bg="#e0e0e0", height=30)
         header_frame.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(10, 5))
-        header_frame.grid_propagate(flag=False)
+        header_frame.grid_propagate(False)  # noqa: FBT003
 
         label = tk.Label(
             header_frame,
@@ -429,7 +434,7 @@ class DoublePendulumApp:
 
         def on_enter(event: tk.Event) -> None:
             tooltip = tk.Toplevel()
-            tooltip.wm_overrideredirect(boolean=True)
+            tooltip.wm_overrideredirect(True)  # noqa: FBT003
             tooltip.wm_geometry(f"+{event.x_root+10}+{event.y_root+10}")
             label = tk.Label(
                 tooltip,

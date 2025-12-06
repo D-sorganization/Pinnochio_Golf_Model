@@ -462,18 +462,6 @@ def _setup_metrics_for_frame(
     model: mj.MjModel, data: mj.MjData, i: int
 ) -> dict[str, typing.Any]:
     """Setup metrics dictionary for a single frame."""
-    metrics = {
+    return {
         "Frame": lambda _, idx=i: idx,
     }
-
-    # Add club head speed if available
-    try:
-        # vel = ... # Definition missing in original code
-        # speed = np.linalg.norm(vel) * MPS_TO_MPH
-        # metrics["Club Speed"] = lambda _, s=speed: int(s)
-        pass
-    except Exception:
-        # Club head body might not exist or other error
-        LOGGER.debug("Could not calculate Club Speed metrics")
-
-    return metrics
