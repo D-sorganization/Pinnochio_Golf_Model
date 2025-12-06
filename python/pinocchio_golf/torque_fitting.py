@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Torque polynomial fitting tool.
 - Fits tau(t) with an n-th degree polynomial via least squares.
