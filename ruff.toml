@@ -82,10 +82,7 @@ exclude = [
     "N802", "FBT001", "ARG002", "BLE001", "PTH123", "E501", "SIM102", 
     "RUF012", "ANN204"
 ]
-"python/mujoco_golf_pendulum/sim_widget.py" = [
-    "N802", "SIM102", "ICN003", "PLR0915", "ANN001", "PTH117", 
-    "PLR2004", "PLR0911", "BLE001", "FBT001", "C901"
-]
+"python/mujoco_golf_pendulum/sim_widget.py" = []
 "python/mujoco_golf_pendulum/*.py" = [
     "PLR0915", "PLR0912", "C901", "PLR0913", # complexity
     "TID253", "ICN003", # imports
