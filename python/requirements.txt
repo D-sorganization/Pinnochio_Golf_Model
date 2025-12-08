@@ -17,7 +17,7 @@ pre-commit==4.5.0
 
 # Configuration and utilities
 pyyaml==6.0.1
-pathlib2==2.3.7
+pathlib2==2.3.7.post1
 
 # Type stubs for better type checking
 types-PyYAML==6.0.12.12
