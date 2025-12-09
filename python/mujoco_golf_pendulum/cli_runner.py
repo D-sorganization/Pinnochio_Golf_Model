@@ -244,8 +244,9 @@ def run_batch(batch_path: Path, base_args: argparse.Namespace) -> None:
             show_summary=entry.get("summary", base_args.summary),
         )
         if summary is not None:
-            for _key, _value in summary.items():
-                pass
+            print(f"--- Summary for {entry.get('model')} ---")  # noqa: T201
+            for key, value in summary.items():
+                print(f"{key}: {value}")  # noqa: T201
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -309,8 +310,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
     if summary is not None:
-        for _key, _value in summary.items():
-            pass
+        for key, value in summary.items():
+            print(f"{key}: {value}")  # noqa: T201
 
     return 0
 

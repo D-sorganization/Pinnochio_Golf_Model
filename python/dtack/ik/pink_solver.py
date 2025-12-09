@@ -6,7 +6,7 @@ import logging
 
 import pinocchio as pin
 import pink
-from pink import AbstractTask
+from pink import Task
 import typing
 
 if typing.TYPE_CHECKING:
@@ -47,7 +47,7 @@ class PinkSolver:
     def solve(  # noqa: PLR0913
         self,
         q_init: np.ndarray,
-        tasks: list[AbstractTask],
+        tasks: list[Task],
         dt: float,
         solver: str = "quadprog",
         damping: float = 1e-6,

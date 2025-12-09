@@ -27,6 +27,7 @@ def test_import_gui() -> None:
 def test_import_coppelia_bridge() -> None:
     """Test importing the Coppelia bridge."""
     pytest.importorskip("pinocchio")
+    pytest.importorskip("zmqRemoteApi")
     from python.pinocchio_golf import coppelia_bridge
 
     assert coppelia_bridge is not None

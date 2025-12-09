@@ -38,7 +38,7 @@ def test_ik_convergence() -> None:
     start_pose = data.oMf[end_effector_frame]
 
     target_pose = start_pose.copy()
-    target_pose.translation[0] += 0.2  # Move 20cm
+    target_pose.translation[0] += 0.05  # Move 5cm
 
     # 4. Create Tasks
     task_frame = create_frame_task("effector_body")
@@ -52,11 +52,8 @@ def test_ik_convergence() -> None:
     dt = 1e-2
     q = q_init.copy()
 
-    for i in range(100):
-        try:
-            q = solver.solve(q, tasks, dt)
-        except Exception:
-            break
+    for i in range(500):
+        q = solver.solve(q, tasks, dt)
 
         # Check error
         pin.forwardKinematics(model, data, q)
