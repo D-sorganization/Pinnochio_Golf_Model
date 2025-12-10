@@ -24,6 +24,15 @@ class MJCFExporter:
         with self.yaml_path.open() as f:
             self.spec = yaml.safe_load(f)
 
+        # Build children map for O(1) lookup
+        self._children_map: dict[str, list[dict[str, typing.Any]]] = {}
+        for segment in self.spec.get("segments", []):
+            parent = segment.get("parent")
+            if parent:
+                if parent not in self._children_map:
+                    self._children_map[parent] = []
+                self._children_map[parent].append(segment)
+
     def export(self, output_path: Path | str) -> None:
         """Export MJCF file.
 
@@ -89,46 +98,45 @@ class MJCFExporter:
         lines = []
         indent = "  " * (depth + 1)
 
-        for segment in self.spec.get("segments", []):
-            if segment.get("parent") == parent_name:
-                seg_name = segment["name"]
-                frame_offset = segment.get("frame_offset", [0.0, 0.0, 0.0])
-                joint = segment.get("joint", {})
+        for segment in self._children_map.get(parent_name, []):
+            seg_name = segment["name"]
+            frame_offset = segment.get("frame_offset", [0.0, 0.0, 0.0])
+            joint = segment.get("joint", {})
 
+            lines.append(
+                f'{indent}<body name="{seg_name}" '
+                f'pos="{frame_offset[0]} {frame_offset[1]} {frame_offset[2]}">'
+            )
+
+            # Joint
+            joint_type = joint.get("type", "hinge")
+            if joint_type == "revolute":
+                axis = joint.get("axis", [0, 0, 1])
+                limits = joint.get("limits", [-3.14, 3.14])
+                damping = joint.get("damping", 0.0)
                 lines.append(
-                    f'{indent}<body name="{seg_name}" '
-                    f'pos="{frame_offset[0]} {frame_offset[1]} {frame_offset[2]}">'
+                    f'{indent}  <joint name="{seg_name}_joint" type="hinge" '
+                    f'axis="{axis[0]} {axis[1]} {axis[2]}" '
+                    f'range="{limits[0]} {limits[1]}" damping="{damping}"/>'
+                )
+            elif joint_type == "ball":
+                lines.append(
+                    f'{indent}  <joint name="{seg_name}_joint" type="ball"/>'
+                )
+            elif joint_type == "fixed":
+                lines.append(
+                    f'{indent}  <joint name="{seg_name}_joint" type="fixed"/>'
                 )
 
-                # Joint
-                joint_type = joint.get("type", "hinge")
-                if joint_type == "revolute":
-                    axis = joint.get("axis", [0, 0, 1])
-                    limits = joint.get("limits", [-3.14, 3.14])
-                    damping = joint.get("damping", 0.0)
-                    lines.append(
-                        f'{indent}  <joint name="{seg_name}_joint" type="hinge" '
-                        f'axis="{axis[0]} {axis[1]} {axis[2]}" '
-                        f'range="{limits[0]} {limits[1]}" damping="{damping}"/>'
-                    )
-                elif joint_type == "ball":
-                    lines.append(
-                        f'{indent}  <joint name="{seg_name}_joint" type="ball"/>'
-                    )
-                elif joint_type == "fixed":
-                    lines.append(
-                        f'{indent}  <joint name="{seg_name}_joint" type="fixed"/>'
-                    )
+            # Geometry
+            lines.extend(
+                [indent + "  " + line for line in self._generate_body_geom(segment)]
+            )
 
-                # Geometry
-                lines.extend(
-                    [indent + "  " + line for line in self._generate_body_geom(segment)]
-                )
+            # Recursive children
+            lines.extend(self._generate_segments_mjcf(seg_name, depth + 1))
 
-                # Recursive children
-                lines.extend(self._generate_segments_mjcf(seg_name, depth + 1))
-
-                lines.append(f"{indent}</body>")
+            lines.append(f"{indent}</body>")
 
         return lines
 
