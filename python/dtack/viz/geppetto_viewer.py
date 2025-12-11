@@ -58,7 +58,7 @@ class GeppettoViewer:
             visual_model: Optional visual geometry model
         """
         if visual_model is not None:
-            from pinocchio.visualize import GepettoVisualizer
+            from pinocchio.visualize import GepettoVisualizer  # noqa: PLC0415
 
             viz = GepettoVisualizer(model, visual_model, visual_model)
             viz.initViewer(viewer=self.client)

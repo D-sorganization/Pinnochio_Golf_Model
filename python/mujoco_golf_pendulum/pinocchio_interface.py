@@ -25,6 +25,9 @@ from typing import Any
 
 import mujoco
 import numpy as np
+import tempfile
+from pathlib import Path
+from .urdf_io import export_model_to_urdf
 
 logger = logging.getLogger(__name__)
 
@@ -120,10 +123,7 @@ class PinocchioWrapper:
         Returns:
             Tuple of (pin_model, pin_data)
         """
-        import tempfile
-        from pathlib import Path
 
-        from .urdf_io import export_model_to_urdf
 
         # Export to temporary URDF file
         with tempfile.NamedTemporaryFile(mode="w", suffix=".urdf", delete=False) as f:

@@ -14,7 +14,7 @@ Features:
 from __future__ import annotations
 
 import logging
-import xml.etree.ElementTree as ET  # noqa: N817
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import mujoco

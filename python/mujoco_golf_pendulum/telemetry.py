@@ -13,6 +13,8 @@ from typing import TYPE_CHECKING, Any
 
 from pathlib import Path
 import logging
+import json
+import csv
 
 import mujoco
 import numpy as np
@@ -246,7 +248,7 @@ class TelemetryRecorder:
 
 def export_telemetry_json(filename: str, data_dict: dict[str, Any]) -> bool:
     """Export telemetry data to JSON."""
-    import json
+
 
     try:
         # Convert numpy arrays to lists for JSON serialization
@@ -268,7 +270,6 @@ def export_telemetry_json(filename: str, data_dict: dict[str, Any]) -> bool:
 
 def export_telemetry_csv(filename: str, data_dict: dict[str, Any]) -> bool:
     """Export telemetry data to CSV."""
-    import csv
 
     try:
         # Filter for array-like data

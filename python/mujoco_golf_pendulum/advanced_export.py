@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from .telemetry import export_telemetry_csv, export_telemetry_json
 
 # Import optional dependencies with fallbacks
 try:
@@ -28,14 +29,14 @@ except ImportError:
 
 # Check for C3D libraries (imported inside functions when needed)
 try:
-    import ezc3d  # noqa: F401
+    import ezc3d
 
     EZC3D_AVAILABLE = True
 except ImportError:
     EZC3D_AVAILABLE = False
     # Try alternate c3d library
     try:
-        import c3d  # noqa: F401
+        import c3d
 
         C3D_AVAILABLE = True
     except ImportError:
@@ -69,9 +70,9 @@ def export_to_matlab(
             if isinstance(value, np.ndarray):
                 # MATLAB uses Fortran (column-major) order
                 matlab_data[key] = np.asarray(value, order="F")
-            elif isinstance(value, (list, tuple)):  # noqa: UP038
+            elif isinstance(value, (list, tuple)):
                 matlab_data[key] = np.array(value, order="F")
-            elif isinstance(value, (int, float, str, bool)):  # noqa: UP038
+            elif isinstance(value, (int, float, str, bool)):
                 matlab_data[key] = value
             elif isinstance(value, dict):
                 # Nested dict - flatten keys
@@ -79,7 +80,7 @@ def export_to_matlab(
                     flat_key = f"{key}_{subkey}".replace(" ", "_")
                     if isinstance(subvalue, np.ndarray):
                         matlab_data[flat_key] = np.asarray(subvalue, order="F")
-                    elif isinstance(subvalue, (list, tuple)):  # noqa: UP038
+                    elif isinstance(subvalue, (list, tuple)):
                         matlab_data[flat_key] = np.array(subvalue, order="F")
                     else:
                         matlab_data[flat_key] = subvalue
@@ -139,7 +140,7 @@ def export_to_hdf5(
                             else None
                         ),
                     )
-                elif isinstance(value, (int, float)):  # noqa: UP038
+                elif isinstance(value, (int, float)):
                     # Store scalars as attributes
                     metadata_group.attrs[key] = value
                 elif isinstance(value, str):
@@ -240,7 +241,6 @@ def _export_to_c3d_ezc3d(
     units: dict[str, str],
 ) -> bool:
     """Export using ezc3d library."""
-    import ezc3d
 
     # Create new C3D file
     c = ezc3d.c3d()
@@ -315,7 +315,6 @@ def _export_to_c3d_py(
     units: dict[str, str],
 ) -> bool:
     """Export using c3d library (fallback)."""
-    import c3d
 
     writer = c3d.Writer(point_rate=frame_rate)
 
@@ -360,7 +359,7 @@ def export_recording_all_formats(
     Returns:
         Dictionary mapping format to success status
     """
-    from .telemetry import export_telemetry_csv, export_telemetry_json
+
 
     if formats is None:
         formats = ["json", "csv", "mat", "hdf5"]

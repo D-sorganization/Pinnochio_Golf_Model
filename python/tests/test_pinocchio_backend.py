@@ -8,8 +8,10 @@ try:
 except ImportError:
     pytest.skip("dtack dependencies missing", allow_module_level=True)
 
+
 class HelperPinocchioBackend(PinocchioBackend):
     """Subclass to allow initialization with an existing model."""
+
     def __init__(self, model):
         # Skip super().__init__ which requires a file
         self.model = model
@@ -18,6 +20,7 @@ class HelperPinocchioBackend(PinocchioBackend):
         self.visual_model = pin.GeometryModel()
         self.collision_data = self.collision_model.createData()
         self.visual_data = self.visual_model.createData()
+
 
 def test_compute_bias_forces_correctness():
     """Verify that compute_bias_forces returns the correct NLE vector."""
@@ -41,4 +44,9 @@ def test_compute_bias_forces_correctness():
     # This will test whatever implementation is currently in PinocchioBackend
     result = backend.compute_bias_forces(q, v)
 
-    np.testing.assert_allclose(result, expected, atol=1e-12, err_msg="Bias forces do not match reference RNEA calculation")
+    np.testing.assert_allclose(
+        result,
+        expected,
+        atol=1e-12,
+        err_msg="Bias forces do not match reference RNEA calculation",
+    )

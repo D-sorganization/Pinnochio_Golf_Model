@@ -19,6 +19,7 @@ from dataclasses import dataclass
 
 import mujoco
 import numpy as np
+import csv
 
 
 @dataclass
@@ -621,7 +622,7 @@ def export_kinematic_forces_to_csv(
         force_data_list: List of force data
         filepath: Output CSV file path
     """
-    import csv
+
 
     with open(filepath, "w", newline="") as f:
         writer = csv.writer(f)

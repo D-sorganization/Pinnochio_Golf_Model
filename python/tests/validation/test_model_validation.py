@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import yaml
 
 
 class TestModelValidation:
@@ -21,7 +22,7 @@ class TestModelValidation:
 
     def test_yaml_structure(self) -> None:
         """Test that YAML has required structure."""
-        import yaml
+
 
         repo_root = Path(__file__).resolve().parents[3]
         yaml_path = repo_root / "models/spec/golfer_canonical.yaml"

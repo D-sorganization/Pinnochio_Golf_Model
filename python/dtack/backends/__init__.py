@@ -9,6 +9,6 @@ __all__ = [
     "BackendFactory",
     "BackendType",
     "MuJoCoBackend",
-    "PinocchioBackend",
     "PINKBackend",
+    "PinocchioBackend",
 ]

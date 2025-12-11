@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
 import numpy as np
 from scipy.interpolate import CubicSpline, interp1d
+from scipy.signal import butter, filtfilt
 
 from .advanced_kinematics import AdvancedKinematicsAnalyzer
 
@@ -476,7 +477,7 @@ class MotionCaptureProcessor:
         Returns:
             Filtered positions [N x 3] or [N x nv]
         """
-        from scipy.signal import butter, filtfilt
+
 
         # Design filter
         nyquist = sampling_rate / 2.0

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from dtack.utils.gears_parser import GearsParser
 
 import typing
 
@@ -125,6 +126,4 @@ class MATLABImporter:
         Raises:
             RuntimeError: Parser not yet implemented. File format requires reverse engineering.
         """
-        from dtack.utils.gears_parser import GearsParser
-
         return GearsParser.load(file_path)

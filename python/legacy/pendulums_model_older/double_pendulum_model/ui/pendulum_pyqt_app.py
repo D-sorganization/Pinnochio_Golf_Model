@@ -245,9 +245,7 @@ class PendulumController(QtWidgets.QWidget):
             }
             # Restrict scope significantly to specific math functions
             # noqa: S307 - Legacy math evaluator securely restrictive
-            return float(
-                eval(expression, {"__builtins__": {}}, allowed_names)
-            )
+            return float(eval(expression, {"__builtins__": {}}, allowed_names))
         except (ValueError, TypeError, SyntaxError, NameError):
             logging.exception("Failed to evaluate expression: %s", expression)
             return 0.0

@@ -643,9 +643,12 @@ class DoublePendulumApp:
 
                 # Check for significant changes
                 angles_changed = (
-                    abs(old_theta1 - user_inputs.shoulder_angle_deg) > ANGLE_TOLERANCE_DEG
-                    or abs(old_theta2 - user_inputs.wrist_angle_deg) > ANGLE_TOLERANCE_DEG
-                    or abs(old_phi - user_inputs.out_of_plane_angle_deg) > ANGLE_TOLERANCE_DEG
+                    abs(old_theta1 - user_inputs.shoulder_angle_deg)
+                    > ANGLE_TOLERANCE_DEG
+                    or abs(old_theta2 - user_inputs.wrist_angle_deg)
+                    > ANGLE_TOLERANCE_DEG
+                    or abs(old_phi - user_inputs.out_of_plane_angle_deg)
+                    > ANGLE_TOLERANCE_DEG
                 )
 
                 if angles_changed:

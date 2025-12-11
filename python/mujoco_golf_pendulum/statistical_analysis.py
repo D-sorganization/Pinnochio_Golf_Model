@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import csv
 import numpy as np
 from scipy.signal import find_peaks, savgol_filter
 
@@ -538,7 +539,7 @@ class StatisticalAnalyzer:
             filename: Output filename
             report: Statistics report (if None, generates new one)
         """
-        import csv
+
 
         if report is None:
             report = self.generate_comprehensive_report()

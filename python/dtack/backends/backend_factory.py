@@ -9,9 +9,9 @@ import typing
 if typing.TYPE_CHECKING:
     from pathlib import Path
 
-    from dtack.backends.mujoco_backend import MuJoCoBackend
-    from dtack.backends.pinocchio_backend import PinocchioBackend
-    from dtack.backends.pink_backend import PINKBackend
+from dtack.backends.mujoco_backend import MuJoCoBackend
+from dtack.backends.pinocchio_backend import PinocchioBackend
+from dtack.backends.pink_backend import PINKBackend
 
 
 class BackendType(str, Enum):
@@ -45,16 +45,10 @@ class BackendFactory:
         backend_str = str(backend_type).lower()
 
         if backend_str == BackendType.PINOCCHIO:
-            from dtack.backends.pinocchio_backend import PinocchioBackend
-
             return PinocchioBackend(model_path)
         if backend_str == BackendType.MUJOCO:
-            from dtack.backends.mujoco_backend import MuJoCoBackend
-
             return MuJoCoBackend(model_path)
         if backend_str == BackendType.PINK:
-            from dtack.backends.pink_backend import PINKBackend
-
             return PINKBackend(model_path)
 
         msg = f"Unsupported backend type: {backend_type}"

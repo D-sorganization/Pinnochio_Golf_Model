@@ -18,7 +18,9 @@ from pathlib import Path
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from .control_system import ControlSystem, ControlType
+from .interactive_manipulation import ConstraintType
 from .linkage_mechanisms import LINKAGE_CATALOG
+import mujoco
 from .models import (
     ADVANCED_BIOMECHANICAL_GOLF_SWING_XML,
     CHAOTIC_PENDULUM_XML,
@@ -2450,7 +2452,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
         self.ref_body_combo.clear()
 
         # Add all bodies
-        import mujoco
+
 
         for body_id in range(1, self.sim_widget.model.nbody):  # Skip world (0)
             body_name = mujoco.mj_id2name(
@@ -2485,7 +2487,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
 
     def on_add_constraint(self) -> None:
         """Add a constraint to the selected body."""
-        from .interactive_manipulation import ConstraintType
+
 
         manipulator = self.sim_widget.get_manipulator()
         if not manipulator:

@@ -11,6 +11,10 @@ from collections.abc import Callable
 from enum import Enum
 
 import numpy as np
+try:
+    import cv2
+except ImportError:
+    cv2 = None
 
 
 class PlaybackMode(Enum):
@@ -254,7 +258,9 @@ class PlaybackController:
             output_path: Output image path
             render_callback: Function that takes (state, control) and returns RGB image
         """
-        import cv2
+        if cv2 is None:
+            msg = "OpenCV is required to export images"
+            raise ImportError(msg)
 
         frame = max(0, min(frame, self.num_frames - 1))
         state = self.states[frame]

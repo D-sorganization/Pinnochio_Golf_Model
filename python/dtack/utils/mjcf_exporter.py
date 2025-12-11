@@ -120,13 +120,9 @@ class MJCFExporter:
                     f'range="{limits[0]} {limits[1]}" damping="{damping}"/>'
                 )
             elif joint_type == "ball":
-                lines.append(
-                    f'{indent}  <joint name="{seg_name}_joint" type="ball"/>'
-                )
+                lines.append(f'{indent}  <joint name="{seg_name}_joint" type="ball"/>')
             elif joint_type == "fixed":
-                lines.append(
-                    f'{indent}  <joint name="{seg_name}_joint" type="fixed"/>'
-                )
+                lines.append(f'{indent}  <joint name="{seg_name}_joint" type="fixed"/>')
 
             # Geometry
             lines.extend(
