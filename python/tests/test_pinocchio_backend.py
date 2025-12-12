@@ -1,3 +1,4 @@
+import typing
 import numpy as np
 import pytest
 
@@ -9,10 +10,10 @@ except ImportError:
     pytest.skip("dtack dependencies missing", allow_module_level=True)
 
 
-class HelperPinocchioBackend(PinocchioBackend):
+class HelperPinocchioBackend(PinocchioBackend):  # type: ignore[misc, no-any-unimported]
     """Subclass to allow initialization with an existing model."""
 
-    def __init__(self, model):
+    def __init__(self, model: typing.Any) -> None:
         # Skip super().__init__ which requires a file
         self.model = model
         self.data = model.createData()
@@ -22,7 +23,7 @@ class HelperPinocchioBackend(PinocchioBackend):
         self.visual_data = self.visual_model.createData()
 
 
-def test_compute_bias_forces_correctness():
+def test_compute_bias_forces_correctness() -> None:
     """Verify that compute_bias_forces returns the correct NLE vector."""
     model = pin.buildSampleModelHumanoid()
     backend = HelperPinocchioBackend(model)
