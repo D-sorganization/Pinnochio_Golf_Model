@@ -70,9 +70,9 @@ def export_to_matlab(
             if isinstance(value, np.ndarray):
                 # MATLAB uses Fortran (column-major) order
                 matlab_data[key] = np.asarray(value, order="F")
-            elif isinstance(value, (list, tuple)):
+            elif isinstance(value, list | tuple):
                 matlab_data[key] = np.array(value, order="F")
-            elif isinstance(value, (int, float, str, bool)):
+            elif isinstance(value, int | float | str | bool):
                 matlab_data[key] = value
             elif isinstance(value, dict):
                 # Nested dict - flatten keys
@@ -80,7 +80,7 @@ def export_to_matlab(
                     flat_key = f"{key}_{subkey}".replace(" ", "_")
                     if isinstance(subvalue, np.ndarray):
                         matlab_data[flat_key] = np.asarray(subvalue, order="F")
-                    elif isinstance(subvalue, (list, tuple)):
+                    elif isinstance(subvalue, list | tuple):
                         matlab_data[flat_key] = np.array(subvalue, order="F")
                     else:
                         matlab_data[flat_key] = subvalue
@@ -140,7 +140,7 @@ def export_to_hdf5(
                             else None
                         ),
                     )
-                elif isinstance(value, (int, float)):
+                elif isinstance(value, int | float):
                     # Store scalars as attributes
                     metadata_group.attrs[key] = value
                 elif isinstance(value, str):

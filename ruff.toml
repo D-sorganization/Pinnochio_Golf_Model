@@ -108,6 +108,7 @@ exclude = [
     "PTH103", # os.makedirs
     "RUF003", # ambiguous unicode
     "NPY002", # legacy numpy random
+    "N817",   # CamelCase imported as acronym (e.g. ElementTree as ET)
 ]
 
 "python/mujoco_golf_pendulum/advanced_export.py" = []
@@ -130,6 +131,7 @@ exclude = [
     "N806", "SLF001", "PT011",
     "TID253", # numpy import
     "PLR0915", # complexity
+    "PLC0415", # import not at top level
 ]
 
 # Example scripts
