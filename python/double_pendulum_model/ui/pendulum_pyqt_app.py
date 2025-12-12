@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import typing
 
 
+
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from PyQt6 import QtCore, QtWidgets

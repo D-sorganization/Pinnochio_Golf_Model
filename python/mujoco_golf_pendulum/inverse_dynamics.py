@@ -12,11 +12,12 @@ torques from desired motion. Includes:
 
 from __future__ import annotations
 
+import csv
 from dataclasses import dataclass
 
 import mujoco
 import numpy as np
-import csv
+
 from scipy.linalg import lstsq
 
 from .kinematic_forces import KinematicForceAnalyzer

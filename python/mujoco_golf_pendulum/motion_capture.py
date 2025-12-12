@@ -478,6 +478,7 @@ class MotionCaptureProcessor:
             Filtered positions [N x 3] or [N x nv]
         """
 
+
         # Design filter
         nyquist = sampling_rate / 2.0
         normalized_cutoff = cutoff_frequency / nyquist

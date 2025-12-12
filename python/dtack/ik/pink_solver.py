@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 
+from dataclasses import dataclass
+
 import pinocchio as pin
 import pink
 from pink import Task
@@ -13,6 +15,14 @@ if typing.TYPE_CHECKING:
     import numpy as np
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class SolverSettings:
+    """Settings for the IK solver."""
+
+    solver: str = "quadprog"
+    damping: float = 1e-6
 
 
 class PinkSolver:
@@ -44,13 +54,12 @@ class PinkSolver:
         # but for simple usage we might just recreate it or update it.
         # A Pink 'Configuration' binds a model to a specific joint configuration `q`.
 
-    def solve(  # noqa: PLR0913
+    def solve(
         self,
         q_init: np.ndarray,
         tasks: list[Task],
         dt: float,
-        solver: str = "quadprog",
-        damping: float = 1e-6,
+        settings: SolverSettings | None = None,
     ) -> np.ndarray:
         """Solve differential IK for one step.
 
@@ -58,12 +67,14 @@ class PinkSolver:
             q_init: Current joint configuration
             tasks: List of Pink tasks to satisfy (e.g. FrameTask, PostureTask)
             dt: Time step for velocity integration
-            solver: QP solver backend (default: "quadprog")
-            damping: Regularization damping
+            settings: Solver settings (algorithm, damping)
 
         Returns:
             New joint configuration q_next
         """
+        if settings is None:
+            settings = SolverSettings()
+
         # Create a Pink configuration at the current state
         # Note: Depending on pink version, signature might vary.
         # Assuming standard pink.Configuration usage.
@@ -73,7 +84,11 @@ class PinkSolver:
         # Solve delta_q or velocity
         # pink.solve_ik returns the velocity (v) usually to achieve tasks
         velocity = pink.solve_ik(
-            configuration, tasks, dt, solver=solver, damping=damping
+            configuration,
+            tasks,
+            dt,
+            solver=settings.solver,
+            damping=settings.damping,
         )
 
         # Integrate velocity to update configuration: q_next = q + v * dt

@@ -67,7 +67,6 @@ class ExpressionFunction:
         ast.UAdd,
         ast.Call,
         ast.Constant,
-        ast.Attribute,
         ast.BitXor,
     }
 
@@ -125,13 +124,10 @@ class ExpressionFunction:
                 msg = f"Use of unknown variable '{child.id}' in expression"
                 raise ValueError(msg)
             if isinstance(child, ast.Call):
-                if not isinstance(child.func, ast.Name | ast.Attribute):
+                if not isinstance(child.func, ast.Name):
                     msg = "Only direct function calls are permitted"
                     raise ValueError(msg)  # noqa: TRY004
-                if (
-                    isinstance(child.func, ast.Name)
-                    and child.func.id not in self._ALLOWED_NAMES
-                ):
+                if child.func.id not in self._ALLOWED_NAMES:
                     msg = f"Function '{child.func.id}' is not permitted"
                     raise ValueError(msg)
 

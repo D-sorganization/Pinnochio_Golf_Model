@@ -15,11 +15,12 @@ even for parallel mechanisms where full inverse dynamics is challenging.
 
 from __future__ import annotations
 
+import csv
 from dataclasses import dataclass
 
 import mujoco
 import numpy as np
-import csv
+
 
 
 @dataclass

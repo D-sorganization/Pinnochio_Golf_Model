@@ -139,6 +139,7 @@ class SwingOptimizer:
             OptimizationResult with optimal trajectory
         """
 
+
         start_time = time.time()
 
         # Generate initial guess if not provided

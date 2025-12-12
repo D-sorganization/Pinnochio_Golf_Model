@@ -12,15 +12,16 @@ import csv
 import json
 import logging
 import typing
+import mujoco
+
+from .interactive_manipulation import ConstraintType
 from collections.abc import Callable
 from pathlib import Path
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from .control_system import ControlSystem, ControlType
-from .interactive_manipulation import ConstraintType
 from .linkage_mechanisms import LINKAGE_CATALOG
-import mujoco
 from .models import (
     ADVANCED_BIOMECHANICAL_GOLF_SWING_XML,
     CHAOTIC_PENDULUM_XML,
@@ -2452,6 +2453,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
         self.ref_body_combo.clear()
 
         # Add all bodies
+
 
         for body_id in range(1, self.sim_widget.model.nbody):  # Skip world (0)
             body_name = mujoco.mj_id2name(
