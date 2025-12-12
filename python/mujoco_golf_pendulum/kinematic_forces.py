@@ -20,7 +20,7 @@ from dataclasses import dataclass
 
 import mujoco
 import numpy as np
-import csv
+
 
 
 @dataclass

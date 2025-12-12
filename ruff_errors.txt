@@ -1,0 +1,419 @@
+python\double_pendulum_model\ui\double_pendulum_gui.py:463:17: LOG015 `warning()` call on root logger
+    |
+461 |             result = 0.0
+462 |             if label not in self.entries:
+463 |                 logging.warning("Entry '%s' not found", label)
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOG015
+464 |                 return result
+    |
+    = help: Use own logger instead
+
+python\double_pendulum_model\ui\double_pendulum_gui.py:471:21: LOG015 `exception()` call on root logger
+    |
+469 |                     result = float(val)
+470 |                 except ValueError:
+471 |                     logging.exception("Error converting '%s' to float", label)
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOG015
+472 |                 except Exception:
+473 |                     logging.exception("Unexpected error reading '%s'", label)
+    |
+    = help: Use own logger instead
+
+python\double_pendulum_model\ui\double_pendulum_gui.py:473:21: LOG015 `exception()` call on root logger
+    |
+471 |                     logging.exception("Error converting '%s' to float", label)
+472 |                 except Exception:
+473 |                     logging.exception("Unexpected error reading '%s'", label)
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOG015
+474 |             return result
+    |
+    = help: Use own logger instead
+
+python\double_pendulum_model\ui\double_pendulum_gui.py:778:13: LOG015 `debug()` call on root logger
+    |
+777 |         if self.state is None or self.dynamics is None:
+778 |             logging.debug("DEBUG: state=%s, dynamics=%s", self.state, self.dynamics)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOG015
+779 |             return
+    |
+    = help: Use own logger instead
+
+python\double_pendulum_model\ui\double_pendulum_gui.py:784:13: LOG015 `exception()` call on root logger
+    |
+782 |             self.ax.clear()
+783 |         except Exception:
+784 |             logging.exception("Error clearing axes")
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOG015
+785 |             return
+    |
+    = help: Use own logger instead
+
+python\double_pendulum_model\ui\pendulum_pyqt_app.py:250:13: LOG015 `exception()` call on root logger
+    |
+248 |             )
+249 |         except (ValueError, TypeError, SyntaxError, NameError):
+250 |             logging.exception("Error evaluating expression: %s", expression)
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOG015
+251 |             return 0.0
+    |
+    = help: Use own logger instead
+
+python\dtack\backends\backend_factory.py:48:13: PLC0415 `import` should be at the top-level of a file
+   |
+47 |         if backend_str == BackendType.PINOCCHIO:
+48 |             from dtack.backends.pinocchio_backend import PinocchioBackend
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+49 |
+50 |             return PinocchioBackend(model_path)
+   |
+
+python\dtack\backends\backend_factory.py:52:13: PLC0415 `import` should be at the top-level of a file
+   |
+50 |             return PinocchioBackend(model_path)
+51 |         if backend_str == BackendType.MUJOCO:
+52 |             from dtack.backends.mujoco_backend import MuJoCoBackend
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+53 |
+54 |             return MuJoCoBackend(model_path)
+   |
+
+python\dtack\backends\backend_factory.py:56:13: PLC0415 `import` should be at the top-level of a file
+   |
+54 |             return MuJoCoBackend(model_path)
+55 |         if backend_str == BackendType.PINK:
+56 |             from dtack.backends.pink_backend import PINKBackend
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+57 |
+58 |             return PINKBackend(model_path)
+   |
+
+python\dtack\utils\matlab_importer.py:128:9: PLC0415 `import` should be at the top-level of a file
+    |
+126 |             RuntimeError: Parser not yet implemented. File format requires reverse engineering.
+127 |         """
+128 |         from dtack.utils.gears_parser import GearsParser
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+129 |
+130 |         return GearsParser.load(file_path)
+    |
+
+python\dtack\viz\geppetto_viewer.py:61:13: PLC0415 `import` should be at the top-level of a file
+   |
+59 |         """
+60 |         if visual_model is not None:
+61 |             from pinocchio.visualize import GepettoVisualizer
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+62 |
+63 |             viz = GepettoVisualizer(model, visual_model, visual_model)
+   |
+
+python\dtack\viz\meshcat_viewer.py:57:13: PLC0415 `import` should be at the top-level of a file
+   |
+55 |         """
+56 |         if visual_model is not None:
+57 |             from pinocchio.visualize import MeshcatVisualizer
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+58 |
+59 |             viz = MeshcatVisualizer(model, visual_model, visual_model)
+   |
+
+python\mujoco_golf_pendulum\advanced_export.py:243:5: PLC0415 `import` should be at the top-level of a file
+    |
+241 | ) -> bool:
+242 |     """Export using ezc3d library."""
+243 |     import ezc3d
+    |     ^^^^^^^^^^^^ PLC0415
+244 |
+245 |     # Create new C3D file
+    |
+
+python\mujoco_golf_pendulum\advanced_export.py:318:5: PLC0415 `import` should be at the top-level of a file
+    |
+316 | ) -> bool:
+317 |     """Export using c3d library (fallback)."""
+318 |     import c3d
+    |     ^^^^^^^^^^ PLC0415
+319 |
+320 |     writer = c3d.Writer(point_rate=frame_rate)
+    |
+
+python\mujoco_golf_pendulum\advanced_export.py:363:5: PLC0415 `import` should be at the top-level of a file
+    |
+361 |         Dictionary mapping format to success status
+362 |     """
+363 |     from .telemetry import export_telemetry_csv, export_telemetry_json
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+364 |
+365 |     if formats is None:
+    |
+
+python\mujoco_golf_pendulum\advanced_gui.py:2453:9: PLC0415 `import` should be at the top-level of a file
+     |
+2452 |         # Add all bodies
+2453 |         import mujoco
+     |         ^^^^^^^^^^^^^ PLC0415
+2454 |
+2455 |         for body_id in range(1, self.sim_widget.model.nbody):  # Skip world (0)
+     |
+
+python\mujoco_golf_pendulum\advanced_gui.py:2488:9: PLC0415 `import` should be at the top-level of a file
+     |
+2486 |     def on_add_constraint(self) -> None:
+2487 |         """Add a constraint to the selected body."""
+2488 |         from .interactive_manipulation import ConstraintType
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+2489 |
+2490 |         manipulator = self.sim_widget.get_manipulator()
+     |
+
+python\mujoco_golf_pendulum\examples_advanced_robotics.py:316:13: PLC0415 `import` should be at the top-level of a file
+    |
+314 |             example_func()
+315 |         except Exception:  # - Example runner should continue on any error
+316 |             import traceback
+    |             ^^^^^^^^^^^^^^^^ PLC0415
+317 |
+318 |             traceback.print_exc()
+    |
+
+python\mujoco_golf_pendulum\examples_joint_analysis.py:223:5: PLC0415 `import` should be at the top-level of a file
+    |
+221 | def main() -> None:
+222 |     """Run all examples."""
+223 |     import os
+    |     ^^^^^^^^^ PLC0415
+224 |
+225 |     os.makedirs("output", exist_ok=True)
+    |
+
+python\mujoco_golf_pendulum\examples_motion_capture.py:470:13: PLC0415 `import` should be at the top-level of a file
+    |
+468 |             example_func()
+469 |         except Exception:
+470 |             import traceback
+    |             ^^^^^^^^^^^^^^^^ PLC0415
+471 |
+472 |             traceback.print_exc()
+    |
+
+python\mujoco_golf_pendulum\interactive_manipulation.py:622:9: PLC0415 `import` should be at the top-level of a file
+    |
+620 |             Stored pose
+621 |         """
+622 |         import time
+    |         ^^^^^^^^^^^ PLC0415
+623 |
+624 |         pose = StoredPose(
+    |
+
+python\mujoco_golf_pendulum\inverse_dynamics.py:477:5: PLC0415 `import` should be at the top-level of a file
+    |
+475 |         filepath: Output CSV path
+476 |     """
+477 |     import csv
+    |     ^^^^^^^^^^ PLC0415
+478 |
+479 |     with open(filepath, "w", newline="") as f:
+    |
+
+python\mujoco_golf_pendulum\kinematic_forces.py:624:5: PLC0415 `import` should be at the top-level of a file
+    |
+622 |         filepath: Output CSV file path
+623 |     """
+624 |     import csv
+    |     ^^^^^^^^^^ PLC0415
+625 |
+626 |     with open(filepath, "w", newline="") as f:
+    |
+
+python\mujoco_golf_pendulum\motion_capture.py:479:9: PLC0415 `import` should be at the top-level of a file
+    |
+477 |             Filtered positions [N x 3] or [N x nv]
+478 |         """
+479 |         from scipy.signal import butter, filtfilt
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+480 |
+481 |         # Design filter
+    |
+
+python\mujoco_golf_pendulum\motion_optimization.py:140:9: PLC0415 `import` should be at the top-level of a file
+    |
+138 |             OptimizationResult with optimal trajectory
+139 |         """
+140 |         import time
+    |         ^^^^^^^^^^^ PLC0415
+141 |
+142 |         start_time = time.time()
+    |
+
+python\mujoco_golf_pendulum\pinocchio_interface.py:123:9: PLC0415 `import` should be at the top-level of a file
+    |
+121 |             Tuple of (pin_model, pin_data)
+122 |         """
+123 |         import tempfile
+    |         ^^^^^^^^^^^^^^^ PLC0415
+124 |         from pathlib import Path
+    |
+
+python\mujoco_golf_pendulum\pinocchio_interface.py:124:9: PLC0415 `import` should be at the top-level of a file
+    |
+122 |         """
+123 |         import tempfile
+124 |         from pathlib import Path
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+125 |
+126 |         from .urdf_io import export_model_to_urdf
+    |
+
+python\mujoco_golf_pendulum\pinocchio_interface.py:126:9: PLC0415 `import` should be at the top-level of a file
+    |
+124 |         from pathlib import Path
+125 |
+126 |         from .urdf_io import export_model_to_urdf
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+127 |
+128 |         # Export to temporary URDF file
+    |
+
+python\mujoco_golf_pendulum\playback_control.py:257:9: PLC0415 `import` should be at the top-level of a file
+    |
+255 |             render_callback: Function that takes (state, control) and returns RGB image
+256 |         """
+257 |         import cv2
+    |         ^^^^^^^^^^ PLC0415
+258 |
+259 |         frame = max(0, min(frame, self.num_frames - 1))
+    |
+
+python\mujoco_golf_pendulum\sim_widget.py:181:9: PLC0415 `import` should be at the top-level of a file
+    |
+179 |             xml_path: Path to the XML model file (absolute or relative to project root)
+180 |         """
+181 |         from pathlib import Path
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+182 |
+183 |         # Convert to absolute path if needed
+    |
+
+python\mujoco_golf_pendulum\statistical_analysis.py:541:9: PLC0415 `import` should be at the top-level of a file
+    |
+539 |             report: Statistics report (if None, generates new one)
+540 |         """
+541 |         import csv
+    |         ^^^^^^^^^^ PLC0415
+542 |
+543 |         if report is None:
+    |
+
+python\mujoco_golf_pendulum\telemetry.py:249:5: PLC0415 `import` should be at the top-level of a file
+    |
+247 | def export_telemetry_json(filename: str, data_dict: dict[str, Any]) -> bool:
+248 |     """Export telemetry data to JSON."""
+249 |     import json
+    |     ^^^^^^^^^^^ PLC0415
+250 |
+251 |     try:
+    |
+
+python\mujoco_golf_pendulum\telemetry.py:271:5: PLC0415 `import` should be at the top-level of a file
+    |
+269 | def export_telemetry_csv(filename: str, data_dict: dict[str, Any]) -> bool:
+270 |     """Export telemetry data to CSV."""
+271 |     import csv
+    |     ^^^^^^^^^^ PLC0415
+272 |
+273 |     try:
+    |
+
+python\tests\test_expression_security.py:41:5: ERA001 Found commented-out code
+   |
+40 | def test_call_on_attribute_blocked():
+41 |     # e.g. foo.bar()
+   |     ^^^^^^^^^^^^^^^^ ERA001
+42 |     # This parses as Call(func=Attribute(value=Name(foo), attr=bar))
+43 |     # _validate_ast visits the Call node first.
+   |
+   = help: Remove commented-out code
+
+python\tests\test_expression_security.py:44:101: E501 Line too long (101 > 100)
+   |
+42 |     # This parses as Call(func=Attribute(value=Name(foo), attr=bar))
+43 |     # _validate_ast visits the Call node first.
+44 |     # Since child.func is Attribute (not Name), it raises "Only direct function calls are permitted".
+   |                                                                                                     ^ E501
+45 |     with pytest.raises(ValueError, match="Only direct function calls are permitted"):
+46 |         ExpressionFunction("theta1.as_integer_ratio()")
+   |
+
+python\tests\test_expression_security.py:53:5: ERA001 Found commented-out code
+   |
+51 |         ExpressionFunction("[x for x in range(10)]")
+52 |
+53 |     # Dict (not allowed)
+   |     ^^^^^^^^^^^^^^^^^^^^ ERA001
+54 |     with pytest.raises(ValueError, match="Disallowed syntax"):
+55 |         ExpressionFunction("{'a': 1}")
+   |
+   = help: Remove commented-out code
+
+python\tests\test_ik_simple.py:65:13: LOG015 `info()` call on root logger
+   |
+64 |         if i % 10 == 0:
+65 |             logging.info(f"Step {i}: Error = {error:.4f}")
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOG015
+66 |
+67 |         if error < 1e-3:
+   |
+   = help: Use own logger instead
+
+python\tests\test_imports.py:14:5: PLC0415 `import` should be at the top-level of a file
+   |
+12 | def test_import_pinocchio_golf() -> None:
+13 |     """Test importing the main package."""
+14 |     import python.pinocchio_golf
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+15 |
+16 |     assert python.pinocchio_golf is not None
+   |
+
+python\tests\test_imports.py:22:5: PLC0415 `import` should be at the top-level of a file
+   |
+20 |     """Test importing the GUI module."""
+21 |     pytest.importorskip("pinocchio")
+22 |     from python.pinocchio_golf import gui
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+23 |
+24 |     assert gui is not None
+   |
+
+python\tests\test_imports.py:31:5: PLC0415 `import` should be at the top-level of a file
+   |
+29 |     pytest.importorskip("pinocchio")
+30 |     pytest.importorskip("zmqRemoteApi")
+31 |     from python.pinocchio_golf import coppelia_bridge
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+32 |
+33 |     assert coppelia_bridge is not None
+   |
+
+python\tests\test_imports.py:38:5: PLC0415 `import` should be at the top-level of a file
+   |
+36 | def test_import_torque_fitting() -> None:
+37 |     """Test importing the torque fitting module."""
+38 |     from python.pinocchio_golf import torque_fitting
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ PLC0415
+39 |
+40 |     assert torque_fitting is not None
+   |
+
+python\tests\validation\test_model_validation.py:24:9: PLC0415 `import` should be at the top-level of a file
+   |
+22 |     def test_yaml_structure(self) -> None:
+23 |         """Test that YAML has required structure."""
+24 |         import yaml
+   |         ^^^^^^^^^^^ PLC0415
+25 |
+26 |         repo_root = Path(__file__).resolve().parents[3]
+   |
+
+Found 42 errors.

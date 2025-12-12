@@ -15,11 +15,7 @@ import numpy as np
 try:
     import cv2
 except ImportError:
-<<<<<<< HEAD
-    cv2 = None
-=======
     cv2 = None  # type: ignore[assignment]
->>>>>>> origin/main
 
 
 class PlaybackMode(Enum):

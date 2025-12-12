@@ -27,7 +27,7 @@ except ImportError:
     EZC3D_AVAILABLE = False
 
 
-from dtack.utils.gears_parser import GearsParser
+
 
 logger = logging.getLogger(__name__)
 
