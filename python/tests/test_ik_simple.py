@@ -16,8 +16,8 @@ except ImportError:
     pytest.skip("dtack.ik dependencies missing", allow_module_level=True)
 
 
-
 logger = logging.getLogger(__name__)
+
 
 def test_ik_convergence() -> None:
     """Test that IK converges for a simple manipulator."""
