@@ -174,7 +174,7 @@ class DoublePendulumApp:
         canvas_scroll.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-    def _add_labeled_row(
+    def _add_labeled_row(  # noqa: PLR0913
         self, parent: tk.Widget, label: str, default: str, row: int, tooltip: str = ""
     ) -> tk.Entry:
         """Add a labeled entry row to the control panel."""

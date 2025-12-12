@@ -56,9 +56,9 @@ def create_posture_task(
 
 
 def create_joint_coupling_task(
-    joint_names: list[str],
-    ratios: list[float],
-    cost: float = 100.0,
+    _joint_names: list[str],
+    _ratios: list[float],
+    _cost: float = 100.0,
 ) -> pink.tasks.LinearHolonomicTask:
     """Create a task to enforce linear coupling between joints.
 

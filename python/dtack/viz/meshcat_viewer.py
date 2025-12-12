@@ -54,7 +54,7 @@ class MeshCatViewer:
             visual_model: Optional visual geometry model
         """
         if visual_model is not None:
-            from pinocchio.visualize import MeshcatVisualizer  # noqa: PLC0415
+            from pinocchio.visualize import MeshcatVisualizer
 
             viz = MeshcatVisualizer(model, visual_model, visual_model)
             viz.initViewer(viewer=self.viewer)
