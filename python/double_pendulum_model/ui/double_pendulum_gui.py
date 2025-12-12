@@ -21,7 +21,6 @@ import math
 import tkinter as tk
 
 
-
 from dataclasses import dataclass
 import typing
 from datetime import datetime, timezone
@@ -52,6 +51,13 @@ ANGLE_TOLERANCE_DEG = 0.1
 # Tolerance for center-of-mass ratio comparisons [unitless, ratio]
 # Used to determine when two COM positions are effectively equal.
 COM_TOLERANCE = 0.01
+
+
+@dataclass
+class UIEntryConfig:
+    label: str
+    default: str
+    tooltip: str = ""
 
 
 @dataclass
@@ -176,24 +182,26 @@ class DoublePendulumApp:
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
     def _add_labeled_row(
-        self, parent: tk.Widget, label: str, default: str, row: int, tooltip: str = ""
+        self, parent: tk.Widget, row: int, config: UIEntryConfig
     ) -> tk.Entry:
         """Add a labeled entry row to the control panel."""
         frame = tk.Frame(parent, bg="white")
         frame.grid(row=row, column=0, columnspan=2, sticky="ew", pady=2)
 
-        label_widget = tk.Label(frame, text=label, bg="white", width=20, anchor="w")
+        label_widget = tk.Label(
+            frame, text=config.label, bg="white", width=20, anchor="w"
+        )
         label_widget.pack(side=tk.LEFT, padx=(0, 5))
 
         entry = tk.Entry(frame, width=12)
-        entry.insert(0, default)
+        entry.insert(0, config.default)
         entry.pack(side=tk.LEFT)
         entry.bind("<KeyRelease>", lambda _e: self._on_parameter_change())
 
-        if tooltip:
-            self._create_tooltip(label_widget, tooltip)
+        if config.tooltip:
+            self._create_tooltip(label_widget, config.tooltip)
 
-        self.entries[label] = entry
+        self.entries[config.label] = entry
         return entry
 
     def _setup_initial_conditions(self, parent: tk.Widget, row: int) -> int:
@@ -201,26 +209,32 @@ class DoublePendulumApp:
         row += 1
         self._add_labeled_row(
             parent,
-            "Shoulder angle (deg)",
-            "-45",
             row,
-            "Angle of upper segment from vertical (0° = straight down)",
+            UIEntryConfig(
+                "Shoulder angle (deg)",
+                "-45",
+                "Angle of upper segment from vertical (0° = straight down)",
+            ),
         )
         row += 1
         self._add_labeled_row(
             parent,
-            "Wrist angle (deg)",
-            "-90",
             row,
-            "Relative angle of lower segment from upper segment (0° = aligned)",
+            UIEntryConfig(
+                "Wrist angle (deg)",
+                "-90",
+                "Relative angle of lower segment from upper segment (0° = aligned)",
+            ),
         )
         row += 1
         self._add_labeled_row(
             parent,
-            "Out-of-plane angle (deg)",
-            "0",
             row,
-            "Angle above/below plane (only used when not constrained)",
+            UIEntryConfig(
+                "Out-of-plane angle (deg)",
+                "0",
+                "Angle above/below plane (only used when not constrained)",
+            ),
         )
         row += 1
         return row
@@ -228,32 +242,36 @@ class DoublePendulumApp:
     def _setup_physical_parameters(self, parent: tk.Widget, row: int) -> int:
         self._create_section_header(parent, "Physical Parameters", row)
         row += 1
-        self._add_labeled_row(parent, "Upper length (m)", "0.75", row)
+        self._add_labeled_row(parent, row, UIEntryConfig("Upper length (m)", "0.75"))
         row += 1
-        self._add_labeled_row(parent, "Upper mass (kg)", "7.5", row)
+        self._add_labeled_row(parent, row, UIEntryConfig("Upper mass (kg)", "7.5"))
         row += 1
         self._add_labeled_row(
             parent,
-            "Upper COM ratio",
-            "0.45",
             row,
-            "Center of mass position as fraction of length",
+            UIEntryConfig(
+                "Upper COM ratio",
+                "0.45",
+                "Center of mass position as fraction of length",
+            ),
         )
         row += 1
-        self._add_labeled_row(parent, "Lower length (m)", "1.0", row)
+        self._add_labeled_row(parent, row, UIEntryConfig("Lower length (m)", "1.0"))
         row += 1
-        self._add_labeled_row(parent, "Shaft mass (kg)", "0.35", row)
+        self._add_labeled_row(parent, row, UIEntryConfig("Shaft mass (kg)", "0.35"))
         row += 1
-        self._add_labeled_row(parent, "Clubhead mass (kg)", "0.20", row)
+        self._add_labeled_row(parent, row, UIEntryConfig("Clubhead mass (kg)", "0.20"))
         row += 1
-        self._add_labeled_row(parent, "Shaft COM ratio", "0.43", row)
+        self._add_labeled_row(parent, row, UIEntryConfig("Shaft COM ratio", "0.43"))
         row += 1
         self._add_labeled_row(
             parent,
-            "Plane incline (deg)",
-            str(DEFAULT_PLANE_INCLINATION_DEG),
             row,
-            "Inclination of swing plane from vertical",
+            UIEntryConfig(
+                "Plane incline (deg)",
+                str(DEFAULT_PLANE_INCLINATION_DEG),
+                "Inclination of swing plane from vertical",
+            ),
         )
         row += 1
         return row
@@ -263,18 +281,22 @@ class DoublePendulumApp:
         row += 1
         self._add_labeled_row(
             parent,
-            "Shoulder damping",
-            "0.4",
             row,
-            "Damping coefficient for upper segment (N·m·s/rad)",
+            UIEntryConfig(
+                "Shoulder damping",
+                "0.4",
+                "Damping coefficient for upper segment (N·m·s/rad)",
+            ),
         )
         row += 1
         self._add_labeled_row(
             parent,
-            "Wrist damping",
-            "0.25",
             row,
-            "Damping coefficient for lower segment (N·m·s/rad)",
+            UIEntryConfig(
+                "Wrist damping",
+                "0.25",
+                "Damping coefficient for lower segment (N·m·s/rad)",
+            ),
         )
         row += 1
         return row
@@ -284,13 +306,15 @@ class DoublePendulumApp:
         row += 1
         self._add_labeled_row(
             parent,
-            "Shoulder torque f(t)",
-            "0.0",
             row,
-            "Torque expression using t, theta1, theta2, omega1, omega2",
+            UIEntryConfig(
+                "Shoulder torque f(t)",
+                "0.0",
+                "Torque expression using t, theta1, theta2, omega1, omega2",
+            ),
         )
         row += 1
-        self._add_labeled_row(parent, "Wrist torque f(t)", "0.0", row)
+        self._add_labeled_row(parent, row, UIEntryConfig("Wrist torque f(t)", "0.0"))
         row += 1
         return row
 
