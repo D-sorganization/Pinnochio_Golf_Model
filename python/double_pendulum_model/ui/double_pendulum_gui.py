@@ -14,11 +14,13 @@ Features:
 
 from __future__ import annotations
 
+import logging
 import contextlib
 import csv
 import math
 import tkinter as tk
-import logging
+
+
 from dataclasses import dataclass
 import typing
 from datetime import datetime, timezone
@@ -38,6 +40,8 @@ from double_pendulum_model.physics.double_pendulum import (
     DoublePendulumState,
     compile_forcing_functions,
 )
+
+logger = logging.getLogger(__name__)
 
 TIME_STEP = 0.01
 
@@ -170,7 +174,7 @@ class DoublePendulumApp:
         canvas_scroll.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-    def _add_labeled_row(  # noqa: PLR0913
+    def _add_labeled_row(
         self, parent: tk.Widget, label: str, default: str, row: int, tooltip: str = ""
     ) -> tk.Entry:
         """Add a labeled entry row to the control panel."""
@@ -460,7 +464,7 @@ class DoublePendulumApp:
         def get_float(label: str) -> float:
             result = 0.0
             if label not in self.entries:
-                logging.warning("Entry '%s' not found", label)
+                logger.warning("Entry '%s' not found", label)
                 return result
 
             val = self.entries[label].get()
@@ -468,9 +472,9 @@ class DoublePendulumApp:
                 try:
                     result = float(val)
                 except ValueError:
-                    logging.exception("Error converting '%s' to float", label)
+                    logger.exception("Error converting '%s' to float", label)
                 except Exception:
-                    logging.exception("Unexpected error reading '%s'", label)
+                    logger.exception("Unexpected error reading '%s'", label)
             return result
 
         def get_str(label: str) -> str:
@@ -775,13 +779,13 @@ class DoublePendulumApp:
         import numpy as np
 
         if self.state is None or self.dynamics is None:
-            logging.debug("DEBUG: state=%s, dynamics=%s", self.state, self.dynamics)
+            logger.debug("DEBUG: state=%s, dynamics=%s", self.state, self.dynamics)
             return
 
         try:
             self.ax.clear()
         except Exception:
-            logging.exception("Error clearing axes")
+            logger.exception("Error clearing axes")
             return
 
         # Prepare

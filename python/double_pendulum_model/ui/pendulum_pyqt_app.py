@@ -5,6 +5,8 @@ import math
 from dataclasses import dataclass
 import typing
 
+
+
 if typing.TYPE_CHECKING:
     import numpy as np
 
@@ -24,6 +26,8 @@ from double_pendulum_model.physics.triple_pendulum import (
     TriplePendulumParameters,
     TriplePendulumState,
 )
+
+logger = logging.getLogger(__name__)
 
 TIME_STEP = 0.01
 
@@ -247,7 +251,7 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
                 )
             )
         except (ValueError, TypeError, SyntaxError, NameError):
-            logging.exception("Error evaluating expression: %s", expression)
+            logger.exception("Error evaluating expression: %s", expression)
             return 0.0
 
     def _polynomial_profiles(

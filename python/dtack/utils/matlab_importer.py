@@ -25,6 +25,9 @@ try:
 except ImportError:
     EZC3D_AVAILABLE = False
 
+
+from dtack.utils.gears_parser import GearsParser
+
 logger = logging.getLogger(__name__)
 
 
@@ -125,6 +128,4 @@ class MATLABImporter:
         Raises:
             RuntimeError: Parser not yet implemented. File format requires reverse engineering.
         """
-        from dtack.utils.gears_parser import GearsParser
-
         return GearsParser.load(file_path)

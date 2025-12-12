@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import typing
+import contextlib
 
 if typing.TYPE_CHECKING:
     import pinocchio as pin
@@ -14,6 +15,9 @@ try:
     GEPETTO_AVAILABLE = True
 except ImportError:
     GEPETTO_AVAILABLE = False
+
+with contextlib.suppress(ImportError):
+    from pinocchio.visualize import GepettoVisualizer
 
 if typing.TYPE_CHECKING:
     import pinocchio as pin
@@ -58,7 +62,6 @@ class GeppettoViewer:
             visual_model: Optional visual geometry model
         """
         if visual_model is not None:
-            from pinocchio.visualize import GepettoVisualizer
 
             viz = GepettoVisualizer(model, visual_model, visual_model)
             viz.initViewer(viewer=self.client)

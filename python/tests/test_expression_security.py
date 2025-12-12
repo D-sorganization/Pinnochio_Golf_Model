@@ -38,19 +38,20 @@ def test_import_blocked():
         ExpressionFunction("__import__('os')")
 
 def test_call_on_attribute_blocked():
-    # e.g. foo.bar()
+    # Example: attribute call.
     # This parses as Call(func=Attribute(value=Name(foo), attr=bar))
     # _validate_ast visits the Call node first.
-    # Since child.func is Attribute (not Name), it raises "Only direct function calls are permitted".
+    # Since child.func is Attribute (not Name), it raises:
+    # "Only direct function calls are permitted".
     with pytest.raises(ValueError, match="Only direct function calls are permitted"):
         ExpressionFunction("theta1.as_integer_ratio()")
 
-def test_disallowed_nodes():
-    # List comprehension (not allowed)
+def test_disallowed_syntax_nodes():
+    # List creation is not allowed
     with pytest.raises(ValueError, match="Disallowed syntax"):
         ExpressionFunction("[x for x in range(10)]")
 
-    # Dict (not allowed)
+    # Dict type(not allowed)
     with pytest.raises(ValueError, match="Disallowed syntax"):
         ExpressionFunction("{'a': 1}")
 

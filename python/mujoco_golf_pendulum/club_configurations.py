@@ -467,7 +467,7 @@ def get_recommended_flex(swing_speed_mph: float) -> str:
         Recommended shaft flexibility
     """
     for flex, data in SHAFT_FLEX_DATA.items():
-        speed_range = cast(tuple[float, float], data["swing_speed_mph"])
+        speed_range = cast("tuple[float, float]", data["swing_speed_mph"])
         min_speed, max_speed = speed_range
         if min_speed <= swing_speed_mph <= max_speed:
             return flex

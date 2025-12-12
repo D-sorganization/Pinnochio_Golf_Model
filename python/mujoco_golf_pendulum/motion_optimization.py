@@ -12,6 +12,7 @@ golf swing trajectories, including:
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass
 from typing import Any
 
@@ -137,7 +138,7 @@ class SwingOptimizer:
         Returns:
             OptimizationResult with optimal trajectory
         """
-        import time
+
 
         start_time = time.time()
 

@@ -13,6 +13,7 @@ Run examples with:
 import matplotlib.pyplot as plt
 import mujoco as mj
 import numpy as np
+import os
 from mujoco_golf_pendulum.joint_analysis import (
     GimbalJointAnalyzer,
     UniversalJointAnalyzer,
@@ -220,7 +221,6 @@ def example_interactive_universal_joint() -> None:
 
 def main() -> None:
     """Run all examples."""
-    import os
 
     os.makedirs("output", exist_ok=True)
 

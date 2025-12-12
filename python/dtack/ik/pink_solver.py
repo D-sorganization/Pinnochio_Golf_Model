@@ -44,7 +44,7 @@ class PinkSolver:
         # but for simple usage we might just recreate it or update it.
         # A Pink 'Configuration' binds a model to a specific joint configuration `q`.
 
-    def solve(  # noqa: PLR0913
+    def solve(
         self,
         q_init: np.ndarray,
         tasks: list[Task],

@@ -51,8 +51,8 @@ class PINKBackend:
 
     def solve_ik(
         self,
-        tasks: dict[str, npt.NDArray[np.float64]],  # noqa: ARG002
-        q_init: npt.NDArray[np.float64],  # noqa: ARG002
+        tasks: dict[str, npt.NDArray[np.float64]],
+        q_init: npt.NDArray[np.float64],
     ) -> npt.NDArray[np.float64]:
         """Solve inverse kinematics for given tasks.
 

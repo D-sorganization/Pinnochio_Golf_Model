@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import typing
+import contextlib
 
 if typing.TYPE_CHECKING:
     import pinocchio as pin
@@ -15,6 +16,9 @@ try:
     MESHCAT_AVAILABLE = True
 except ImportError:
     MESHCAT_AVAILABLE = False
+
+with contextlib.suppress(ImportError):
+    from pinocchio.visualize import MeshcatVisualizer
 
 if typing.TYPE_CHECKING:
     import numpy as np
@@ -54,7 +58,6 @@ class MeshCatViewer:
             visual_model: Optional visual geometry model
         """
         if visual_model is not None:
-            from pinocchio.visualize import MeshcatVisualizer
 
             viz = MeshcatVisualizer(model, visual_model, visual_model)
             viz.initViewer(viewer=self.viewer)

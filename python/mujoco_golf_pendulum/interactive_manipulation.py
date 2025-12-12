@@ -11,6 +11,7 @@ This module provides:
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass
 from enum import Enum
 
@@ -619,7 +620,7 @@ class InteractiveManipulator:
         Returns:
             Stored pose
         """
-        import time
+
 
         pose = StoredPose(
             name=name,

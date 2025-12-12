@@ -14,6 +14,9 @@ except ImportError:
     pytest.skip("dtack.ik dependencies missing", allow_module_level=True)
 
 
+
+logger = logging.getLogger(__name__)
+
 def test_ik_convergence() -> None:
     """Test that IK converges for a simple manipulator."""
     # 1. Build sample model
@@ -62,7 +65,7 @@ def test_ik_convergence() -> None:
         error = np.linalg.norm(current_pose.translation - target_pose.translation)
 
         if i % 10 == 0:
-            logging.info(f"Step {i}: Error = {error:.4f}")
+            logger.info(f"Step {i}: Error = {error:.4f}")
 
         if error < 1e-3:
             return

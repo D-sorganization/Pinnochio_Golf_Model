@@ -16,6 +16,8 @@ import logging
 
 import mujoco
 import numpy as np
+import json
+import csv
 
 logger = logging.getLogger(__name__)
 
@@ -246,7 +248,7 @@ class TelemetryRecorder:
 
 def export_telemetry_json(filename: str, data_dict: dict[str, Any]) -> bool:
     """Export telemetry data to JSON."""
-    import json
+
 
     try:
         # Convert numpy arrays to lists for JSON serialization
@@ -268,7 +270,7 @@ def export_telemetry_json(filename: str, data_dict: dict[str, Any]) -> bool:
 
 def export_telemetry_csv(filename: str, data_dict: dict[str, Any]) -> bool:
     """Export telemetry data to CSV."""
-    import csv
+
 
     try:
         # Filter for array-like data

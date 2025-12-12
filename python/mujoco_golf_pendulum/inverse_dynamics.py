@@ -12,6 +12,7 @@ torques from desired motion. Includes:
 
 from __future__ import annotations
 
+import csv
 from dataclasses import dataclass
 
 import mujoco
@@ -474,7 +475,6 @@ def export_inverse_dynamics_to_csv(
         results: List of InverseDynamicsResult
         filepath: Output CSV path
     """
-    import csv
 
     with open(filepath, "w", newline="") as f:
         writer = csv.writer(f)
