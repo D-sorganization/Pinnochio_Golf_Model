@@ -3,6 +3,7 @@ import ast
 from unittest.mock import patch
 from double_pendulum_model.ui.pendulum_pyqt_app import PendulumController
 
+
 def test_safe_eval_valid_math() -> None:
     """Test that safe mathematical expressions are evaluated correctly."""
     assert PendulumController._safe_eval(None, "1 + 2") == 3.0
@@ -11,10 +12,12 @@ def test_safe_eval_valid_math() -> None:
     assert PendulumController._safe_eval(None, "pi") == math.pi
     assert PendulumController._safe_eval(None, "3 * 4 + 5") == 17.0
 
+
 def test_safe_eval_handles_errors() -> None:
     """Test that invalid expressions return 0.0 gracefully."""
     assert PendulumController._safe_eval(None, "invalid_syntax(") == 0.0
     assert PendulumController._safe_eval(None, "unknown_var") == 0.0
+
 
 def test_safe_eval_security_blocks() -> None:
     """Test that potential security exploits are blocked."""
@@ -23,6 +26,7 @@ def test_safe_eval_security_blocks() -> None:
 
     # Builtin access
     assert PendulumController._safe_eval(None, "__import__('os')") == 0.0
+
 
 def test_safe_eval_enforces_ast_validation() -> None:
     """Test that AST validation is actually performed."""

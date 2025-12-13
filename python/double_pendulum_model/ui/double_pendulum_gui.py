@@ -32,6 +32,7 @@ if typing.TYPE_CHECKING:
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from mpl_toolkits.mplot3d import Axes3D
 
 from double_pendulum_model.physics.double_pendulum import (
     DEFAULT_PLANE_INCLINATION_DEG,
@@ -119,15 +120,17 @@ class DoublePendulumApp:
     def _setup_visualization(self, parent: tk.Widget) -> None:
         """Setup 3D visualization area."""
         self.fig = Figure(figsize=(9, 9), dpi=100, facecolor="white")
-        self.ax: typing.Any = self.fig.add_subplot(111, projection="3d")
+        self.ax: Axes3D = typing.cast(
+            Axes3D, self.fig.add_subplot(111, projection="3d")
+        )
         self.ax.set_xlabel("X (m)", fontsize=10)
         self.ax.set_ylabel("Y (m)", fontsize=10)
         self.ax.set_zlabel("Z (m)", fontsize=10)
         self.ax.set_title("Double Pendulum 3D View", fontsize=12, fontweight="bold")
 
-        self.ax.set_xlim([-2, 2])
-        self.ax.set_ylim([-2, 2])
-        self.ax.set_zlim([-1, 1])
+        self.ax.set_xlim((-2, 2))
+        self.ax.set_ylim((-2, 2))
+        self.ax.set_zlim((-1, 1))
 
         self.canvas = FigureCanvasTkAgg(self.fig, parent)
         self.canvas.get_tk_widget().pack(
@@ -258,7 +261,7 @@ class DoublePendulumApp:
         row += 1
         self._add_labeled_row(parent, row, UIEntryConfig("Lower length (m)", "1.0"))
         row += 1
-        self._add_labeled_row(parent, row, UIEntryConfig("Shaft mass (kg)", "0.35"))
+        self._add_labeled_row(parent, row, UIEntryConfig("Shaft mass (kg)", "0.15"))
         row += 1
         self._add_labeled_row(parent, row, UIEntryConfig("Clubhead mass (kg)", "0.20"))
         row += 1

@@ -28,7 +28,7 @@ DEFAULT_ARM_CENTER_OF_MASS_RATIO = 0.45  # Dimensionless fraction of length
 DEFAULT_ARM_INERTIA_SCALING = 1.0 / 12.0  # Uniform rod inertia coefficient about COM
 
 DEFAULT_SHAFT_LENGTH_M = 1.0  # Representative golf shaft length (meters)
-DEFAULT_SHAFT_MASS_KG = 0.35  # Typical steel shaft mass (kilograms)
+DEFAULT_SHAFT_MASS_KG = 0.15  # Typical steel shaft + grip mass (kilograms)
 DEFAULT_CLUBHEAD_MASS_KG = 0.20  # Typical driver clubhead mass (kilograms)
 DEFAULT_SHAFT_COM_RATIO = 0.43  # Empirical COM ratio for a driver (dimensionless)
 DEFAULT_PLANE_INCLINATION_DEG = 35.0  # Golf swing plane tilt from vertical (degrees)

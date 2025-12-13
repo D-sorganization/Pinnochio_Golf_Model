@@ -14,7 +14,6 @@ from double_pendulum_model.ui.validation import (
 )
 
 
-
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from PyQt6 import QtCore, QtWidgets

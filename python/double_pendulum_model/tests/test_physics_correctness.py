@@ -29,18 +29,13 @@ def test_double_pendulum_physics_values() -> None:
         length_m=1.0,
         mass_kg=1.0,
         center_of_mass_ratio=0.5,
-        inertia_about_com=1.0 / 12.0
+        inertia_about_com=1.0 / 12.0,
     )
     lower = LowerSegmentProperties(
-        length_m=1.0,
-        shaft_mass_kg=1.0,
-        clubhead_mass_kg=0.0,
-        shaft_com_ratio=0.5
+        length_m=1.0, shaft_mass_kg=1.0, clubhead_mass_kg=0.0, shaft_com_ratio=0.5
     )
     params = DoublePendulumParameters(
-        upper_segment=upper,
-        lower_segment=lower,
-        gravity_enabled=False
+        upper_segment=upper, lower_segment=lower, gravity_enabled=False
     )
     dynamics = DoublePendulumDynamics(parameters=params)
 
@@ -67,8 +62,7 @@ def test_triple_pendulum_stability_at_zero() -> None:
 
     # Small displacement
     state = TriplePendulumState(
-        theta1=0.1, theta2=0.0, theta3=0.0,
-        omega1=0.0, omega2=0.0, omega3=0.0
+        theta1=0.1, theta2=0.0, theta3=0.0, omega1=0.0, omega2=0.0, omega3=0.0
     )
 
     # Get gravity torque (bias vector with zero velocity)
