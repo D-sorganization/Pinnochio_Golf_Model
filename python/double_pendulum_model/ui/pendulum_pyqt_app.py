@@ -4,8 +4,14 @@ import ast
 import numpy as np  # noqa: TID253
 import logging
 import math
+import functools
 from dataclasses import dataclass
 import typing
+
+from double_pendulum_model.ui.validation import (
+    validate_polynomial_text,
+    validate_torque_text,
+)
 
 
 
@@ -128,6 +134,26 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
         self._build_layout()
         self._update_plot()
 
+    def _validate_polynomial_input(
+        self, text: str, widget: QtWidgets.QLineEdit
+    ) -> None:
+        error_msg = validate_polynomial_text(text)
+        self._set_input_error(widget, error=error_msg)
+
+    def _validate_torque_input(self, text: str, widget: QtWidgets.QLineEdit) -> None:
+        error_msg = validate_torque_text(text)
+        self._set_input_error(widget, error=error_msg)
+
+    def _set_input_error(
+        self, widget: QtWidgets.QLineEdit, *, error: str | None = None
+    ) -> None:
+        if error:
+            widget.setStyleSheet("background-color: #ffcccc;")
+            widget.setToolTip(error)
+        else:
+            widget.setStyleSheet("")
+            widget.setToolTip("")
+
     def _build_layout(self) -> None:
         layout = QtWidgets.QHBoxLayout(self)
         layout.addWidget(self.canvas, stretch=3)
@@ -158,25 +184,8 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
             ["Forward dynamics (torques)", "Inverse dynamics (velocity polynomials)"]
         )
 
-        self.torque_inputs: dict[str, QtWidgets.QLineEdit] = {}
-        for label, default in (
-            ("Shoulder torque (N·m)", "0"),
-            ("Wrist torque (N·m)", "0"),
-            ("Elbow torque (N·m)", "0"),
-        ):
-            entry = QtWidgets.QLineEdit(default)
-            self.torque_inputs[label] = entry
-            form_layout.addRow(label, entry)
-
-        self.velocity_inputs: dict[str, QtWidgets.QLineEdit] = {}
-        for label, default in (
-            ("Shoulder ω polynomial", "0"),
-            ("Wrist ω polynomial", "0"),
-            ("Elbow ω polynomial", "0"),
-        ):
-            entry = QtWidgets.QLineEdit(default)
-            self.velocity_inputs[label] = entry
-            form_layout.addRow(label, entry)
+        self._add_torque_inputs(form_layout)
+        self._add_velocity_inputs(form_layout)
 
         self.start_button = QtWidgets.QPushButton("Start")
         self.start_button.clicked.connect(self._start)
@@ -198,6 +207,34 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
         button_row.addWidget(self.stop_button)
         button_row.addWidget(self.reset_button)
         form_layout.addRow(button_row)
+
+    def _add_torque_inputs(self, layout: QtWidgets.QFormLayout) -> None:
+        self.torque_inputs: dict[str, QtWidgets.QLineEdit] = {}
+        for label, default in (
+            ("Shoulder torque (N·m)", "0"),
+            ("Wrist torque (N·m)", "0"),
+            ("Elbow torque (N·m)", "0"),
+        ):
+            entry = QtWidgets.QLineEdit(default)
+            entry.textChanged.connect(
+                functools.partial(self._validate_torque_input, widget=entry)
+            )
+            self.torque_inputs[label] = entry
+            layout.addRow(label, entry)
+
+    def _add_velocity_inputs(self, layout: QtWidgets.QFormLayout) -> None:
+        self.velocity_inputs: dict[str, QtWidgets.QLineEdit] = {}
+        for label, default in (
+            ("Shoulder ω polynomial", "0"),
+            ("Wrist ω polynomial", "0"),
+            ("Elbow ω polynomial", "0"),
+        ):
+            entry = QtWidgets.QLineEdit(default)
+            entry.textChanged.connect(
+                functools.partial(self._validate_polynomial_input, widget=entry)
+            )
+            self.velocity_inputs[label] = entry
+            layout.addRow(label, entry)
 
     def _current_config(self) -> SimulationConfig:
         return SimulationConfig(
