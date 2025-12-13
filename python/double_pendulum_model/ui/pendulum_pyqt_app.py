@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import numpy as np  # noqa: TID253
 import logging
 import math
@@ -28,6 +29,43 @@ from double_pendulum_model.physics.triple_pendulum import (
 logger = logging.getLogger(__name__)
 
 TIME_STEP = 0.01
+
+
+def _validate_math_ast(node: ast.AST) -> None:
+    allowed_nodes = {
+        ast.Expression,
+        ast.BinOp,
+        ast.UnaryOp,
+        ast.Name,
+        ast.Load,
+        ast.Add,
+        ast.Sub,
+        ast.Mult,
+        ast.Div,
+        ast.Pow,
+        ast.Mod,
+        ast.USub,
+        ast.UAdd,
+        ast.Call,
+        ast.Constant,
+        ast.BitXor,
+    }
+    allowed_names = {"pi", "sin", "cos"}
+
+    for child in ast.walk(node):
+        if type(child) not in allowed_nodes:
+            msg = f"Disallowed syntax: {type(child).__name__}"
+            raise ValueError(msg)
+        if isinstance(child, ast.Name) and child.id not in allowed_names:
+            msg = f"Unknown variable: {child.id}"
+            raise ValueError(msg)
+        if isinstance(child, ast.Call):
+            if not isinstance(child.func, ast.Name):
+                msg = "Only direct function calls allowed"
+                raise TypeError(msg)
+            if child.func.id not in allowed_names:
+                msg = f"Disallowed function: {child.func.id}"
+                raise ValueError(msg)
 
 
 @dataclass
@@ -237,9 +275,11 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
 
     def _safe_eval(self, expression: str) -> float:
         try:
+            tree = ast.parse(expression, mode="eval")
+            _validate_math_ast(tree)
             return float(
                 eval(  # noqa: S307
-                    expression,
+                    compile(tree, filename="<string>", mode="eval"),
                     {
                         "__builtins__": {},
                         "pi": math.pi,
