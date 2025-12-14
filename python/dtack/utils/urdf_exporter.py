@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import logging
+import math
 from pathlib import Path
-
 import typing
 
 import yaml  # type: ignore[import-untyped]
@@ -68,16 +68,27 @@ class URDFExporter:
         lines = ['<?xml version="1.0"?>', '<robot name="golfer">']
         lines.append("  <!-- Generated from canonical YAML specification -->")
 
-        # Add root link
         root = self.spec["root"]
         lines.append(f'  <link name="{root["name"]}">')
         lines.extend(self._generate_inertial(root))
         lines.extend(self._generate_visual(root))
         lines.append("  </link>")
 
-        # Add segments as links and joints
-        for segment in self.spec.get("segments", []):
-            lines.extend(self._generate_segment_urdf(segment, root["name"]))
+        segments: list[dict[str, typing.Any]] = self.spec.get("segments", [])
+        children: dict[str, list[dict[str, typing.Any]]] = {}
+        for segment in segments:
+            parent = segment.get("parent", root["name"])
+            children.setdefault(parent, []).append(segment)
+
+        for child_list in children.values():
+            child_list.sort(key=lambda item: item.get("name", ""))
+
+        def _emit_children(parent_name: str) -> None:
+            for segment in children.get(parent_name, []):
+                lines.extend(self._generate_segment_urdf(segment, parent_name))
+                _emit_children(segment["name"])
+
+        _emit_children(root["name"])
 
         lines.append("</robot>")
         return "\n".join(lines)
@@ -100,32 +111,57 @@ class URDFExporter:
         seg_name = segment["name"]
         joint = segment.get("joint", {})
         joint_type = joint.get("type", "revolute")
+        joint_origin = segment.get("origin") or joint.get("origin")
 
         # Handle joint types that require multiple URDF joints
         if joint_type == "gimbal":
             # Gimbal joint: 3 revolute joints (Z, Y, X axes)
             lines.extend(
-                self._generate_gimbal_joint(parent_name, seg_name, joint, segment)
+                self._generate_gimbal_joint(
+                    parent_name, seg_name, joint, segment, joint_origin
+                )
             )
         elif joint_type == "universal":
             # Universal joint: 2 revolute joints (perpendicular axes)
             lines.extend(
-                self._generate_universal_joint(parent_name, seg_name, joint, segment)
+                self._generate_universal_joint(
+                    parent_name, seg_name, joint, segment, joint_origin
+                )
+            )
+        elif joint_type == "fixed":
+            lines.extend(
+                self._generate_single_joint(
+                    parent_name,
+                    seg_name,
+                    joint,
+                    segment,
+                    joint_type="fixed",
+                    origin=joint_origin,
+                )
             )
         else:
             # Single revolute joint
             lines.extend(
-                self._generate_single_joint(parent_name, seg_name, joint, segment)
+                self._generate_single_joint(
+                    parent_name,
+                    seg_name,
+                    joint,
+                    segment,
+                    origin=joint_origin,
+                )
             )
 
         return lines
 
-    def _generate_single_joint(
+    def _generate_single_joint(  # noqa: PLR0913
         self,
         parent_name: str,
         seg_name: str,
         joint: dict[str, typing.Any],
         segment: dict[str, typing.Any],
+        *,
+        joint_type: str = "revolute",
+        origin: dict[str, typing.Any] | None = None,
     ) -> list[str]:
         """Generate URDF for a single revolute joint.
 
@@ -148,8 +184,15 @@ class URDFExporter:
 
         # Generate joint
         lines.extend(
-            self._generate_revolute_joint_block(
-                joint_name, parent_name, seg_name, axis, limits, damping
+            self._generate_joint_block(
+                joint_name,
+                joint_type,
+                parent_name,
+                seg_name,
+                axis,
+                limits,
+                damping,
+                origin,
             )
         )
 
@@ -161,12 +204,13 @@ class URDFExporter:
 
         return lines
 
-    def _generate_universal_joint(
+    def _generate_universal_joint(  # noqa: PLR0913
         self,
         parent_name: str,
         seg_name: str,
         joint: dict[str, typing.Any],
         segment: dict[str, typing.Any],
+        joint_origin: dict[str, typing.Any] | None,
     ) -> list[str]:
         """Generate URDF for a universal joint (2 revolute joints).
 
@@ -187,20 +231,22 @@ class URDFExporter:
         if len(dofs) < MIN_UNIVERSAL_DOFS:
             # Default: X and Y axes
             dofs = [
-                {"axis": [1, 0, 0], "limits": [-1.57, 1.57]},
-                {"axis": [0, 1, 0], "limits": [-1.57, 1.57]},
+                {"axis": [1, 0, 0], "limits": [-math.pi / 2, math.pi / 2]},
+                {"axis": [0, 1, 0], "limits": [-math.pi / 2, math.pi / 2]},
             ]
 
         # First DOF (X-axis typically)
         dof1 = dofs[0]
         lines.extend(
-            self._generate_revolute_joint_block(
+            self._generate_joint_block(
                 f"{parent_name}_to_{intermediate_link}",
+                "revolute",
                 parent_name,
                 intermediate_link,
                 dof1.get("axis", [1, 0, 0]),
                 dof1.get("limits", [-1.57, 1.57]),
                 joint.get("damping"),
+                joint_origin,
             )
         )
 
@@ -212,8 +258,9 @@ class URDFExporter:
         # Second DOF (Y-axis typically)
         dof2 = dofs[1]
         lines.extend(
-            self._generate_revolute_joint_block(
+            self._generate_joint_block(
                 f"{intermediate_link}_to_{seg_name}",
+                "revolute",
                 intermediate_link,
                 seg_name,
                 dof2.get("axis", [0, 1, 0]),
@@ -230,12 +277,13 @@ class URDFExporter:
 
         return lines
 
-    def _generate_gimbal_joint(
+    def _generate_gimbal_joint(  # noqa: PLR0913
         self,
         parent_name: str,
         seg_name: str,
         joint: dict[str, typing.Any],
         segment: dict[str, typing.Any],
+        joint_origin: dict[str, typing.Any] | None,
     ) -> list[str]:
         """Generate URDF for a gimbal joint (3 revolute joints: Z, Y, X).
 
@@ -256,21 +304,23 @@ class URDFExporter:
         dofs = joint.get("dofs", [])
         if len(dofs) < MIN_GIMBAL_DOFS:
             dofs = [
-                {"axis": [0, 0, 1], "limits": [-3.14, 3.14]},  # Z
-                {"axis": [0, 1, 0], "limits": [-1.57, 1.57]},  # Y
-                {"axis": [1, 0, 0], "limits": [-1.57, 1.57]},  # X
+                {"axis": [0, 0, 1], "limits": [-math.pi, math.pi]},  # Z
+                {"axis": [0, 1, 0], "limits": [-math.pi / 2, math.pi / 2]},  # Y
+                {"axis": [1, 0, 0], "limits": [-math.pi / 2, math.pi / 2]},  # X
             ]
 
         # First DOF (Z-axis)
         dof1 = dofs[0]
         lines.extend(
-            self._generate_revolute_joint_block(
+            self._generate_joint_block(
                 f"{parent_name}_to_{intermediate1}",
+                "revolute",
                 parent_name,
                 intermediate1,
                 dof1.get("axis", [0, 0, 1]),
                 dof1.get("limits", [-3.14, 3.14]),
                 joint.get("damping"),
+                joint_origin,
             )
         )
 
@@ -282,8 +332,9 @@ class URDFExporter:
         # Second DOF (Y-axis)
         dof2 = dofs[1]
         lines.extend(
-            self._generate_revolute_joint_block(
+            self._generate_joint_block(
                 f"{intermediate1}_to_{intermediate2}",
+                "revolute",
                 intermediate1,
                 intermediate2,
                 dof2.get("axis", [0, 1, 0]),
@@ -300,8 +351,9 @@ class URDFExporter:
         # Third DOF (X-axis)
         dof3 = dofs[2]
         lines.extend(
-            self._generate_revolute_joint_block(
+            self._generate_joint_block(
                 f"{intermediate2}_to_{seg_name}",
+                "revolute",
                 intermediate2,
                 seg_name,
                 dof3.get("axis", [1, 0, 0]),
@@ -352,35 +404,32 @@ class URDFExporter:
             "    </inertial>",
         ]
 
-    def _generate_revolute_joint_block(  # noqa: PLR0913
+    def _generate_joint_block(  # noqa: PLR0913
         self,
         name: str,
+        joint_type: str,
         parent: str,
         child: str,
-        axis: list[float],
+        axis: list[float] | None,
         limits: list[float] | None = None,
         damping: float | None = None,
+        origin: dict[str, typing.Any] | None = None,
     ) -> list[str]:
-        """Generate URDF for a revolute joint.
+        """Generate URDF for a joint block."""
 
-        Args:
-            name: Joint name
-            parent: Parent link name
-            child: Child link name
-            axis: Rotation axis [x, y, z]
-            limits: Joint limits [lower, upper]
-            damping: Damping coefficient
-
-        Returns:
-            List of URDF lines
-        """
+        origin_xyz, origin_rpy = self._parse_origin(origin)
         lines = [
-            f'  <joint name="{name}" type="revolute">',
+            f'  <joint name="{name}" type="{joint_type}">',
             f'    <parent link="{parent}"/>',
             f'    <child link="{child}"/>',
-            '    <origin xyz="0 0 0" rpy="0 0 0"/>',
-            f'    <axis xyz="{axis[0]} {axis[1]} {axis[2]}"/>',
+            (
+                f'    <origin xyz="{origin_xyz[0]} {origin_xyz[1]} {origin_xyz[2]}" '
+                f'rpy="{origin_rpy[0]} {origin_rpy[1]} {origin_rpy[2]}"/>'
+            ),
         ]
+
+        if axis and joint_type != "fixed":
+            lines.append(f'    <axis xyz="{axis[0]} {axis[1]} {axis[2]}"/>')
 
         if limits and len(limits) == JOINT_LIMIT_COUNT:
             lines.append(
@@ -404,6 +453,12 @@ class URDFExporter:
             List of URDF lines
         """
         lines = ["    <visual>"]
+        geom_origin = body.get("geometry", {}).get("origin")
+        origin_xyz, origin_rpy = self._parse_origin(geom_origin)
+        lines.append(
+            f'      <origin xyz="{origin_xyz[0]} {origin_xyz[1]} {origin_xyz[2]}" '
+            f'rpy="{origin_rpy[0]} {origin_rpy[1]} {origin_rpy[2]}"/>'
+        )
         geom = body.get("geometry", {})
         geom_type = geom.get("type", "box")
 
@@ -429,3 +484,18 @@ class URDFExporter:
         lines.append("      </material>")
         lines.append("    </visual>")
         return lines
+
+    def _parse_origin(
+        self, origin: dict[str, typing.Any] | None
+    ) -> tuple[list[float], list[float]]:
+        """Parse origin dictionaries into xyz and rpy lists."""
+
+        default_xyz = [0.0, 0.0, 0.0]
+        default_rpy = [0.0, 0.0, 0.0]
+
+        if origin is None:
+            return default_xyz, default_rpy
+
+        xyz = origin.get("xyz", default_xyz)
+        rpy = origin.get("rpy", default_rpy)
+        return xyz, rpy
