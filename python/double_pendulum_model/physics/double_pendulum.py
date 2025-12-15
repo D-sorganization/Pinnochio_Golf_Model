@@ -268,19 +268,33 @@ class DoublePendulumDynamics:
         ) = None,
     ) -> None:
         self.parameters = parameters or DoublePendulumParameters.default()
+        self._cache_parameters()
 
         def zero_input(_: float, __: DoublePendulumState) -> float:
             return 0.0
 
         self.forcing_functions = forcing_functions or (zero_input, zero_input)
 
-    def mass_matrix(self, theta2: float) -> Matrix2x2:
+    def _cache_parameters(self) -> None:
+        """Cache constant physical properties to avoid re-computation."""
         p = self.parameters
-        m2 = p.lower_segment.total_mass
-        l1 = p.upper_segment.length_m
-        lc2 = p.lower_segment.center_of_mass_distance
-        i1 = p.upper_segment.inertia_about_proximal_joint
-        i2 = p.lower_segment.inertia_about_proximal_joint
+        self._m1 = p.upper_segment.mass_kg
+        self._m2 = p.lower_segment.total_mass
+        self._l1 = p.upper_segment.length_m
+        self._lc1 = p.upper_segment.center_of_mass_distance
+        self._lc2 = p.lower_segment.center_of_mass_distance
+        self._i1 = p.upper_segment.inertia_about_proximal_joint
+        self._i2 = p.lower_segment.inertia_about_proximal_joint
+        self._d1 = p.damping_shoulder
+        self._d2 = p.damping_wrist
+
+    def mass_matrix(self, theta2: float) -> Matrix2x2:
+        # Use cached values
+        m2 = self._m2
+        l1 = self._l1
+        lc2 = self._lc2
+        i1 = self._i1
+        i2 = self._i2
         cos_theta2 = math.cos(theta2)
 
         m11 = i1 + i2 + m2 * l1**2 + 2 * m2 * l1 * lc2 * cos_theta2
@@ -291,10 +305,9 @@ class DoublePendulumDynamics:
     def coriolis_vector(
         self, theta2: float, omega1: float, omega2: float
     ) -> tuple[float, float]:
-        p = self.parameters
-        m2 = p.lower_segment.total_mass
-        l1 = p.upper_segment.length_m
-        lc2 = p.lower_segment.center_of_mass_distance
+        m2 = self._m2
+        l1 = self._l1
+        lc2 = self._lc2
         sin_theta2 = math.sin(theta2)
         h = -m2 * l1 * lc2 * sin_theta2
         c1 = h * (2 * omega1 * omega2 + omega2**2)
@@ -302,13 +315,13 @@ class DoublePendulumDynamics:
         return c1, c2
 
     def gravity_vector(self, theta1: float, theta2: float) -> tuple[float, float]:
-        p = self.parameters
-        m1 = p.upper_segment.mass_kg
-        m2 = p.lower_segment.total_mass
-        l1 = p.upper_segment.length_m
-        lc1 = p.upper_segment.center_of_mass_distance
-        lc2 = p.lower_segment.center_of_mass_distance
-        g = p.projected_gravity
+        m1 = self._m1
+        m2 = self._m2
+        l1 = self._l1
+        lc1 = self._lc1
+        lc2 = self._lc2
+        # Project gravity is dynamic (depends on flags)
+        g = self.parameters.projected_gravity
         g1 = (m1 * lc1 + m2 * l1) * g * math.sin(theta1) + m2 * lc2 * g * math.sin(
             theta1 + theta2
         )
@@ -316,9 +329,8 @@ class DoublePendulumDynamics:
         return g1, g2
 
     def damping_vector(self, omega1: float, omega2: float) -> tuple[float, float]:
-        p = self.parameters
-        d1 = p.damping_shoulder * omega1
-        d2 = p.damping_wrist * omega2
+        d1 = self._d1 * omega1
+        d2 = self._d2 * omega2
         return d1, d2
 
     def _invert_mass_matrix(self, theta2: float) -> tuple[Matrix2x2, Matrix2x2]:
