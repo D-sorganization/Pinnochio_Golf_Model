@@ -2,12 +2,14 @@
 
 import logging
 import sys
+import os
+
 
 import meshcat.geometry as g
 import meshcat.visualizer as viz
-import numpy as np  # noqa: TID253
+import numpy as np
 import pinocchio as pin
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets, QtGui
 
 # Set up logging
 logging.basicConfig(
@@ -28,300 +30,360 @@ class LogPanel(QtWidgets.QTextEdit):
         )
 
 
-class PinocchioGUI(QtWidgets.QWidget):
+class PinocchioGUI(QtWidgets.QMainWindow):
     """Main GUI widget for Pinocchio robot visualization and computation."""
 
     def __init__(self) -> None:
         """Initialize the Pinocchio GUI."""
         super().__init__()
-        self.setWindowTitle("Pinocchio UI: Robot Math With No Floor")
+        self.setWindowTitle("Pinocchio Golf Model (Dynamics & Kinematics)")
+        self.resize(600, 800)
 
         # Internal state
-        self.model = None
-        self.data = None
-        self.joint_sliders: list[QtWidgets.QSlider] = []
-        self.joint_rows: list[QtWidgets.QWidget] = []  # Track row widgets for cleanup
-        self.joint_names: list[str] = []
+        self.model: Optional[pin.Model] = None
+        self.data: Optional[pin.Data] = None
+        self.q: Optional[np.ndarray] = None
+        self.v: Optional[np.ndarray] = None
+
+        self.joint_sliders: List[QtWidgets.QSlider] = []
+        self.joint_spinboxes: List[QtWidgets.QDoubleSpinBox] = []
+        self.joint_names: List[str] = []
+
+        self.operating_mode = "dynamic"  # "dynamic", "kinematic"
+        self.is_running = False
+        self.dt = 0.01
 
         # Meshcat viewer
-        self.viewer = viz.Visualizer(zmq_url="tcp://127.0.0.1:6000")
-        self.viewer.open()
+        # Using open_window=True trying to open default browser
+        self.viewer = viz.Visualizer()  # Let it find port
+        # self.viewer.open() # Opens browser
 
-        # Layout
-        layout = QtWidgets.QVBoxLayout()
+        logger.info(f"Meshcat URL: {self.viewer.url}")
 
-        # URDF Loader Button
+        # Setup UI
+        self._setup_ui()
+
+        # Timer
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self._game_loop)
+        self.timer.start(int(self.dt * 1000))
+
+        # Try load default model
+        default_urdf = os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__), "../../models/generated/golfer.urdf"
+            )
+        )
+        if os.path.exists(default_urdf):
+            self.load_urdf(default_urdf)
+
+    def _setup_ui(self) -> None:
+        central = QtWidgets.QWidget()
+        self.setCentralWidget(central)
+        layout = QtWidgets.QVBoxLayout(central)
+
+        # 1. Top Bar: Load & Mode
+        top_layout = QtWidgets.QHBoxLayout()
+
         self.load_btn = QtWidgets.QPushButton("Load URDF")
-        self.load_btn.setToolTip("Load a URDF file from the filesystem")
-        self.load_btn.clicked.connect(self.load_urdf)
-        layout.addWidget(self.load_btn)
+        self.load_btn.clicked.connect(lambda: self.load_urdf())
+        top_layout.addWidget(self.load_btn)
 
-        # Scroll Area for Sliders
-        self.scroll = QtWidgets.QScrollArea()
-        self.scroll.setWidgetResizable(True)
+        top_layout.addStretch()
+
+        self.mode_combo = QtWidgets.QComboBox()
+        self.mode_combo.addItems(["Dynamic (Physics)", "Kinematic (Pose)"])
+        self.mode_combo.currentTextChanged.connect(self._on_mode_changed)
+        top_layout.addWidget(QtWidgets.QLabel("Mode:"))
+        top_layout.addWidget(self.mode_combo)
+
+        layout.addLayout(top_layout)
+
+        # 2. Controls Stack
+        self.controls_stack = QtWidgets.QStackedWidget()
+        layout.addWidget(self.controls_stack)
+
+        # -- Page 1: Dynamic
+        dyn_page = QtWidgets.QWidget()
+        dyn_layout = QtWidgets.QVBoxLayout(dyn_page)
+        self.btn_run = QtWidgets.QPushButton("Run Simulation")
+        self.btn_run.setCheckable(True)
+        self.btn_run.clicked.connect(self._toggle_run)
+        dyn_layout.addWidget(self.btn_run)
+
+        self.btn_reset = QtWidgets.QPushButton("Reset")
+        self.btn_reset.clicked.connect(self._reset_simulation)
+        dyn_layout.addWidget(self.btn_reset)
+
+        dyn_layout.addStretch()
+        self.controls_stack.addWidget(dyn_page)
+
+        # -- Page 2: Kinematic
+        kin_page = QtWidgets.QWidget()
+        kin_layout = QtWidgets.QVBoxLayout(kin_page)
+
+        scroll = QtWidgets.QScrollArea()
+        scroll.setWidgetResizable(True)
         self.slider_container = QtWidgets.QWidget()
-        self.slider_layout = QtWidgets.QVBoxLayout()
-        self.slider_container.setLayout(self.slider_layout)
-        self.scroll.setWidget(self.slider_container)
-        layout.addWidget(self.scroll, stretch=3)
+        self.slider_layout = QtWidgets.QVBoxLayout(self.slider_container)
+        scroll.setWidget(self.slider_container)
 
-        # Robot Computation Panel
-        compute_layout = QtWidgets.QGridLayout()
+        kin_layout.addWidget(scroll)
+        self.controls_stack.addWidget(kin_page)
 
-        self.fk_btn = QtWidgets.QPushButton("Forward Kinematics")
-        self.fk_btn.setToolTip("Compute end-effector position based on current joint angles")
-        self.fk_btn.clicked.connect(self.compute_fk)
-        compute_layout.addWidget(self.fk_btn, 0, 0)
+        # 3. Visuals & Logs
+        vis_group = QtWidgets.QGroupBox("Visualization")
+        vis_layout = QtWidgets.QHBoxLayout()
 
-        self.mass_btn = QtWidgets.QPushButton("Mass Matrix")
-        self.mass_btn.setToolTip("Compute the joint space inertia matrix M(q)")
-        self.mass_btn.clicked.connect(self.compute_mass_matrix)
-        compute_layout.addWidget(self.mass_btn, 0, 1)
+        self.chk_frames = QtWidgets.QCheckBox("Show Frames")
+        self.chk_frames.toggled.connect(self._toggle_frames)
+        vis_layout.addWidget(self.chk_frames)
 
-        self.bias_btn = QtWidgets.QPushButton("Bias Forces")
-        self.bias_btn.setToolTip("Compute Coriolis, centrifugal, and gravity forces")
-        self.bias_btn.clicked.connect(self.compute_bias_forces)
-        compute_layout.addWidget(self.bias_btn, 0, 2)
+        self.chk_coms = QtWidgets.QCheckBox("Show COMs")
+        self.chk_coms.toggled.connect(self._toggle_coms)
+        vis_layout.addWidget(self.chk_coms)
 
-        compute_frame_layout = QtWidgets.QHBoxLayout()
-        self.frame_box = QtWidgets.QComboBox()
-        self.frame_box.setToolTip("Select a frame to compute Jacobian")
-        self.jac_btn = QtWidgets.QPushButton("Compute Jacobian")
-        self.jac_btn.setToolTip("Compute the geometric Jacobian for the selected frame")
-        self.jac_btn.clicked.connect(self.compute_jacobian)
-        compute_frame_layout.addWidget(self.frame_box)
-        compute_frame_layout.addWidget(self.jac_btn)
-        compute_layout.addLayout(compute_frame_layout, 1, 0, 1, 3)
+        vis_group.setLayout(vis_layout)
+        layout.addWidget(vis_group)
 
-        layout.addLayout(compute_layout, stretch=1)
-
-        # Log Output
         self.log = LogPanel()
-        layout.addWidget(self.log, stretch=2)
-
-        # 3D Viewer joint pos overlay
-        self.viewer["overlay/joint_axes"].delete()
-
-        self.setLayout(layout)
-        self.resize(500, 700)
+        layout.addWidget(self.log)
 
     def log_write(self, text: str) -> None:
-        """Write text to log panel.
-
-        Args:
-            text: Text to write
-        """
         self.log.append(text)
-        logger.info("%s", text)
+        logger.info(text)
 
-    def load_urdf(self) -> None:
-        """Load URDF file and initialize model."""
-        fname, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Select URDF File", "", "URDF Files (*.urdf *.xml)"
-        )
+    def load_urdf(self, fname: Optional[str] = None) -> None:
+        if not fname:
+            fname, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self, "Select URDF File", "", "URDF Files (*.urdf *.xml)"
+            )
+
         if not fname:
             return
 
         try:
             self.model = pin.buildModelFromUrdf(fname)
             if self.model is None:
-                msg = "Failed to build model from URDF"
-                raise RuntimeError(msg)  # noqa: TRY301
+                raise RuntimeError("Failed to build model from URDF")
+
             self.data = self.model.createData()
-            if self.data is None:
-                msg = "Failed to create model data"
-                raise RuntimeError(msg)  # noqa: TRY301
-            # Type narrowing: at this point, self.model and self.data are guaranteed to be non-None
-            self.frame_box.clear()
+            self.q = pin.neutral(self.model)
+            self.v = np.zeros(self.model.nv)
 
-            # Setup frames for Jacobian query
-            for _i, frame in enumerate(self.model.frames):
-                self.frame_box.addItem(frame.name)
-
-            # Create sliders
-            self.create_sliders()
-
-            # Viewer reset and load model visual geometry
+            # Load visual into Meshcat
+            # Careful: meshcat URDF loader is separate from Pinocchio
             self.viewer["robot"].delete()
             self.viewer["robot"].set_object(g.URDFLoader().load(fname))
-            self.log_write(f"✅ URDF loaded: {fname}")
-            msg = (
-                f"Model has {self.model.nq} generalized coordinates "
-                f"and {len(self.model.frames)} frames."
-            )
-            self.log_write(msg)
 
-        except (OSError, ValueError, RuntimeError) as e:
-            self.log_write(f"❌ Failed to load URDF: {e}")
+            self.log_write(f"Loaded URDF: {fname}")
+            self.log_write(f"NQ: {self.model.nq}, NV: {self.model.nv}")
 
-    def create_sliders(self) -> None:
-        """Create sliders for joint control."""
+            # Rebuild Kinematic Controls
+            self._build_kinematic_controls()
+
+            # Init state
+            self._update_viewer()
+
+        except Exception as e:
+            self.log_write(f"Error loading URDF: {e}")
+
+    def _build_kinematic_controls(self) -> None:
         if self.model is None:
             return
 
-        # Clear old rows (sliders + labels)
-        for row in self.joint_rows:
-            row.deleteLater()
+        # Clear layout
+        while self.slider_layout.count():
+            item = self.slider_layout.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.deleteLater()
 
-        self.joint_rows = []
         self.joint_sliders = []
+        self.joint_spinboxes = []
         self.joint_names = []
 
-        # Note: We don't need to recreate self.slider_layout, just clear it
-        # But since we delete widgets, they remove themselves from layout.
+        # Iterate joints (skip universe)
+        for i in range(1, self.model.njoints):
+            joint_name = self.model.names[i]
+            # Simple assumption: 1 DOF per joint for sliders.
+            # If multi-dof (spherical), sliders might be tricky without mapping.
+            # We assume standard revolute/prismatic for UI.
+            idx_q = self.model.joints[i].idx_q
+            nq_joint = self.model.joints[i].nq
 
-        for jn in self.model.names[1:]:
-            self.joint_names.append(jn)
+            if nq_joint != 1:
+                # Skip multi-dof joints for simple slider UI for now
+                continue
 
-            # Container for the row
-            row_widget = QtWidgets.QWidget()
-            row_layout = QtWidgets.QHBoxLayout(row_widget)
-            row_layout.setContentsMargins(0, 0, 0, 0)
+            self.joint_names.append(joint_name)
 
-            # Label Name
-            label = QtWidgets.QLabel(jn)
-            label.setFixedWidth(120)  # Give enough space for long joint names
+            row = QtWidgets.QWidget()
+            r_layout = QtWidgets.QHBoxLayout(row)
+            r_layout.setContentsMargins(0, 0, 0, 0)
 
-            # Slider
+            r_layout.addWidget(QtWidgets.QLabel(f"{joint_name}:"))
+
             slider = QtWidgets.QSlider(QtCore.Qt.Orientation.Horizontal)
-            slider.setMinimum(-314)
-            slider.setMaximum(314)
+            slider.setRange(-314, 314)
             slider.setValue(0)
-            slider.setSingleStep(1)
 
-            # Value Display
-            val_label = QtWidgets.QLabel("0.00")
-            val_label.setFixedWidth(50)
-            val_label.setAlignment(
-                QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter
-            )
+            spin = QtWidgets.QDoubleSpinBox()
+            spin.setRange(-10.0, 10.0)
+            spin.setSingleStep(0.1)
 
-            # Connect slider
-            # Use default argument to capture specific label instance
+            # Connect
+            idx = int(idx_q)  # Capture index into q vector
+
             slider.valueChanged.connect(
-                lambda val, vl=val_label: self.on_slider_change(val, vl)
+                lambda val, s=spin, k=idx: self._on_slider(val, s, k)
+            )
+            spin.valueChanged.connect(
+                lambda val, s=slider, k=idx: self._on_spin(val, s, k)
             )
 
-            row_layout.addWidget(label)
-            row_layout.addWidget(slider)
-            row_layout.addWidget(val_label)
-
-            self.slider_layout.addWidget(row_widget)
+            r_layout.addWidget(slider)
+            r_layout.addWidget(spin)
+            self.slider_layout.addWidget(row)
 
             self.joint_sliders.append(slider)
-            self.joint_rows.append(row_widget)
+            self.joint_spinboxes.append(spin)
 
-    def on_slider_change(self, val: int, label: QtWidgets.QLabel) -> None:
-        """Handle slider value change.
+    def _on_slider(self, val: int, spin: QtWidgets.QDoubleSpinBox, idx: int) -> None:
+        angle = val / 100.0
+        spin.blockSignals(True)
+        spin.setValue(angle)
+        spin.blockSignals(False)
+        self._update_q(idx, angle)
 
-        Args:
-            val: The integer value from slider (-314 to 314)
-            label: The label widget to update
-        """
-        # Update text
-        rad = val / 100.0
-        label.setText(f"{rad:.2f}")
+    def _on_spin(self, val: float, slider: QtWidgets.QSlider, idx: int) -> None:
+        slider.blockSignals(True)
+        slider.setValue(int(val * 100))
+        slider.blockSignals(False)
+        self._update_q(idx, val)
 
-        # Update viewer
-        self.update_viewer_joints()
+    def _update_q(self, idx: int, val: float) -> None:
+        if self.operating_mode != "kinematic":
+            return
+        if self.q is not None:
+            self.q[idx] = val
+            self._update_viewer()
 
-    def update_viewer_joints(self) -> None:
-        """Update viewer with current joint positions."""
+    def _update_viewer(self) -> None:
+        if self.model is None or self.data is None or self.q is None:
+            return
+
+        # Update Visuals
+        q_dict = {}
+        for i in range(1, self.model.njoints):
+            j = self.model.joints[i]
+            if j.nq == 1:
+                # Map to joint name, not q index
+                q_dict[self.model.names[i]] = self.q[j.idx_q]
+
+        self.viewer["robot"].set_joint_positions(q_dict)
+
+        # Kinematics Logic for frames
+        pin.forwardKinematics(self.model, self.data, self.q)
+        pin.updateFramePlacements(self.model, self.data)
+
+        if self.chk_coms.isChecked():
+            pin.centerOfMass(self.model, self.data, self.q)
+
+        # Overlays
+        if self.chk_frames.isChecked():
+            self._draw_frames()
+        if self.chk_coms.isChecked():
+            self._draw_coms()
+
+    def _draw_frames(self) -> None:
         if self.model is None or self.data is None:
             return
-        q = self.get_joint_state()
-        self.viewer["robot"].set_joint_positions(q)
-        self.viewer["overlay/joint_axes"].delete()
 
-        # Draw local axes for each joint
-        for jid, name in enumerate(self.joint_names):
-            o_mf = self.data.oMf[jid + 1]
-            self.viewer[f"overlay/joint_axes/{name}"].set_object(
-                g.Triad(scale=0.1), o_mf
+        # Visualize only Body frames (typically associated with joints)
+        # To avoid clutter, maybe just frames with mass?
+        # For now, visualizing operational frames (oMf)
+        # Creating objects every frame is slow in Meshcat over ZMQ.
+        # Better: create once, SetTransform.
+        # For simplicity in this script:
+        for i, frame in enumerate(self.model.frames):
+            if frame.name == "universe":
+                continue
+            # Setup triad if not exists (check by checking if we made it before?)
+            # Just setting object with transform is what meshcat expects.
+            # Use SetTransform if object exists.
+            # Python meshcat client handles caching if same object.
+
+            T = self.data.oMf[i]
+            # Convert T (pin.SE3) to replacement
+            # T.translation, T.rotation
+
+            # Meshcat uses 4x4 flattened matrix in column major?
+            # Or direct translation/rotation.
+            # set_transform(matrix)
+            M = T.homogeneous
+            self.viewer[f"overlays/frames/{frame.name}"].set_transform(M)
+
+    def _draw_coms(self) -> None:
+        if self.model is None or self.data is None:
+            return
+
+        # Center of Mass of the subtree or individual bodies?
+        # data.com is vector of COMs... wait, pin.centerOfMass computes global COM (hg) or per-link?
+        # pin.centerOfMass(model, data, q) computes data.com[0] (Total COM).
+        # To get individual body COMs, we use data.com[i] which are subtree COMs? No.
+        # data.com[i] is COM of subtree starting at joint i?
+        # Actually `data.oMi` is placement of joint i.
+        # Body COM is relative to joint.
+        # Let's use `data.com` properly. `centerOfMass(model,data,q)` computes `data.com[0]`.
+        # `jacobianCenterOfMass`...
+        # Function `forwardKinematics` computes `data.oMi`.
+        # Body COM in world: oMi * local_com.
+
+        for i in range(1, self.model.njoints):
+            # Joint i. Associated body has inertia.
+            inertia = self.model.inertias[i]
+            oMi = self.data.oMi[i]
+            com_world = oMi * inertia.lever
+
+            # Draw Sphere
+            self.viewer[f"overlays/coms/{self.model.names[i]}"].set_transform(
+                pin.SE3(np.eye(3), com_world).homogeneous
             )
 
-    def get_joint_state(self) -> list[float]:
-        """Get current joint state from sliders.
+    # --- Vis Helpers ---
+    def _toggle_frames(self, checked: bool) -> None:
+        if not checked:
+            self.viewer["overlays/frames"].delete()
+        else:
+            # Create objects once
+            if self.model:
+                for frame in self.model.frames:
+                    if frame.name == "universe":
+                        continue
+                    # Triad
+                    self.viewer[f"overlays/frames/{frame.name}"].set_object(
+                        g.Triad(scale=0.1)
+                    )
+            self._update_viewer()
 
-        Returns:
-            List of joint positions in radians
-        """
-        if self.model is None:
-            return []
-        return [
-            s.value() / 100.0 for s in self.joint_sliders
-        ]  # Using radian approx mapping
-
-    def compute_fk(self) -> None:
-        """Compute forward kinematics."""
-        if self.model is None or self.data is None:
-            self.log_write("Please load a URDF model first.")
-            return
-        q = self.get_joint_state()
-        pin.forwardKinematics(self.model, self.data, np.array(q))
-        pin.updateFramePlacements(self.model, self.data)
-
-        pos = self.data.oMf[-1].translation
-        self.log_write(f"FK for end frame '{self.model.frames[-1].name}':")
-        self.log_write(f"Position = {np.round(pos, 4)}")
-        self.viewer["robot"].set_joint_positions(q)
-
-    def compute_mass_matrix(self) -> None:
-        """Compute mass matrix."""
-        if self.model is None or self.data is None:
-            self.log_write("Please load a URDF model first.")
-            return
-        q = self.get_joint_state()
-        m_matrix = pin.crba(self.model, self.data, np.array(q))
-        self.log_write("Mass matrix M(q):")
-        self.log_write(str(np.round(m_matrix, 4)))
-
-    def compute_bias_forces(self) -> None:
-        """Compute bias forces (gravity + coriolis + centrifugal)."""
-        if self.model is None or self.data is None:
-            return
-        q = self.get_joint_state()
-        pin.computeGeneralizedGravity(self.model, self.data, np.array(q))
-        pin.rnea(
-            self.model,
-            self.data,
-            np.array(q),
-            np.zeros(self.model.nv),
-            np.zeros(self.model.nv),
-        )
-        b = self.data.nle  # nonlinear effects vector
-
-        self.log_write("Bias terms (gravity + coriolis + centrifugal):")
-        self.log_write(str(np.round(b, 4)))
-
-    def compute_jacobian(self) -> None:
-        """Compute Jacobian for selected frame."""
-        if self.model is None or self.data is None:
-            self.log_write("Please load a URDF model first.")
-            return
-        frame_name = self.frame_box.currentText()
-        frame_id = self.model.getFrameId(frame_name)
-        q = self.get_joint_state()
-
-        pin.forwardKinematics(self.model, self.data, np.array(q))
-        pin.updateFramePlacements(self.model, self.data)
-        j_matrix = pin.computeFrameJacobian(
-            self.model,
-            self.data,
-            np.array(q),
-            frame_id,
-            pin.ReferenceFrame.LOCAL_WORLD_ALIGNED,
-        )
-
-        self.log_write(f"Jacobian for frame '{frame_name}' (LOCAL_WORLD_ALIGNED):")
-        self.log_write(str(np.round(j_matrix, 4)))
+    def _toggle_coms(self, checked: bool) -> None:
+        if not checked:
+            self.viewer["overlays/coms"].delete()
+        else:
+            if self.model:
+                for i in range(1, self.model.njoints):
+                    self.viewer[f"overlays/coms/{self.model.names[i]}"].set_object(
+                        g.Sphere(0.02), g.MeshLambertMaterial(color=0xFFFF00)
+                    )
+            self._update_viewer()
 
 
 def main() -> None:
     """Main entry point for the GUI application."""
     app = QtWidgets.QApplication(sys.argv)
-    gui = PinocchioGUI()
-    gui.show()
+    window = PinocchioGUI()
+    window.show()
     sys.exit(app.exec())
 
 

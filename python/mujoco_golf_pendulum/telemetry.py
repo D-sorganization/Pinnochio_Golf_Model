@@ -250,7 +250,6 @@ class TelemetryRecorder:
 def export_telemetry_json(filename: str, data_dict: dict[str, Any]) -> bool:
     """Export telemetry data to JSON."""
 
-
     try:
         # Convert numpy arrays to lists for JSON serialization
         serializable_dict = {}
@@ -271,7 +270,6 @@ def export_telemetry_json(filename: str, data_dict: dict[str, Any]) -> bool:
 
 def export_telemetry_csv(filename: str, data_dict: dict[str, Any]) -> bool:
     """Export telemetry data to CSV."""
-
 
     try:
         # Filter for array-like data

@@ -621,7 +621,6 @@ class InteractiveManipulator:
             Stored pose
         """
 
-
         pose = StoredPose(
             name=name,
             qpos=self.data.qpos.copy(),

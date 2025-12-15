@@ -540,7 +540,6 @@ class StatisticalAnalyzer:
             report: Statistics report (if None, generates new one)
         """
 
-
         if report is None:
             report = self.generate_comprehensive_report()
 

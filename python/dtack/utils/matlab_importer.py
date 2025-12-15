@@ -27,8 +27,6 @@ except ImportError:
     EZC3D_AVAILABLE = False
 
 
-
-
 logger = logging.getLogger(__name__)
 
 

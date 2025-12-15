@@ -22,7 +22,6 @@ import mujoco
 import numpy as np
 
 
-
 @dataclass
 class KinematicForceData:
     """Container for kinematic-dependent forces at a single time point."""
