@@ -34,7 +34,7 @@ pinocchio>=2.6.17
 
 # Pink (pin-pink) - Stacked on top of Pinocchio for advanced kinematics
 # Requires pin, so install after pin
-pin-pink>=0.1.0,<1.0.0
+pin-pink>=0.1.0,<4.0.0
 
 # Drake - Robot manipulation and control
 # Large dependency tree - constrain to stable version
