@@ -169,6 +169,14 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
     def _build_form(self, parent: QtWidgets.QWidget) -> None:
         form_layout = QtWidgets.QFormLayout(parent)
 
+        self.status_group = QtWidgets.QGroupBox("Simulation Status")
+        status_layout = QtWidgets.QVBoxLayout()
+        self.status_label = QtWidgets.QLabel("Ready")
+        self.status_label.setStyleSheet("font-family: monospace;")
+        status_layout.addWidget(self.status_label)
+        self.status_group.setLayout(status_layout)
+        form_layout.addRow(self.status_group)
+
         self.model_selector = QtWidgets.QComboBox()
         self.model_selector.addItems(["Double", "Triple"])
 
@@ -398,9 +406,27 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
         config = self._current_config()
         if config.model == "Double":
             points = self._points_double(self.state_double)
+            self._update_status(self.state_double)
         else:
             points = self._points_triple(self.state_triple)
+            self._update_status(self.state_triple)
         self.canvas.draw_chain(points)
+
+    def _update_status(
+        self, state: DoublePendulumState | TriplePendulumState
+    ) -> None:
+        status_text = f"Time: {self.time:.3f} s\n"
+
+        def fmt(val: float) -> str:
+            return f"{val:>7.3f}"
+
+        status_text += f"θ1: {fmt(state.theta1)} | ω1: {fmt(state.omega1)}\n"
+        status_text += f"θ2: {fmt(state.theta2)} | ω2: {fmt(state.omega2)}\n"
+
+        if isinstance(state, TriplePendulumState):
+            status_text += f"θ3: {fmt(state.theta3)} | ω3: {fmt(state.omega3)}\n"
+
+        self.status_label.setText(status_text)
 
     def _points_double(
         self, state: DoublePendulumState
