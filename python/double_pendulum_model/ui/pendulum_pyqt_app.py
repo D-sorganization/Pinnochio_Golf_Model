@@ -1,23 +1,13 @@
 from __future__ import annotations
 
 import ast
-import numpy as np  # noqa: TID253
+import functools
 import logging
 import math
-import functools
-from dataclasses import dataclass
 import typing
+from dataclasses import dataclass
 
-from double_pendulum_model.ui.validation import (
-    validate_polynomial_text,
-    validate_torque_text,
-)
-
-
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
-from PyQt6 import QtCore, QtWidgets
-
+import numpy as np  # noqa: TID253
 from double_pendulum_model.physics.double_pendulum import (
     DoublePendulumDynamics,
     DoublePendulumParameters,
@@ -30,6 +20,13 @@ from double_pendulum_model.physics.triple_pendulum import (
     TriplePendulumParameters,
     TriplePendulumState,
 )
+from double_pendulum_model.ui.validation import (
+    validate_polynomial_text,
+    validate_torque_text,
+)
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
+from PyQt6 import QtCore, QtWidgets
 
 logger = logging.getLogger(__name__)
 
@@ -412,9 +409,7 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
             self._update_status(self.state_triple)
         self.canvas.draw_chain(points)
 
-    def _update_status(
-        self, state: DoublePendulumState | TriplePendulumState
-    ) -> None:
+    def _update_status(self, state: DoublePendulumState | TriplePendulumState) -> None:
         status_text = f"Time: {self.time:.3f} s\n"
 
         def fmt(val: float) -> str:
@@ -431,7 +426,6 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
     def _points_double(
         self, state: DoublePendulumState
     ) -> np.ndarray[typing.Any, typing.Any]:
-
         plane_rotation = self._plane_rotation(self.double_params.plane_inclination_deg)
         shoulder = np.array([0.0, 0.0, 0.0])
         upper = self._point_from_angles(
@@ -447,7 +441,6 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
     def _points_triple(
         self, state: TriplePendulumState
     ) -> np.ndarray[typing.Any, typing.Any]:
-
         shoulder = np.array([0.0, 0.0, 0.0])
         params = self.triple_params.segments
         plane_rotation = self._plane_rotation(35.0)
@@ -465,7 +458,6 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
     def _point_from_angles(
         self, angle: float, rotation: np.ndarray[typing.Any, typing.Any], length: float
     ) -> np.ndarray[typing.Any, typing.Any]:
-
         local = np.array(
             [
                 length * math.sin(angle),
@@ -478,7 +470,6 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
     def _plane_rotation(
         self, inclination_deg: float
     ) -> np.ndarray[typing.Any, typing.Any]:
-
         inclination_rad = math.radians(inclination_deg)
         cos_inc = math.cos(inclination_rad)
         sin_inc = math.sin(inclination_rad)

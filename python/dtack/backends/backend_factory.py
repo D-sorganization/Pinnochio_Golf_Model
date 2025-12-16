@@ -3,15 +3,15 @@
 
 from __future__ import annotations
 
-from enum import Enum
 import typing
+from enum import Enum
 
 if typing.TYPE_CHECKING:
     from pathlib import Path
 
 from dtack.backends.mujoco_backend import MuJoCoBackend
-from dtack.backends.pinocchio_backend import PinocchioBackend
 from dtack.backends.pink_backend import PINKBackend
+from dtack.backends.pinocchio_backend import PinocchioBackend
 
 
 class BackendType(str, Enum):

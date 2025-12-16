@@ -12,15 +12,14 @@ import csv
 import json
 import logging
 import typing
-import mujoco
-
-from .interactive_manipulation import ConstraintType
 from collections.abc import Callable
 from pathlib import Path
 
+import mujoco
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from .control_system import ControlSystem, ControlType
+from .interactive_manipulation import ConstraintType
 from .linkage_mechanisms import LINKAGE_CATALOG
 from .models import (
     ADVANCED_BIOMECHANICAL_GOLF_SWING_XML,
@@ -169,7 +168,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
                 "name": "myobody",
                 "xml_path": MYOBODY_PATH,
                 "actuators": [
-                    f"Muscle {i+1}" for i in range(290)
+                    f"Muscle {i + 1}" for i in range(290)
                 ],  # 290 muscles - simplified names for UI
             },
             {
@@ -247,9 +246,7 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
         # Advanced control widgets
         self.actuator_control_types = []  # ComboBoxes for control type
         self.actuator_constant_inputs = []  # SpinBoxes for constant values
-        self.actuator_polynomial_coeffs = (
-            []
-        )  # Lists of SpinBoxes for polynomial coefficients
+        self.actuator_polynomial_coeffs = []  # Lists of SpinBoxes for polynomial coefficients
         self.actuator_damping_inputs = []  # SpinBoxes for damping
         self.actuator_control_widgets = []  # Store all control widgets per actuator
         self.simplified_actuator_mode = False
@@ -1653,7 +1650,9 @@ class AdvancedGolfAnalysisWindow(QtWidgets.QMainWindow):
             coeff_spinbox.setDecimals(4)
             coeff_spinbox.setValue(0.0)
             coeff_spinbox.valueChanged.connect(
-                lambda val, idx=i, act_idx=actuator_index: self.on_polynomial_coeff_changed(
+                lambda val,
+                idx=i,
+                act_idx=actuator_index: self.on_polynomial_coeff_changed(
                     act_idx,
                     idx,
                     val,

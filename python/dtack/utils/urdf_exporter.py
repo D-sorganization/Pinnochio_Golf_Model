@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import logging
 import math
-from pathlib import Path
 import typing
+from pathlib import Path
 
 import yaml  # type: ignore[import-untyped]
 
@@ -475,7 +475,9 @@ class URDFExporter:
         elif geom_type in ("cylinder", "capsule"):
             size = geom.get("size", [0.1, 0.1])
             lines.append("      <geometry>")
-            lines.append(f'        <cylinder radius="{size[0]}" length="{size[1]*2}"/>')
+            lines.append(
+                f'        <cylinder radius="{size[0]}" length="{size[1] * 2}"/>'
+            )
             lines.append("      </geometry>")
 
         rgba = geom.get("visual_rgba", [0.5, 0.5, 0.5, 1.0])

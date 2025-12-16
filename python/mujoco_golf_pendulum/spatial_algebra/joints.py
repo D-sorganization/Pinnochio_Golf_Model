@@ -5,8 +5,9 @@ Implements joint transformation and motion subspace calculations
 for various joint types.
 """
 
-import numpy as np
 from typing import Any
+
+import numpy as np
 
 from .transforms import xlt, xrot
 
@@ -91,8 +92,7 @@ def jcalc(jtype: str, q: float) -> tuple[np.ndarray[Any, Any], np.ndarray[Any, A
 
     else:
         msg = (
-            f"Unsupported joint type: {jtype}. "
-            f"Supported types: Rx, Ry, Rz, Px, Py, Pz"
+            f"Unsupported joint type: {jtype}. Supported types: Rx, Ry, Rz, Px, Py, Pz"
         )
         raise ValueError(
             msg,

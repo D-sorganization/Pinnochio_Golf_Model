@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import logging
-from typing import Final
 from pathlib import Path
+from typing import Final
 
 import mujoco
 import numpy as np

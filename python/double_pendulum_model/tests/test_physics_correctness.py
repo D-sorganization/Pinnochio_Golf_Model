@@ -9,8 +9,8 @@ if str(PROJECT_ROOT) not in sys.path:
 from double_pendulum_model.physics.double_pendulum import (  # noqa: E402
     DoublePendulumDynamics,
     DoublePendulumParameters,
-    SegmentProperties,
     LowerSegmentProperties,
+    SegmentProperties,
 )
 from double_pendulum_model.physics.triple_pendulum import (  # noqa: E402
     TriplePendulumDynamics,

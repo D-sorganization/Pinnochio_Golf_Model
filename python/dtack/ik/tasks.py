@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import typing
 
-
 import numpy as np  # noqa: TID253
-import pinocchio as pin
 import pink.tasks
+import pinocchio as pin
 
 # Type alias for transformation matrices
 Transform = pin.SE3 | np.ndarray

@@ -10,10 +10,11 @@ Run examples with:
     python -m mujoco_golf_pendulum.examples_joint_analysis
 """
 
+import os
+
 import matplotlib.pyplot as plt
 import mujoco as mj
 import numpy as np
-import os
 from mujoco_golf_pendulum.joint_analysis import (
     GimbalJointAnalyzer,
     UniversalJointAnalyzer,
