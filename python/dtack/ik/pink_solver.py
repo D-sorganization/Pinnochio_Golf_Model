@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import logging
-
+import typing
 from dataclasses import dataclass
 
-import pinocchio as pin
 import pink
+import pinocchio as pin
 from pink import Task
-import typing
 
 if typing.TYPE_CHECKING:
     import numpy as np

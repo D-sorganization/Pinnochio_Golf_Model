@@ -12,15 +12,16 @@ These examples show how to analyze real player swings captured with
 motion capture systems.
 """
 
-import mujoco
-import numpy as np
 import traceback
 from typing import Any
 
+import mujoco
+import numpy as np
+
 from .inverse_dynamics import (
     InverseDynamicsAnalyzer,
-    InverseDynamicsSolver,
     InverseDynamicsResult,
+    InverseDynamicsSolver,
     export_inverse_dynamics_to_csv,
 )
 from .kinematic_forces import KinematicForceAnalyzer, export_kinematic_forces_to_csv
@@ -468,7 +469,6 @@ def run_all_examples() -> None:
         try:
             example_func()
         except Exception:
-
             traceback.print_exc()
 
 

@@ -10,10 +10,11 @@ This module provides tools for analyzing:
 Author: MuJoCo Golf Swing Project
 """
 
+from typing import TYPE_CHECKING, Any
+
 import matplotlib.pyplot as plt
 import mujoco as mj
 import numpy as np
-from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
@@ -372,7 +373,7 @@ def plot_constraint_forces(
         else:
             # Multiple force components
             for i in range(forces.shape[1]):
-                ax.plot(time, forces[:, i], linewidth=2, label=f"Component {i+1}")
+                ax.plot(time, forces[:, i], linewidth=2, label=f"Component {i + 1}")
 
         ax.set_xlabel("Time (s)", fontsize=12)
         ax.set_ylabel("Force/Torque (N or N⋅m)", fontsize=12)

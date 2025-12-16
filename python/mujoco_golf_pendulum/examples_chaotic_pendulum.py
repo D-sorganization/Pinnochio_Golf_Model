@@ -14,8 +14,8 @@ using the chaotic pendulum model.
 import matplotlib.pyplot as plt
 import mujoco
 import numpy as np
-from .constants import GRAVITY_STANDARD_M_S2 as GRAVITY_M_S2
 
+from .constants import GRAVITY_STANDARD_M_S2 as GRAVITY_M_S2
 from .models import CHAOTIC_PENDULUM_XML
 
 

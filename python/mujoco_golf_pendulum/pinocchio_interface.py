@@ -21,12 +21,12 @@ Usage:
 from __future__ import annotations
 
 import logging
+import tempfile
+from pathlib import Path
 from typing import Any
 
 import mujoco
 import numpy as np
-import tempfile
-from pathlib import Path
 
 from .urdf_io import export_model_to_urdf
 
@@ -81,8 +81,7 @@ class PinocchioWrapper:
         """
         if not PINOCCHIO_AVAILABLE:
             msg = (
-                "Pinocchio is required but not installed. "
-                "Install with: pip install pin"
+                "Pinocchio is required but not installed. Install with: pip install pin"
             )
             raise ImportError(msg)
 

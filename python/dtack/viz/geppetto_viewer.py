@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import typing
-import contextlib
 
 if typing.TYPE_CHECKING:
     import pinocchio as pin
@@ -62,7 +62,6 @@ class GeppettoViewer:
             visual_model: Optional visual geometry model
         """
         if visual_model is not None:
-
             viz = GepettoVisualizer(model, visual_model, visual_model)
             viz.initViewer(viewer=self.client)
             viz.loadViewerModel()

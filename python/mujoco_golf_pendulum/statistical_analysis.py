@@ -7,11 +7,11 @@ Provides comprehensive statistical analysis including:
 - Phase-specific analysis
 """
 
+import csv
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import csv
 import numpy as np
 from scipy.signal import find_peaks, savgol_filter
 

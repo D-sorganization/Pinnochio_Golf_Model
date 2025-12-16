@@ -4,9 +4,10 @@ This module provides comprehensive examples of using the advanced
 robotics capabilities for golf swing analysis.
 """
 
+import traceback
+
 import mujoco
 import numpy as np
-import traceback
 
 from .advanced_control import (
     AdvancedController,
@@ -314,7 +315,6 @@ def run_all_examples() -> None:
         try:
             example_func()
         except Exception:  # - Example runner should continue on any error
-
             traceback.print_exc()
 
 

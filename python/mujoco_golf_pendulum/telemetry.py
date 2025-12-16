@@ -8,17 +8,15 @@ parameter optimization and comparison of swing configurations.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
-
-from pathlib import Path
-import logging
-import json
 import csv
+import json
+import logging
+from dataclasses import dataclass
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 import mujoco
 import numpy as np
-
 
 logger = logging.getLogger(__name__)
 

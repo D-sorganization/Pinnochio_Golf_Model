@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import numpy as np  # noqa: TID253
-
 from double_pendulum_model.physics.triple_pendulum import (
     TriplePendulumDynamics,
     TriplePendulumState,

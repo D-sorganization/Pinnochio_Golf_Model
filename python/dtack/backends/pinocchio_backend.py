@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import logging
+import typing
 from pathlib import Path
 
 import numpy as np  # noqa: TID253
 import numpy.typing as npt  # noqa: TID253
-import typing
 
 try:
     import pinocchio as pin

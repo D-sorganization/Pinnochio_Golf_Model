@@ -14,25 +14,19 @@ Features:
 
 from __future__ import annotations
 
-import logging
 import contextlib
 import csv
+import logging
 import math
 import tkinter as tk
-
-
-from dataclasses import dataclass
 import typing
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
 if typing.TYPE_CHECKING:
     import numpy as np
     import numpy.typing as npt
-
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
-from mpl_toolkits.mplot3d import Axes3D
 
 from double_pendulum_model.physics.double_pendulum import (
     DEFAULT_ARM_CENTER_OF_MASS_RATIO,
@@ -50,6 +44,9 @@ from double_pendulum_model.physics.double_pendulum import (
     DoublePendulumState,
     compile_forcing_functions,
 )
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+from mpl_toolkits.mplot3d import Axes3D
 
 logger = logging.getLogger(__name__)
 
@@ -494,7 +491,7 @@ class DoublePendulumApp:
         def on_enter(event: tk.Event) -> None:
             tooltip = tk.Toplevel()
             tooltip.wm_overrideredirect(True)  # noqa: FBT003
-            tooltip.wm_geometry(f"+{event.x_root+10}+{event.y_root+10}")
+            tooltip.wm_geometry(f"+{event.x_root + 10}+{event.y_root + 10}")
             label = tk.Label(
                 tooltip,
                 text=text,

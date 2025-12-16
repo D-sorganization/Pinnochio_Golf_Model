@@ -3,14 +3,14 @@
 from __future__ import annotations
 
 import logging
+import typing
 from pathlib import Path
+
 from dtack.utils.gears_parser import GearsParser
 
-import typing
-
 if typing.TYPE_CHECKING:
-    import numpy.typing as npt
     import numpy as np
+    import numpy.typing as npt
 
 try:
     import scipy.io

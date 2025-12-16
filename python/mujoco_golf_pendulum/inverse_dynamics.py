@@ -17,7 +17,6 @@ from dataclasses import dataclass
 
 import mujoco
 import numpy as np
-
 from scipy.linalg import lstsq
 
 from .kinematic_forces import KinematicForceAnalyzer

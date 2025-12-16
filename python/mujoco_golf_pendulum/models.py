@@ -1408,19 +1408,19 @@ def generate_flexible_club_xml(club_type: str = "driver", num_segments: int = 3)
 
     # Generate shaft segments
     for i in range(num_segments):
-        seg_name = f"shaft_seg{i+1}"
+        seg_name = f"shaft_seg{i + 1}"
         is_first = i == 0
 
         stiffness_idx = min(i, 2)  # Use up to 3 stiffness values
         stiffness = float(flex_stiffness[stiffness_idx])
 
         if is_first:
-            xml_parts.append(f"\n  <!-- Shaft Segment {i+1} (upper) -->")
+            xml_parts.append(f"\n  <!-- Shaft Segment {i + 1} (upper) -->")
             xml_parts.append(
                 f'  <body name="{seg_name}" pos="0 0 -{grip_length:.4f}">',
             )
         else:
-            xml_parts.append(f"\n    <!-- Shaft Segment {i+1} -->")
+            xml_parts.append(f"\n    <!-- Shaft Segment {i + 1} -->")
             xml_parts.append(
                 f'    <body name="{seg_name}" pos="0 0 -{seg_length:.4f}">',
             )
@@ -1431,9 +1431,9 @@ def generate_flexible_club_xml(club_type: str = "driver", num_segments: int = 3)
         xml_parts.extend(
             [
                 f'{indent}  <joint name="{seg_name}_flex" type="hinge" axis="1 0 0"',
-                f'{indent}         range="-0.{15+i*5} 0.{15+i*5}" damping="{damping:.2f}" stiffness="{stiffness}" armature="0.001"/>',
-                f'{indent}  <inertial pos="0 0 -{seg_length/2:.4f}" mass="{seg_mass:.4f}"',
-                f'{indent}            diaginertia="{seg_mass*seg_length**2/12:.8f} {seg_mass*seg_length**2/12:.8f} {seg_mass*shaft_radius**2/2:.8f}"/>',
+                f'{indent}         range="-0.{15 + i * 5} 0.{15 + i * 5}" damping="{damping:.2f}" stiffness="{stiffness}" armature="0.001"/>',
+                f'{indent}  <inertial pos="0 0 -{seg_length / 2:.4f}" mass="{seg_mass:.4f}"',
+                f'{indent}            diaginertia="{seg_mass * seg_length**2 / 12:.8f} {seg_mass * seg_length**2 / 12:.8f} {seg_mass * shaft_radius**2 / 2:.8f}"/>',
                 f'{indent}  <geom name="{seg_name}_geom" type="capsule" fromto="0 0 0 0 0 -{seg_length:.4f}"',
                 f'{indent}        size="{shaft_radius:.4f}" material="club_shaft_mat"/>',
             ],
@@ -1441,6 +1441,12 @@ def generate_flexible_club_xml(club_type: str = "driver", num_segments: int = 3)
 
     # Add clubhead
     indent = "  " + "  " * num_segments
+    hs0, hs1, hs2 = (float(x) for x in head_size)
+    # Box inertia for half-extents x, y, z: Ixx = m/3 * (y^2 + z^2)
+    ixx = (head_mass / 3) * (hs1**2 + hs2**2)
+    iyy = (head_mass / 3) * (hs0**2 + hs2**2)
+    izz = (head_mass / 3) * (hs0**2 + hs1**2)
+
     xml_parts.extend(
         [
             f"\n{indent}<!-- Club Head -->",
@@ -1450,12 +1456,12 @@ def generate_flexible_club_xml(club_type: str = "driver", num_segments: int = 3)
             f'{indent}  <geom name="hosel_geom" type="cylinder" fromto="0 0 0 0 0.030 -0.005"',
             f'{indent}        size="0.008" material="club_head_mat"/>',
             f'{indent}  <body name="clubhead" pos="0 0.040 -0.008">',
-            f'{indent}    <inertial pos="0 {float(head_size[1])/2:.4f} 0.002" mass="{head_mass:.4f}"',
-            f'{indent}              diaginertia="{head_mass*float(head_size[0])**2/12:.6f} {head_mass*float(head_size[1])**2/12:.6f} {head_mass*float(head_size[2])**2/12:.6f}"/>',
-            f'{indent}    <geom name="head_body" type="box" size="{float(head_size[0]):.4f} {float(head_size[1]):.4f} {float(head_size[2]):.4f}"',
-            f'{indent}          pos="0 {float(head_size[1]):.4f} 0" material="club_head_mat"/>',
-            f'{indent}    <geom name="face" type="box" size="{float(head_size[0])+0.001:.4f} 0.003 {float(head_size[2])+0.001:.4f}"',
-            f'{indent}          pos="0 {float(head_size[1])*2+0.003:.4f} 0" rgba="0.85 0.15 0.15 0.9"/>',
+            f'{indent}    <inertial pos="0 {hs1 / 2:.4f} 0.002" mass="{head_mass:.4f}"',
+            f'{indent}              diaginertia="{ixx:.8f} {iyy:.8f} {izz:.8f}"/>',
+            f'{indent}    <geom name="head_body" type="box" size="{hs0:.4f} {hs1:.4f} {hs2:.4f}"',
+            f'{indent}          pos="0 {hs1:.4f} 0" material="club_head_mat"/>',
+            f'{indent}    <geom name="face" type="box" size="{hs0 + 0.001:.4f} 0.003 {hs2 + 0.001:.4f}"',
+            f'{indent}          pos="0 {hs1 * 2 + 0.003:.4f} 0" rgba="0.85 0.15 0.15 0.9"/>',
             f"{indent}  </body>",
             f"{indent}</body>",
         ],
@@ -1506,6 +1512,11 @@ def generate_rigid_club_xml(club_type: str = "driver") -> str:
         msg = "head_size must be a list"
         raise TypeError(msg)
 
+    hs0, hs1, hs2 = (float(x) for x in head_size)
+    ixx = (head_mass / 3) * (hs1**2 + hs2**2)
+    iyy = (head_mass / 3) * (hs0**2 + hs2**2)
+    izz = (head_mass / 3) * (hs0**2 + hs1**2)
+
     return f"""<!-- {club_type.upper()} - Rigid shaft -->
 <body name="club" pos="0 0 -0.10" euler="0 -{club_loft:.3f} 0">
   <!-- Grip -->
@@ -1520,11 +1531,11 @@ def generate_rigid_club_xml(club_type: str = "driver") -> str:
 
   <!-- Club Head -->
   <body name="clubhead" pos="0 0 -{total_length:.4f}">
-    <inertial pos="0 {float(head_size[1])/2:.4f} 0.002" mass="{head_mass:.4f}"
-              diaginertia="{head_mass*float(head_size[0])**2/12:.6f} {head_mass*float(head_size[1])**2/12:.6f} {head_mass*float(head_size[2])**2/12:.6f}"/>  # noqa: E501
-    <geom name="head_body" type="box" size="{float(head_size[0]):.4f} {float(head_size[1]):.4f} {float(head_size[2]):.4f}"  # noqa: E501
-          pos="0 {float(head_size[1]):.4f} 0" material="club_head_mat"/>
-    <geom name="face" type="box" size="{float(head_size[0])+0.001:.4f} 0.003 {float(head_size[2])+0.001:.4f}"  # noqa: E501
-          pos="0 {float(head_size[1])*2+0.003:.4f} 0" rgba="0.85 0.15 0.15 0.9"/>
+    <inertial pos="0 {hs1 / 2:.4f} 0.002" mass="{head_mass:.4f}"
+              diaginertia="{ixx:.8f} {iyy:.8f} {izz:.8f}"/>
+    <geom name="head_body" type="box" size="{hs0:.4f} {hs1:.4f} {hs2:.4f}"
+          pos="0 {hs1:.4f} 0" material="club_head_mat"/>
+    <geom name="face" type="box" size="{hs0 + 0.001:.4f} 0.003 {hs2 + 0.001:.4f}"
+          pos="0 {hs1 * 2 + 0.003:.4f} 0" rgba="0.85 0.15 0.15 0.9"/>
   </body>
 </body>"""

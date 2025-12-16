@@ -1,8 +1,9 @@
-import pytest
 import math
+
+import pytest
 from double_pendulum_model.physics.double_pendulum import (
-    ExpressionFunction,
     DoublePendulumState,
+    ExpressionFunction,
 )
 
 
