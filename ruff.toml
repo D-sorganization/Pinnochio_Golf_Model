@@ -1,195 +1,46 @@
-# Unified Ruff configuration for Pinocchio Golf Model
-# Merges strict settings with pragmatic ignores for scientific code
+# ruff.toml
+# Configuration for the Ruff linter
+# Matches standards defined in ci-standard.yml
 
-target-version = "py313"
-line-length = 100
+# Target Python 3.11 (matches your CI environment)
+target-version = "py311"
+line-length = 88  # Matches Black standard (88 chars)
+
+# Exclude generated code and standard noise
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "venv",
+    ".env",
+    "node_modules",
+    "*.ipynb",  # Jupyter notebooks often fail standard linting
+]
 
 [lint]
-# Enable ALL rules then selectively disable
-select = ["ALL"]
-ignore = [
-    "D",      # Docstring checks (we check separately/manually for now)
-    "COM812", # Missing trailing comma (conflicts with black)
-    "ISC001", # Single line implicit string concat
-    "I001",   # Import sorting (handled by isort separately in pre-commit)
-]
+# Enable specific rule sets:
+# E = pycodestyle errors
+# F = Pyflakes (Logic errors)
+# W = pycodestyle warnings
+# I = isort (Import sorting)
+# B = flake8-bugbear (Catches likely bugs/traps)
+# UP = pyupgrade (Modernizes old Python syntax)
+select = ["E", "F", "W", "I", "B", "UP"]
 
-# Documentation files
+# Ignore:
+# D = pydocstyle (We let the 'Doc-Scribe' agent handle docstrings, so we don't lint them strictly here)
+ignore = ["D"]
 
-
-# Stricter than defaults
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude legacy code
-exclude = [
-    "archive/",
-    "legacy/",
-    "experimental/",
-    "*/migrations/",
-    "*_pb2.py",
-]
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [lint.per-file-ignores]
-# Tests can be more relaxed
-"test_*.py" = [
-    "S101",    # Use of assert
-    "PLR2004", # Magic numbers allowed in tests
-    "G003",    # Logging statement uses `+`
-    "G004",    # Logging statement uses f-string
-    "TRY401",  # Redundant exception object in logging.exception
-    "ANN001",  # Type annotations less critical in tests
-    "N806",    # Mathematical notation common in tests
-    "SLF001",  # Private member access
-    "PT011",   # pytest.raises(ValueError)
-]
-"docs/**/*.py" = ["INP001", "A001"]
-"**/tests/*.py" = [
-    "S101",
-    "PLR2004",
-    "G003",
-    "G004",
-    "TRY401",
-    "ANN001",
-    "N806",
-    "SLF001",
-    "PT011",
-]
+# Ignore "unused imports" in __init__.py files (common pattern)
+"__init__.py" = ["F401"]
+# Allow assertions in tests
+"tests/*" = ["S101"]
 
-# GUI files have high complexity due to widget setup
-"**/gui/*.py" = [
-    "PLR0915", # Too many statements
-    "PLR0911", # Too many return statements
-    "PLR0912", # Too many branches
-    "PLR0913", # Too many arguments
-    "PLR2004", # Magic numbers
-    "C901",    # Too complex
-    "N802",    # Function name should be lowercase (Qt override methods)
-    "FBT001",  # Boolean positional args
-    "ARG002",  # Unused arguments (Qt signals)
-    "BLE001",  # Blind exceptions
-    "PTH123",  # open() vs Path.open()
-    "E501",    # Line length
-    "SIM102",  # Nested if statements
-    "RUF012",  # Mutable class attributes
-    "ANN204",  # Missing return type for __init__
-    "TRY301",  # Abstract raise to inner function
-]
-
-# Specific modules from MuJoCo migration
-"python/mujoco_golf_pendulum/advanced_gui.py" = []
-"python/mujoco_golf_pendulum/sim_widget.py" = []
-"python/mujoco_golf_pendulum/*.py" = [
-    "PLR0915", "PLR0912", "C901", "PLR0913", # complexity
-    "TID253", "ICN003", # imports
-    "BLE001", "TRY300", "TRY003", "TRY301", # exceptions
-    "PTH123", # path usage
-    "PLR2004", # magic numbers
-    "PLW2901", # loop variable overwrite
-    "A001", "A002", # shadowing
-    "ARG002", "ARG005", # unused args
-    "S110", # try-except-pass
-    "E722", # bare except
-    "FBT001", "FBT002", "FBT003", # boolean trap
-    "DTZ005", "S324", "S608", # security/datetime
-    "PT018", # pytest assertions
-    "B023", # loop variable binding (legacy code)
-    "ANN001", # missing type annotation
-    "E501", # line too long
-    "ARG004", # unused static argument
-    "SLF001", # private member access
-    "N806", # variable name (math)
-    "PERF401", # list comprehension
-    "ERA001", # commented code
-    "PLR0911", # too many returns
-    "RUF012", # mutable class attributes
-    "ANN003", # missing kwargs annotation
-    "ARG001", # unused argument
-    "PTH103", # os.makedirs
-    "RUF003", # ambiguous unicode
-    "NPY002", # legacy numpy random
-    "N817",   # CamelCase imported as acronym (e.g. ElementTree as ET)
-]
-
-"python/mujoco_golf_pendulum/advanced_export.py" = []
-"python/mujoco_golf_pendulum/interactive_manipulation.py" = []
-
-
-
-# Scientific modules using mathematical notation
-"**/spatial_algebra/*.py" = ["RUF002", "RUF003", "N802", "N803", "N806", "S101", "ICN003", "PLR0915"]
-"**/rigid_body_dynamics/*.py" = ["RUF002", "RUF003", "N802", "N803", "N806", "S101", "PLR0915", "PLR2004"]
-"**/screw_theory/*.py" = ["RUF002", "RUF003", "N802", "N803", "N806", "S101", "ERA001", "PLR2004"]
-
-# Tests - relaxed rules
-"python/tests/**/*.py" = [
-    "S101",    # assert
-    "PLR2004", # magic numbers
-    "G003", "G004", # logging
-    "TRY401", "BLE001", "TRY300", # exception handling
-    "ANN001", "ANN201", "ANN204", # annotations
-    "N806", "SLF001", "PT011",
-    "TID253", # numpy import
-    "PLR0915", # complexity
-    "PLC0415", # import not at top level
-]
-
-# Example scripts
-"python/examples/*.py" = ["PLR0915", "ANN001", "T201", "EXE001", "ICN003", "TID253", "ANN401"]
-"python/pinocchio_golf/coppelia_bridge.py" = ["ANN001", "T201", "EXE001", "ICN003", "TID253", "ANN401"]
-
-# Build & Verification Scripts
-"scripts/*.py" = [
-    "T201",    # print statements allowed
-    "INP001",  # implicit namespace allowed
-    "ANN201",  # missing return type annotation
-    "F841",    # unused variable
-    "PTH123",  # open() vs Path.open()
-    "G004",    # f-string in logging
-    "TRY300",  # try/else/return structure
-    "BLE001",  # blind exception catching
-    "TRY400",  # logging.error vs exception
-    "TRY401",  # redundant exception in logging
-    "PLR2004", # magic numbers
-    "TID253",  # allow top-level numpy import
-]
-
-# Tools
-"tools/*.py" = [
-    "T201",    # print statements allowed
-    "INP001",  # implicit namespace allowed
-    "ANN001",  # missing argument type
-    "ANN201",  # missing return type
-    "PTH123",  # open() vs Path.open()
-    "PLR2004", # magic numbers
-    "Q000",    # quote style (if conflict)
-    "TID253",  # allow top-level numpy import
-]
-
-# Specific exemptions
-"python/pinocchio_golf/torque_fitting.py" = ["T201", "FBT003"]
-"python/pinocchio_golf/gui.py" = ["PLR0915"]
-
-
-"python/legacy/**/*.py" = ["ALL"]
-"python/examples/double_pendulum_standalone.py" = ["ALL"]
-
-[lint.mccabe]
-max-complexity = 10
-
-[lint.pylint]
-max-args = 5
-max-branches = 10
-max-returns = 3
-max-statements = 30
-
-[lint.flake8-quotes]
-inline-quotes = "double"
-multiline-quotes = "double"
-docstring-quotes = "double"
-
-[lint.flake8-import-conventions]
-banned-from = ["typing"]  # Enforce collections.abc over typing
-
-[lint.flake8-tidy-imports]
-banned-module-level-imports = ["numpy", "pandas"]  # Must import specific items if possible, but relax if needed
+[lint.isort]
+# Tells Ruff how to group your own code vs. libraries
+known-first-party = ["src", "games", "tools"]
