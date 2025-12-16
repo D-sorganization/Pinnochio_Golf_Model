@@ -89,6 +89,10 @@ class ExpressionFunction:
             "fabs",
         )
     }
+    _GLOBALS: typing.ClassVar[dict[str, typing.Any]] = {
+        "__builtins__": {},
+        **_ALLOWED_NAMES,
+    }
 
     def __init__(self, expression: str) -> None:
         self.expression = expression.strip()
@@ -103,9 +107,9 @@ class ExpressionFunction:
             "theta2": state.theta2,
             "omega1": state.omega1,
             "omega2": state.omega2,
-            **self._ALLOWED_NAMES,
         }
-        result = eval(self._code, {"__builtins__": {}}, context)  # noqa: S307
+        # Use _GLOBALS to avoid copying math functions into context on every call
+        result = eval(self._code, self._GLOBALS, context)  # noqa: S307
         return float(result)
 
     def _validate_ast(self, node: ast.AST) -> None:
