@@ -192,10 +192,13 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
         self._add_velocity_inputs(form_layout)
 
         self.start_button = QtWidgets.QPushButton("Start")
+        self.start_button.setToolTip("Start the simulation")
         self.start_button.clicked.connect(self._start)
         self.stop_button = QtWidgets.QPushButton("Pause")
+        self.stop_button.setToolTip("Pause the simulation")
         self.stop_button.clicked.connect(self._pause)
         self.reset_button = QtWidgets.QPushButton("Reset")
+        self.reset_button.setToolTip("Reset simulation to initial state")
         self.reset_button.clicked.connect(self._reset)
 
         for widget_label, widget in (
@@ -220,6 +223,7 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
             ("Elbow torque (N·m)", "0"),
         ):
             entry = QtWidgets.QLineEdit(default)
+            entry.setToolTip("Constant value (e.g. 10.5) or math expression")
             entry.textChanged.connect(
                 functools.partial(self._validate_torque_input, widget=entry)
             )
@@ -234,6 +238,9 @@ class PendulumController(QtWidgets.QWidget):  # type: ignore[misc]
             ("Elbow ω polynomial", "0"),
         ):
             entry = QtWidgets.QLineEdit(default)
+            entry.setToolTip(
+                "Polynomial coefficients separated by '+' (e.g. 1.0+0.5+0.1)"
+            )
             entry.textChanged.connect(
                 functools.partial(self._validate_polynomial_input, widget=entry)
             )
